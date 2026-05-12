@@ -3,13 +3,6 @@ package com.plateiq.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Entity class representing an Insurance Policy for a vehicle.
- * Contains all policy-related information including coverage details and expiry dates.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
 public class InsurancePolicy {
     
     private int policyId;
@@ -25,28 +18,9 @@ public class InsurancePolicy {
     private String vehicleMake;
     private String vehicleModel;
     
-    /**
-     * Default constructor.
-     */
     public InsurancePolicy() {
     }
-    
-    /**
-     * Parameterized constructor for creating an InsurancePolicy with all fields.
-     * 
-     * @param policyId the unique identifier for the policy
-     * @param vehicleId the ID of the vehicle being insured
-     * @param insuranceCompany the name of the insurance company
-     * @param policyNumber the policy number
-     * @param startDate the policy start date
-     * @param endDate the policy expiry date
-     * @param coverageDetails detailed coverage information
-     * @param premiumAmount the premium amount
-     * @param status the policy status (ACTIVE, EXPIRED, etc.)
-     * @param vehicleRegistration the vehicle's registration number
-     * @param vehicleMake the vehicle's make
-     * @param vehicleModel the vehicle's model
-     */
+
     public InsurancePolicy(int policyId, int vehicleId, String insuranceCompany, 
                         String policyNumber, LocalDate startDate, LocalDate endDate, 
                         String coverageDetails, BigDecimal premiumAmount, String status,
@@ -72,130 +46,72 @@ public class InsurancePolicy {
             BigDecimal.ZERO, "ACTIVE", vehiclePlate, null, null);
     }
     
-    // Getters and Setters
-    
-    /**
-     * Gets the policy's unique identifier.
-     * 
-     * @return the policy ID
-     */
+
     public int getPolicyId() {
         return policyId;
     }
     
-    /**
-     * Sets the policy's unique identifier.
-     * 
-     * @param policyId the new policy ID
-     */
+
     public void setPolicyId(int policyId) {
         this.policyId = policyId;
     }
     
-    /**
-     * Gets the vehicle ID associated with this policy.
-     * 
-     * @return the vehicle ID
-     */
+
     public int getVehicleId() {
         return vehicleId;
     }
     
-    /**
-     * Sets the vehicle ID associated with this policy.
-     * 
-     * @param vehicleId the new vehicle ID
-     */
+
     public void setVehicleId(int vehicleId) {
         this.vehicleId = vehicleId;
     }
     
-    /**
-     * Gets the insurance company name.
-     * 
-     * @return the insurance company
-     */
+
     public String getInsuranceCompany() {
         return insuranceCompany;
     }
     
-    /**
-     * Sets the insurance company name.
-     * 
-     * @param insuranceCompany the new insurance company
-     */
+
     public void setInsuranceCompany(String insuranceCompany) {
         this.insuranceCompany = insuranceCompany;
     }
     
-    /**
-     * Gets the policy number.
-     * 
-     * @return the policy number
-     */
+
     public String getPolicyNumber() {
         return policyNumber;
     }
     
-    /**
-     * Sets the policy number.
-     * 
-     * @param policyNumber the new policy number
-     */
+
     public void setPolicyNumber(String policyNumber) {
         this.policyNumber = policyNumber;
     }
     
-    /**
-     * Gets the policy start date.
-     * 
-     * @return the start date
-     */
+
     public LocalDate getStartDate() {
         return startDate;
     }
     
-    /**
-     * Sets the policy start date.
-     * 
-     * @param startDate the new start date
-     */
+
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
     
-    /**
-     * Gets the policy expiry date.
-     * 
-     * @return the end date
-     */
+
     public LocalDate getEndDate() {
         return endDate;
     }
     
-    /**
-     * Sets the policy expiry date.
-     * 
-     * @param endDate the new end date
-     */
+
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
     
-    /**
-     * Gets the coverage details.
-     * 
-     * @return the coverage details
-     */
+
     public String getCoverageDetails() {
         return coverageDetails;
     }
     
-    /**
-     * Sets the coverage details.
-     * 
-     * @param coverageDetails the new coverage details
-     */
+
     public void setCoverageDetails(String coverageDetails) {
         this.coverageDetails = coverageDetails;
     }

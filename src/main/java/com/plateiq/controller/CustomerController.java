@@ -1,14 +1,19 @@
 package com.plateiq.controller;
 
 import com.plateiq.model.CustomerQuery;
+import com.plateiq.model.CustomerUser;
 import com.plateiq.model.InsurancePolicy;
 import com.plateiq.model.ServiceRecord;
 import com.plateiq.model.Vehicle;
 import com.plateiq.service.CustomerService;
 import com.plateiq.service.InsuranceService;
 import com.plateiq.service.ServiceRecordService;
+import com.plateiq.utils.AccessControl;
 import com.plateiq.utils.AlertUtils;
 import com.plateiq.utils.ReportExporter;
+import com.plateiq.utils.SceneNavigator;
+import com.plateiq.utils.SessionManager;
+import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,14 +22,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Controller for the customer module.
- * Allows customers to view vehicle information, service history, and submit queries.
- */
 public class CustomerController implements Initializable {
 
     @FXML
@@ -58,7 +60,7 @@ public class CustomerController implements Initializable {
     private TableColumn<ServiceRecord, String> colDescription;
 
     @FXML
-    private TableColumn<ServiceRecord, Double> colCost;
+    private TableColumn<ServiceRecord, BigDecimal> colCost;
 
     @FXML
     private TableView<InsurancePolicy> insuranceTable;
@@ -81,12 +83,19 @@ public class CustomerController implements Initializable {
     @FXML
     private TextArea responseTextArea;
 
+    @FXML
+    private Button exportReportButton;
+
+    @FXML
+    private Button submitQueryButton;
+
     private CustomerService customerService;
     private ServiceRecordService serviceRecordService;
     private InsuranceService insuranceService;
     private Vehicle currentVehicle;
     private ObservableList<ServiceRecord> serviceList;
     private ObservableList<InsurancePolicy> insuranceList;
+    private boolean canManageCustomerActions;
 
     public CustomerController() {
         this.customerService = new CustomerService();
@@ -98,6 +107,9 @@ public class CustomerController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (!AccessControl.enforceOrRedirect(serviceHistoryTable, AccessControl.Module.CUSTOMER)) {
+            return;
+        }
         colServiceId.setCellValueFactory(new PropertyValueFactory<>("serviceId"));
         colServiceDate.setCellValueFactory(new PropertyValueFactory<>("serviceDate"));
         colServiceType.setCellValueFactory(new PropertyValueFactory<>("serviceType"));
@@ -109,8 +121,30 @@ public class CustomerController implements Initializable {
         colStartDate.setCellValueFactory(new PropertyValueFactory<>("startDate"));
         colEndDate.setCellValueFactory(new PropertyValueFactory<>("endDate"));
 
+        canManageCustomerActions = AccessControl.canManageCustomerActions(SessionManager.getCurrentUser());
+        applyFeaturePermissions();
         serviceHistoryTable.setItems(serviceList);
         insuranceTable.setItems(insuranceList);
+    }
+
+    private void applyFeaturePermissions() {
+        setDisabled(queryTextArea, !canManageCustomerActions);
+        setDisabled(submitQueryButton, !canManageCustomerActions);
+        setDisabled(exportReportButton, !canManageCustomerActions);
+    }
+
+    private void setDisabled(Control control, boolean disabled) {
+        if (control != null) {
+            control.setDisable(disabled);
+        }
+    }
+
+    private boolean requireManagePermission() {
+        if (canManageCustomerActions) {
+            return true;
+        }
+        AlertUtils.showWarning("Access Denied", "You have read-only access in Customer Portal.");
+        return false;
     }
 
     @FXML
@@ -179,6 +213,7 @@ public class CustomerController implements Initializable {
 
     @FXML
     private void submitQuery() {
+        if (!requireManagePermission()) return;
         String queryText = queryTextArea.getText();
         if (queryText == null || queryText.trim().isEmpty()) {
             AlertUtils.showWarning("Validation Error", "Please enter your query.");
@@ -191,9 +226,14 @@ public class CustomerController implements Initializable {
         }
 
         try {
+            int customerId = 1;
+            if (SessionManager.getCurrentUser() instanceof CustomerUser customerUser) {
+                customerId = customerUser.getCustomerId();
+            }
+
             CustomerQuery query = new CustomerQuery(
                 0,
-                1,
+                customerId,
                 currentVehicle.getVehicleId(),
                 LocalDate.now(),
                 queryText,
@@ -210,6 +250,7 @@ public class CustomerController implements Initializable {
 
     @FXML
     private void exportVehicleReport() {
+        if (!requireManagePermission()) return;
         if (currentVehicle == null) {
             AlertUtils.showWarning("No Vehicle", "Please search for a vehicle first.");
             return;
@@ -287,4 +328,11 @@ public class CustomerController implements Initializable {
         queryTextArea.clear();
         responseTextArea.clear();
     }
+
+    @FXML
+    private void goToDashboard(ActionEvent event) {
+        SceneNavigator.switchScene(event, "/fxml/dashboard.fxml");
+    }
 }
+
+

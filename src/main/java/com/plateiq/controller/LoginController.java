@@ -10,10 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-/**
- * Controller for the login screen.
- * Authenticates the user and routes to the appropriate dashboard using polymorphism.
- */
 public class LoginController {
 
     @FXML

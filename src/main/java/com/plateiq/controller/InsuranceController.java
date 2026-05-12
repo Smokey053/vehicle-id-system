@@ -3,7 +3,11 @@ package com.plateiq.controller;
 import com.plateiq.model.Claim;
 import com.plateiq.model.InsurancePolicy;
 import com.plateiq.service.InsuranceService;
+import com.plateiq.utils.AccessControl;
 import com.plateiq.utils.AlertUtils;
+import com.plateiq.utils.SceneNavigator;
+import com.plateiq.utils.SessionManager;
+import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,14 +16,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Controller for the insurance management module.
- * Manages insurance policies, claims, and expiry tracking.
- */
 public class InsuranceController implements Initializable {
 
     @FXML
@@ -56,7 +57,7 @@ public class InsuranceController implements Initializable {
     private TableColumn<Claim, LocalDate> colClaimDate;
 
     @FXML
-    private TableColumn<Claim, Double> colClaimAmount;
+    private TableColumn<Claim, BigDecimal> colClaimAmount;
 
     @FXML
     private TableColumn<Claim, String> colStatus;
@@ -82,9 +83,19 @@ public class InsuranceController implements Initializable {
     @FXML
     private TextArea claimDescriptionArea;
 
+    @FXML
+    private Button addPolicyButton;
+
+    @FXML
+    private Button updateClaimStatusButton;
+
+    @FXML
+    private Button submitClaimButton;
+
     private InsuranceService insuranceService;
     private ObservableList<InsurancePolicy> policyList;
     private ObservableList<Claim> claimList;
+    private boolean canManageInsurance;
 
     public InsuranceController() {
         this.insuranceService = new InsuranceService();
@@ -94,6 +105,9 @@ public class InsuranceController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (!AccessControl.enforceOrRedirect(policyTable, AccessControl.Module.INSURANCE)) {
+            return;
+        }
         colPolicyId.setCellValueFactory(new PropertyValueFactory<>("policyId"));
         colVehiclePlate.setCellValueFactory(new PropertyValueFactory<>("vehiclePlate"));
         colCompany.setCellValueFactory(new PropertyValueFactory<>("insuranceCompany"));
@@ -107,10 +121,37 @@ public class InsuranceController implements Initializable {
         colClaimAmount.setCellValueFactory(new PropertyValueFactory<>("claimAmount"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
+        canManageInsurance = AccessControl.canManageInsurance(SessionManager.getCurrentUser());
+        applyFeaturePermissions();
         policyTable.setItems(policyList);
         claimTable.setItems(claimList);
         loadPolicies();
         setupExpiryProgress();
+    }
+
+    private void applyFeaturePermissions() {
+        setDisabled(policyNumberField, !canManageInsurance);
+        setDisabled(insuranceCompanyField, !canManageInsurance);
+        setDisabled(vehiclePlateField, !canManageInsurance);
+        setDisabled(claimAmountField, !canManageInsurance);
+        setDisabled(claimDescriptionArea, !canManageInsurance);
+        setDisabled(addPolicyButton, !canManageInsurance);
+        setDisabled(updateClaimStatusButton, !canManageInsurance);
+        setDisabled(submitClaimButton, !canManageInsurance);
+    }
+
+    private void setDisabled(Control control, boolean disabled) {
+        if (control != null) {
+            control.setDisable(disabled);
+        }
+    }
+
+    private boolean requireManagePermission() {
+        if (canManageInsurance) {
+            return true;
+        }
+        AlertUtils.showWarning("Access Denied", "You have read-only access in Insurance.");
+        return false;
     }
 
     private void setupExpiryProgress() {
@@ -179,6 +220,7 @@ public class InsuranceController implements Initializable {
 
     @FXML
     private void addPolicy() {
+        if (!requireManagePermission()) return;
         String policyNumber = policyNumberField.getText();
         String company = insuranceCompanyField.getText();
         String plateNumber = vehiclePlateField.getText();
@@ -210,6 +252,7 @@ public class InsuranceController implements Initializable {
 
     @FXML
     private void addClaim() {
+        if (!requireManagePermission()) return;
         String policyNumber = policyNumberField.getText();
         String amountText = claimAmountField.getText();
 
@@ -243,6 +286,7 @@ public class InsuranceController implements Initializable {
 
     @FXML
     private void updateClaimStatus() {
+        if (!requireManagePermission()) return;
         Claim selectedClaim = claimTable.getSelectionModel().getSelectedItem();
         if (selectedClaim == null) {
             AlertUtils.showWarning("No Selection", "Please select a claim to update.");
@@ -278,6 +322,7 @@ public class InsuranceController implements Initializable {
 
     @FXML
     private void clearPolicyFields() {
+        if (!requireManagePermission()) return;
         policyNumberField.clear();
         insuranceCompanyField.clear();
         vehiclePlateField.clear();
@@ -285,6 +330,7 @@ public class InsuranceController implements Initializable {
 
     @FXML
     private void clearClaimFields() {
+        if (!requireManagePermission()) return;
         claimAmountField.clear();
         claimDescriptionArea.clear();
     }
@@ -305,4 +351,11 @@ public class InsuranceController implements Initializable {
             AlertUtils.showError("Error searching policies: " + e.getMessage());
         }
     }
+
+    @FXML
+    private void goToDashboard(ActionEvent event) {
+        SceneNavigator.switchScene(event, "/fxml/dashboard.fxml");
+    }
 }
+
+

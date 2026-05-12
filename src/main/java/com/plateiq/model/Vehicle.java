@@ -118,7 +118,6 @@ public class Vehicle {
         this.ownerEmail = ownerEmail;
     }
 
-    // Compatibility aliases used by existing controllers.
     public String getPlateNumber() {
         return getRegistrationNumber();
     }
@@ -135,7 +134,6 @@ public class Vehicle {
         setMake(brand);
     }
 
-    // Additional aliases for insurance and police services
     public String getVehicleRegistration() {
         return getRegistrationNumber();
     }

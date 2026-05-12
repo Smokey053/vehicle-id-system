@@ -3,13 +3,6 @@ package com.plateiq.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Entity class representing a Traffic Violation.
- * Contains all violation-related information including fines and status.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
 public class Violation {
     
     private int violationId;
@@ -23,26 +16,9 @@ public class Violation {
     private String vehicleMake;
     private String vehicleModel;
     
-    /**
-     * Default constructor.
-     */
     public Violation() {
     }
-    
-    /**
-     * Parameterized constructor for creating a Violation with all fields.
-     * 
-     * @param violationId the unique identifier for the violation
-     * @param vehicleId the ID of the vehicle involved
-     * @param violationDate the date the violation occurred
-     * @param violationType the type of violation
-     * @param fineAmount the fine amount
-     * @param status the violation status (PAID, UNPAID)
-     * @param description detailed description of the violation
-     * @param vehicleRegistration the vehicle's registration number
-     * @param vehicleMake the vehicle's make
-     * @param vehicleModel the vehicle's model
-     */
+
     public Violation(int violationId, int vehicleId, LocalDate violationDate, 
                     String violationType, BigDecimal fineAmount, String status, 
                     String description, String vehicleRegistration, 
@@ -65,139 +41,77 @@ public class Violation {
             description, vehiclePlate, null, null);
     }
     
-    // Getters and Setters
-    
-    /**
-     * Gets the violation's unique identifier.
-     * 
-     * @return the violation ID
-     */
+
     public int getViolationId() {
         return violationId;
     }
     
-    /**
-     * Sets the violation's unique identifier.
-     * 
-     * @param violationId the new violation ID
-     */
+
     public void setViolationId(int violationId) {
         this.violationId = violationId;
     }
     
-    /**
-     * Gets the vehicle ID associated with this violation.
-     * 
-     * @return the vehicle ID
-     */
+
     public int getVehicleId() {
         return vehicleId;
     }
     
-    /**
-     * Sets the vehicle ID associated with this violation.
-     * 
-     * @param vehicleId the new vehicle ID
-     */
+
     public void setVehicleId(int vehicleId) {
         this.vehicleId = vehicleId;
     }
     
-    /**
-     * Gets the violation date.
-     * 
-     * @return the violation date
-     */
+
     public LocalDate getViolationDate() {
         return violationDate;
     }
     
-    /**
-     * Sets the violation date.
-     * 
-     * @param violationDate the new violation date
-     */
+
     public void setViolationDate(LocalDate violationDate) {
         this.violationDate = violationDate;
     }
     
-    /**
-     * Gets the violation type.
-     * 
-     * @return the violation type
-     */
+
     public String getViolationType() {
         return violationType;
     }
     
-    /**
-     * Sets the violation type.
-     * 
-     * @param violationType the new violation type
-     */
+
     public void setViolationType(String violationType) {
         this.violationType = violationType;
     }
     
-    /**
-     * Gets the fine amount.
-     * 
-     * @return the fine amount
-     */
+
     public BigDecimal getFineAmount() {
         return fineAmount;
     }
     
-    /**
-     * Sets the fine amount.
-     * 
-     * @param fineAmount the new fine amount
-     */
+
     public void setFineAmount(BigDecimal fineAmount) {
         this.fineAmount = fineAmount;
     }
     
-    /**
-     * Gets the violation status.
-     * 
-     * @return the status (PAID, UNPAID)
-     */
+
     public String getStatus() {
         return status;
     }
     
-    /**
-     * Sets the violation status.
-     * 
-     * @param status the new status
-     */
+
     public void setStatus(String status) {
         this.status = status;
     }
     
-    /**
-     * Gets the violation description.
-     * 
-     * @return the description
-     */
+
     public String getDescription() {
         return description;
     }
     
-    /**
-     * Sets the violation description.
-     * 
-     * @param description the new description
-     */
+
     public void setDescription(String description) {
         this.description = description;
     }
     
-    /**
-     * Gets the vehicle's registration number.
-     * 
-     * @return the registration number
-     */
+
     public String getVehicleRegistration() {
         return vehicleRegistration;
     }

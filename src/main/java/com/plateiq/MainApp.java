@@ -12,13 +12,6 @@ import javafx.stage.Stage;
 
 import java.io.InputStream;
 
-/**
- * Main application entry point for Plate IQ.
- * Handles JavaFX application lifecycle, scene management, and graceful shutdown.
- *
- * @author Plate IQ
- * @version 1.0
- */
 public class MainApp extends Application {
 
     private static final String APP_TITLE = "Plate IQ - Vehicle Management System";
@@ -32,11 +25,8 @@ public class MainApp extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-        // Initialize database connection
-        try {
-            DBConnection.getConnection();
-        } catch (Exception e) {
-            AlertUtils.showError("Database Initialization Error", e.getMessage());
+        if (!DBConnection.testConnection(5)) {
+            AlertUtils.showError("Database Initialization Error", "Unable to connect to the database.");
         }
     }
 
@@ -47,17 +37,12 @@ public class MainApp extends Application {
         this.primaryStage.setMinWidth(MIN_WIDTH);
         this.primaryStage.setMinHeight(MIN_HEIGHT);
 
-        // Set application icon
         setApplicationIcon();
 
-        // Load login scene
         loadLoginScene();
 
-        // Show login scene
         this.primaryStage.setScene(loginScene);
         this.primaryStage.show();
-
-        // Handle window close event
         this.primaryStage.setOnCloseRequest(event -> {
             handleShutdown();
             event.consume();
@@ -72,7 +57,6 @@ public class MainApp extends Application {
                 this.primaryStage.getIcons().add(icon);
             }
         } catch (Exception e) {
-            // Icon is optional, continue without it
         }
     }
 
@@ -96,22 +80,10 @@ public class MainApp extends Application {
     }
 
     private void handleShutdown() {
-        // Close database connection
-        try {
-            DBConnection.closeConnection();
-        } catch (Exception e) {
-            AlertUtils.showError("Shutdown Error", "Failed to close database connection: " + e.getMessage());
-        }
-
-        // Exit application
+        DBConnection.closeConnection();
         Platform.exit();
     }
 
-    /**
-     * Main method to launch the JavaFX application.
-     *
-     * @param args command line arguments
-     */
     public static void main(String[] args) {
         launch(args);
     }

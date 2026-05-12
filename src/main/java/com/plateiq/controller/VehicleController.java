@@ -2,8 +2,10 @@ package com.plateiq.controller;
 
 import com.plateiq.model.Vehicle;
 import com.plateiq.service.VehicleService;
+import com.plateiq.utils.AccessControl;
 import com.plateiq.utils.AlertUtils;
 import com.plateiq.utils.SceneNavigator;
+import com.plateiq.utils.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -37,6 +39,12 @@ public class VehicleController implements Initializable {
     private TableColumn<Vehicle, String> colOwnerName;
 
     @FXML
+    private TableColumn<Vehicle, String> colColor;
+
+    @FXML
+    private TableColumn<Vehicle, String> colOwnerPhone;
+
+    @FXML
     private TextField searchField;
 
     @FXML
@@ -60,8 +68,21 @@ public class VehicleController implements Initializable {
     @FXML
     private TextField colorField;
 
+    @FXML
+    private Button addVehicleButton;
+
+    @FXML
+    private Button editVehicleButton;
+
+    @FXML
+    private Button deleteVehicleButton;
+
+    @FXML
+    private Button clearFormButton;
+
     private VehicleService vehicleService;
     private ObservableList<Vehicle> vehicleList;
+    private boolean canManageVehicles;
 
     public VehicleController() {
         this.vehicleService = new VehicleService();
@@ -70,14 +91,49 @@ public class VehicleController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (!AccessControl.enforceOrRedirect(vehicleTable, AccessControl.Module.VEHICLE)) {
+            return;
+        }
         colPlateNumber.setCellValueFactory(new PropertyValueFactory<>("plateNumber"));
         colBrand.setCellValueFactory(new PropertyValueFactory<>("brand"));
         colModel.setCellValueFactory(new PropertyValueFactory<>("model"));
         colYear.setCellValueFactory(new PropertyValueFactory<>("year"));
+        colColor.setCellValueFactory(new PropertyValueFactory<>("color"));
         colOwnerName.setCellValueFactory(new PropertyValueFactory<>("ownerName"));
+        colOwnerPhone.setCellValueFactory(new PropertyValueFactory<>("ownerPhone"));
 
+        canManageVehicles = AccessControl.canManageVehicles(SessionManager.getCurrentUser());
+        applyFeaturePermissions();
         vehicleTable.setItems(vehicleList);
         loadVehicles();
+    }
+
+    private void applyFeaturePermissions() {
+        setDisabled(plateNumberField, !canManageVehicles);
+        setDisabled(brandField, !canManageVehicles);
+        setDisabled(modelField, !canManageVehicles);
+        setDisabled(yearField, !canManageVehicles);
+        setDisabled(ownerNameField, !canManageVehicles);
+        setDisabled(ownerPhoneField, !canManageVehicles);
+        setDisabled(colorField, !canManageVehicles);
+        setDisabled(addVehicleButton, !canManageVehicles);
+        setDisabled(editVehicleButton, !canManageVehicles);
+        setDisabled(deleteVehicleButton, !canManageVehicles);
+        setDisabled(clearFormButton, !canManageVehicles);
+    }
+
+    private void setDisabled(Control control, boolean disabled) {
+        if (control != null) {
+            control.setDisable(disabled);
+        }
+    }
+
+    private boolean requireManagePermission() {
+        if (canManageVehicles) {
+            return true;
+        }
+        AlertUtils.showWarning("Access Denied", "You have read-only access in Vehicle Management.");
+        return false;
     }
 
     private void loadVehicles() {
@@ -108,6 +164,7 @@ public class VehicleController implements Initializable {
 
     @FXML
     private void addVehicle() {
+        if (!requireManagePermission()) return;
         if (!validateFields()) return;
 
         try {
@@ -131,6 +188,7 @@ public class VehicleController implements Initializable {
 
     @FXML
     private void updateVehicle() {
+        if (!requireManagePermission()) return;
         Vehicle selected = vehicleTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             AlertUtils.showWarning("Please select a vehicle to update.");
@@ -158,6 +216,7 @@ public class VehicleController implements Initializable {
 
     @FXML
     private void deleteVehicle() {
+        if (!requireManagePermission()) return;
         Vehicle selected = vehicleTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             AlertUtils.showWarning("Please select a vehicle to delete.");
@@ -199,6 +258,7 @@ public class VehicleController implements Initializable {
 
     @FXML
     private void editVehicle() {
+        if (!requireManagePermission()) return;
         updateVehicle();
     }
 
@@ -225,6 +285,7 @@ public class VehicleController implements Initializable {
     }
 
     private void clearFields() {
+        if (!requireManagePermission()) return;
         plateNumberField.clear();
         brandField.clear();
         modelField.clear();
@@ -236,3 +297,5 @@ public class VehicleController implements Initializable {
         }
     }
 }
+
+

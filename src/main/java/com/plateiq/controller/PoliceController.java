@@ -3,7 +3,11 @@ package com.plateiq.controller;
 import com.plateiq.model.PoliceReport;
 import com.plateiq.model.Violation;
 import com.plateiq.service.PoliceService;
+import com.plateiq.utils.AccessControl;
 import com.plateiq.utils.AlertUtils;
+import com.plateiq.utils.SceneNavigator;
+import com.plateiq.utils.SessionManager;
+import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,14 +16,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Controller for the police management module.
- * Manages police reports, violations, and unpaid fines tracking.
- */
 public class PoliceController implements Initializable {
 
     @FXML
@@ -53,7 +54,7 @@ public class PoliceController implements Initializable {
     private TableColumn<Violation, LocalDate> colViolationDate;
 
     @FXML
-    private TableColumn<Violation, Double> colFineAmount;
+    private TableColumn<Violation, BigDecimal> colFineAmount;
 
     @FXML
     private TableColumn<Violation, String> colStatus;
@@ -82,9 +83,19 @@ public class PoliceController implements Initializable {
     @FXML
     private ChoiceBox<String> violationStatusChoiceBox;
 
+    @FXML
+    private Button addReportButton;
+
+    @FXML
+    private Button addViolationButton;
+
+    @FXML
+    private Button updateViolationStatusButton;
+
     private PoliceService policeService;
     private ObservableList<PoliceReport> reportList;
     private ObservableList<Violation> violationList;
+    private boolean canManagePolice;
 
     public PoliceController() {
         this.policeService = new PoliceService();
@@ -94,6 +105,9 @@ public class PoliceController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (!AccessControl.enforceOrRedirect(reportTable, AccessControl.Module.POLICE)) {
+            return;
+        }
         colReportId.setCellValueFactory(new PropertyValueFactory<>("reportId"));
         colVehiclePlate.setCellValueFactory(new PropertyValueFactory<>("vehiclePlate"));
         colReportDate.setCellValueFactory(new PropertyValueFactory<>("reportDate"));
@@ -112,8 +126,37 @@ public class PoliceController implements Initializable {
         reportTypeChoiceBox.getItems().addAll("Accident", "Theft");
         violationStatusChoiceBox.getItems().addAll("Paid", "Unpaid");
 
+        canManagePolice = AccessControl.canManagePolice(SessionManager.getCurrentUser());
+        applyFeaturePermissions();
         loadReports();
         loadViolations();
+    }
+
+    private void applyFeaturePermissions() {
+        setDisabled(officerNameField, !canManagePolice);
+        setDisabled(violationTypeField, !canManagePolice);
+        setDisabled(fineAmountField, !canManagePolice);
+        setDisabled(reportDescriptionArea, !canManagePolice);
+        setDisabled(violationDescriptionArea, !canManagePolice);
+        setDisabled(reportTypeChoiceBox, !canManagePolice);
+        setDisabled(violationStatusChoiceBox, !canManagePolice);
+        setDisabled(addReportButton, !canManagePolice);
+        setDisabled(addViolationButton, !canManagePolice);
+        setDisabled(updateViolationStatusButton, !canManagePolice);
+    }
+
+    private void setDisabled(Control control, boolean disabled) {
+        if (control != null) {
+            control.setDisable(disabled);
+        }
+    }
+
+    private boolean requireManagePermission() {
+        if (canManagePolice) {
+            return true;
+        }
+        AlertUtils.showWarning("Access Denied", "You have read-only access in Police Records.");
+        return false;
     }
 
     private void loadReports() {
@@ -159,6 +202,7 @@ public class PoliceController implements Initializable {
 
     @FXML
     private void addReport() {
+        if (!requireManagePermission()) return;
         String plateNumber = vehicleSearchField.getText();
         String reportType = reportTypeChoiceBox.getValue();
         String description = reportDescriptionArea.getText();
@@ -190,6 +234,7 @@ public class PoliceController implements Initializable {
 
     @FXML
     private void addViolation() {
+        if (!requireManagePermission()) return;
         String plateNumber = vehicleSearchField.getText();
         String violationType = violationTypeField.getText();
         String fineText = fineAmountField.getText();
@@ -226,6 +271,7 @@ public class PoliceController implements Initializable {
 
     @FXML
     private void updateViolationStatus() {
+        if (!requireManagePermission()) return;
         Violation selectedViolation = violationTable.getSelectionModel().getSelectedItem();
         if (selectedViolation == null) {
             AlertUtils.showWarning("No Selection", "Please select a violation to update.");
@@ -246,6 +292,7 @@ public class PoliceController implements Initializable {
 
     @FXML
     private void clearReportFields() {
+        if (!requireManagePermission()) return;
         vehicleSearchField.clear();
         reportTypeChoiceBox.setValue(null);
         reportDescriptionArea.clear();
@@ -254,6 +301,7 @@ public class PoliceController implements Initializable {
 
     @FXML
     private void clearViolationFields() {
+        if (!requireManagePermission()) return;
         vehicleSearchField.clear();
         violationTypeField.clear();
         fineAmountField.clear();
@@ -277,4 +325,11 @@ public class PoliceController implements Initializable {
     private void viewAllViolations() {
         loadViolations();
     }
+
+    @FXML
+    private void goToDashboard(ActionEvent event) {
+        SceneNavigator.switchScene(event, "/fxml/dashboard.fxml");
+    }
 }
+
+
