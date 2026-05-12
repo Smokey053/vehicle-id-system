@@ -20,3 +20,8 @@ Thumbs.db
 
 # Logs
 *.log
+src/main/resources/fxml/*.fxml
+src/main/resources/fxml/*.css
+db.properties
+src/main/java/com/plateiq/service/
+src/main/java/com/plateiq/utils/
