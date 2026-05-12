@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.plateiq.controller.PoliceController"
+            prefHeight="700.0" prefWidth="1000.0"
+            style="-fx-background-color: #f5f7fa;">
+
+    <children>
+        <!-- Title -->
+        <Label text="Police Records" styleClass="page-title" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="20.0">
+            <font>
+                <Font name="Segoe UI" size="24.0" />
+            </font>
+        </Label>
+
+        <!-- Vehicle Search -->
+        <HBox alignment="CENTER_LEFT" spacing="10.0" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="20.0"
+              AnchorPane.rightAnchor="20.0">
+            <children>
+                <TextField fx:id="vehicleSearchField" promptText="Search vehicle by registration..." prefWidth="300.0"
+                           styleClass="search-field" />
+                <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
+                <Button text="View Unpaid Violations" onAction="#viewUnpaidViolations" styleClass="secondary-button" />
+            </children>
+        </HBox>
+
+        <!-- Police Report Form -->
+        <TitledPane text="Add Police Report" AnchorPane.topAnchor="90.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="180.0">
+            <content>
+                <GridPane hgap="15.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <Label text="Report Type:" />
+                        <ChoiceBox fx:id="reportTypeChoiceBox" GridPane.columnIndex="1" />
+
+                        <Label text="Description:" GridPane.rowIndex="1" />
+                        <TextArea fx:id="reportDescriptionArea" prefHeight="60.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Officer Name:" GridPane.rowIndex="2" />
+                        <TextField fx:id="officerNameField" GridPane.columnIndex="1" />
+                    </children>
+                </GridPane>
+            </content>
+        </TitledPane>
+
+        <!-- Violation Form -->
+        <TitledPane text="Log Violation" AnchorPane.topAnchor="280.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="180.0">
+            <content>
+                <GridPane hgap="15.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <Label text="Violation Type:" />
+                        <TextField fx:id="violationTypeField" GridPane.columnIndex="1" />
+
+                        <Label text="Fine Amount ($):" GridPane.rowIndex="1" />
+                        <TextField fx:id="fineAmountField" GridPane.columnIndex="1" />
+
+                        <Label text="Description:" GridPane.rowIndex="2" />
+                        <TextArea fx:id="violationDescriptionArea" prefHeight="60.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Status:" GridPane.rowIndex="3" />
+                        <ChoiceBox fx:id="violationStatusChoiceBox" GridPane.columnIndex="1" />
+                    </children>
+                </GridPane>
+            </content>
+        </TitledPane>
+
+        <!-- Police Reports Table -->
+        <TitledPane text="Police Reports" AnchorPane.topAnchor="470.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="150.0">
+            <content>
+                <TableView fx:id="reportTable" prefHeight="130.0">
+                    <columns>
+                        <TableColumn fx:id="colReportId" text="ID" prefWidth="60.0" />
+                        <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="120.0" />
+                        <TableColumn fx:id="colReportDate" text="Date" prefWidth="120.0" />
+                        <TableColumn fx:id="colReportType" text="Type" prefWidth="100.0" />
+                        <TableColumn fx:id="colDescription" text="Description" prefWidth="250.0" />
+                    </columns>
+                </TableView>
+            </content>
+        </TitledPane>
+
+        <!-- Violations Table -->
+        <TitledPane text="Violations" AnchorPane.topAnchor="630.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="20.0">
+            <content>
+                <TableView fx:id="violationTable" prefHeight="150.0">
+                    <columns>
+                        <TableColumn fx:id="colViolationId" text="ID" prefWidth="60.0" />
+                        <TableColumn fx:id="colViolationType" text="Type" prefWidth="150.0" />
+                        <TableColumn fx:id="colViolationDate" text="Date" prefWidth="120.0" />
+                        <TableColumn fx:id="colFineAmount" text="Fine ($)" prefWidth="100.0" />
+                        <TableColumn fx:id="colStatus" text="Status" prefWidth="100.0" />
+                    </columns>
+                </TableView>
+            </content>
+        </TitledPane>
+
+        <!-- Action Buttons -->
+        <HBox alignment="CENTER" spacing="15.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="20.0">
+            <children>
+                <Button text="Add Report" onAction="#addReport" styleClass="primary-button" />
+                <Button text="Add Violation" onAction="#addViolation" styleClass="secondary-button" />
+                <Button text="Update Status" onAction="#updateViolationStatus" styleClass="outline-button" />
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>

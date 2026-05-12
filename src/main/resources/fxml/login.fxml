@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.animation.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.plateiq.controller.LoginController"
+            prefHeight="600.0" prefWidth="800.0"
+            style="-fx-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+
+    <children>
+        <!-- Login Card -->
+        <StackPane alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                   AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+            <AnchorPane prefWidth="400.0" style="-fx-background-color: white; -fx-background-radius: 20;">
+                <children>
+                    <!-- Title Section -->
+                    <VBox alignment="CENTER" spacing="20.0" AnchorPane.topAnchor="50.0">
+                        <children>
+                            <Label text="Plate IQ" styleClass="title-label">
+                                <font>
+                                    <Font name="Segoe UI" size="36.0" />
+                                </font>
+                                <effect>
+                                    <DropShadow radius="10.0" color="rgba(0,0,0,0.3)" />
+                                </effect>
+                            </Label>
+                            <Label text="Vehicle Management System" styleClass="subtitle-label">
+                                <font>
+                                    <Font name="Segoe UI" size="14.0" />
+                                </font>
+                                <textFill>
+                                    <Color red="0.5" green="0.5" blue="0.5" />
+                                </textFill>
+                            </Label>
+                        </children>
+                    </VBox>
+
+                    <!-- Login Form -->
+                    <VBox alignment="CENTER" spacing="15.0" AnchorPane.topAnchor="180.0">
+                        <children>
+                            <TextField fx:id="usernameField" promptText="Username" prefWidth="280.0"
+                                       styleClass="form-field">
+                                <font>
+                                    <Font name="Segoe UI" size="14.0" />
+                                </font>
+                            </TextField>
+
+                            <PasswordField fx:id="passwordField" promptText="Password" prefWidth="280.0"
+                                           styleClass="form-field">
+                                <font>
+                                    <Font name="Segoe UI" size="14.0" />
+                                </font>
+                            </PasswordField>
+
+                            <Button fx:id="loginButton" text="Login" prefWidth="280.0" prefHeight="45.0"
+                                    styleClass="primary-button" onAction="#handleLogin">
+                                <font>
+                                    <Font name="Segoe UI" size="16.0" />
+                                </font>
+                                <effect>
+                                    <DropShadow radius="8.0" color="rgba(0,0,0,0.3)">
+                                        <offset>
+                                            <Offset x="0.0" y="4.0" />
+                                        </offset>
+                                    </DropShadow>
+                                </effect>
+                            </Button>
+                        </children>
+                    </VBox>
+
+                    <!-- Footer -->
+                    <Label text="Plate IQ v1.0 | Enterprise Vehicle Management" styleClass="footer-label"
+                           AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="0.0"
+                           AnchorPane.rightAnchor="0.0">
+                        <font>
+                            <Font name="Segoe UI" size="10.0" />
+                        </font>
+                        <textFill>
+                            <Color red="0.6" green="0.6" blue="0.6" />
+                        </textFill>
+                    </Label>
+                </children>
+            </AnchorPane>
+        </StackPane>
+
+        <!-- Welcome Animation (FadeTransition) -->
+        <Label fx:id="welcomeLabel" text="Welcome to Plate IQ" styleClass="welcome-label"
+               AnchorPane.topAnchor="20.0" AnchorPane.rightAnchor="20.0">
+            <font>
+                <Font name="Segoe UI" size="18.0" />
+            </font>
+            <effect>
+                <DropShadow radius="5.0" color="rgba(0,0,0,0.2)" />
+            </effect>
+        </Label>
+    </children>
+</AnchorPane>

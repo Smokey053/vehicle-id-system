@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.plateiq.controller.DashboardController"
+            prefHeight="700.0" prefWidth="1000.0"
+            style="-fx-background-color: #f5f7fa;">
+
+    <children>
+        <!-- MenuBar -->
+        <MenuBar AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem fx:id="homeMenuItem" text="Home" onAction="#handleHome" />
+                        <SeparatorMenuItem />
+                        <MenuItem fx:id="logoutMenuItem" text="Logout" onAction="#handleLogout" />
+                        <SeparatorMenuItem />
+                        <MenuItem fx:id="exitMenuItem" text="Exit" onAction="#handleExit" />
+                    </items>
+                </Menu>
+                <Menu text="Help">
+                    <items>
+                        <MenuItem text="About" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+
+        <!-- Main Content -->
+        <BorderPane AnchorPane.topAnchor="30.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+            <!-- Left Sidebar (Navigation) -->
+            <left>
+                <VBox prefWidth="200.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0;"
+                      BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="20.0" bottom="20.0" left="10.0" right="10.0" />
+                    </padding>
+                    <children>
+                        <Label text="Navigation" styleClass="sidebar-header">
+                            <font>
+                                <Font name="Segoe UI" size="16.0" bold="true" />
+                            </font>
+                        </Label>
+                        <Separator />
+                        <Button text="Vehicle Management" onAction="#openVehicleModule" styleClass="nav-button" />
+                        <Button text="Service Records" onAction="#openServiceModule" styleClass="nav-button" />
+                        <Button text="Insurance" onAction="#openInsuranceModule" styleClass="nav-button" />
+                        <Button text="Police Records" onAction="#openPoliceModule" styleClass="nav-button" />
+                        <Button text="Customer Portal" onAction="#openCustomerModule" styleClass="nav-button" />
+                        <VBox prefHeight="200.0" />
+                    </children>
+                </VBox>
+            </left>
+
+            <!-- Center Content -->
+            <center>
+                <VBox spacing="20.0" style="-fx-padding: 20.0;">
+                    <children>
+                        <!-- Welcome Section -->
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <Label fx:id="welcomeLabel" text="Welcome" styleClass="welcome-message">
+                                    <font>
+                                        <Font name="Segoe UI" size="24.0" />
+                                    </font>
+                                </Label>
+                                <ProgressIndicator prefWidth="30.0" prefHeight="30.0" />
+                            </children>
+                        </HBox>
+
+                        <!-- Quick Actions -->
+                        <GridPane hgap="15.0" vgap="15.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="SOMETIMES" minHeight="100.0" prefHeight="120.0" />
+                                <RowConstraints vgrow="SOMETIMES" minHeight="100.0" prefHeight="120.0" />
+                            </rowConstraints>
+                            <children>
+                                <VBox style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 8;">
+                                    <children><Label text="Total Vehicles" /><Label text="150" /></children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 8;" GridPane.columnIndex="1">
+                                    <children><Label text="Active Policies" /><Label text="45" /></children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 8;" GridPane.columnIndex="2">
+                                    <children><Label text="Unpaid Fines" /><Label text="12" /></children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 8;" GridPane.rowIndex="1">
+                                    <children><Label text="Pending Claims" /><Label text="8" /></children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <children><Label text="Service Due" /><Label text="23" /></children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 8;" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                    <children><Label text="Reports" /><Label text="5" /></children>
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <!-- Notifications ScrollPane -->
+                        <Label text="Notifications" styleClass="section-header" />
+                        <ScrollPane prefHeight="250.0" styleClass="notification-scrollpane">
+                            <content>
+                                <VBox fx:id="notificationsContainer" spacing="10.0" />
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>
