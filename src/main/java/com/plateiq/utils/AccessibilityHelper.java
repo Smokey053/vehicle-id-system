@@ -83,12 +83,7 @@ public class AccessibilityHelper {
         }
     }
 
-    /**
-     * Enables keyboard navigation for TableView with Enter key activation.
-     * When Enter is pressed on a selected row, the provided action will be executed.
-     * Also enables arrow key navigation through table rows.
-     *@throws IllegalArgumentException if table or onEnterAction is null
-     */
+    /*Enables keyboard navigation for TableView with Enter key activation.*/
     public static void setupTableKeyboard(
         TableView<?> table,
         Runnable onEnterAction
@@ -126,8 +121,7 @@ public class AccessibilityHelper {
         );
     }
 
-    /*@throws IllegalArgumentException if button is null
-     */
+    /*@throws IllegalArgumentException if button is null*/
     public static void setupButtonKeyboard(Button button) {
         if (button == null) {
             throw new IllegalArgumentException("Button cannot be null");
