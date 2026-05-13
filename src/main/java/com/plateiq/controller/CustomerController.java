@@ -156,7 +156,7 @@ public class CustomerController implements Initializable {
         }
 
         try {
-            currentVehicle = customerService.getVehicleByPlate(plateNumber);
+            currentVehicle = customerService.getVehicleByPlate(plateNumber.trim());
             if (currentVehicle != null) {
                 displayVehicleInfo(currentVehicle);
                 loadServiceHistory(currentVehicle.getVehicleId());
@@ -240,7 +240,11 @@ public class CustomerController implements Initializable {
                 null
             );
 
-            customerService.submitQuery(query);
+            boolean submitted = customerService.submitQuery(query);
+            if (!submitted) {
+                AlertUtils.showError("Submit Failed", "Query could not be submitted.");
+                return;
+            }
             AlertUtils.showInfo("Query Submitted", "Your query has been submitted and will be responded to shortly.");
             queryTextArea.clear();
         } catch (Exception e) {

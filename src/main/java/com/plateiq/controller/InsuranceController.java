@@ -84,6 +84,9 @@ public class InsuranceController implements Initializable {
     private TextArea claimDescriptionArea;
 
     @FXML
+    private TextArea coverageArea;
+
+    @FXML
     private Button addPolicyButton;
 
     @FXML
@@ -238,10 +241,14 @@ public class InsuranceController implements Initializable {
                 policyNumber,
                 LocalDate.now(),
                 LocalDate.now().plusYears(1),
-                "Standard coverage"
+                (coverageArea == null || coverageArea.getText().isBlank()) ? "Standard coverage" : coverageArea.getText().trim()
             );
 
-            insuranceService.addPolicy(policy);
+            boolean created = insuranceService.addPolicy(policy);
+            if (!created) {
+                AlertUtils.showError("Create Failed", "Policy could not be created. Check vehicle registration and policy number.");
+                return;
+            }
             AlertUtils.showInfo("Success", "Policy added successfully.");
             clearPolicyFields();
             loadPolicies();
@@ -269,11 +276,15 @@ public class InsuranceController implements Initializable {
                 policyNumber,
                 LocalDate.now(),
                 amount,
-                "Pending",
+                "PENDING",
                 claimDescriptionArea.getText()
             );
 
-            insuranceService.addClaim(claim);
+            boolean created = insuranceService.addClaim(claim);
+            if (!created) {
+                AlertUtils.showError("Create Failed", "Claim could not be submitted. Check policy number and claim data.");
+                return;
+            }
             AlertUtils.showInfo("Success", "Claim submitted successfully.");
             clearClaimFields();
             loadClaims();
@@ -306,9 +317,9 @@ public class InsuranceController implements Initializable {
         alert.getButtonTypes().setAll(buttonPending, buttonApproved, buttonRejected, buttonCancel);
 
         alert.showAndWait().ifPresent(result -> {
-            if (result == buttonPending) selectedClaim.setStatus("Pending");
-            else if (result == buttonApproved) selectedClaim.setStatus("Approved");
-            else if (result == buttonRejected) selectedClaim.setStatus("Rejected");
+            if (result == buttonPending) selectedClaim.setStatus("PENDING");
+            else if (result == buttonApproved) selectedClaim.setStatus("APPROVED");
+            else if (result == buttonRejected) selectedClaim.setStatus("REJECTED");
 
             try {
                 insuranceService.updateClaim(selectedClaim);
@@ -326,6 +337,9 @@ public class InsuranceController implements Initializable {
         policyNumberField.clear();
         insuranceCompanyField.clear();
         vehiclePlateField.clear();
+        if (coverageArea != null) {
+            coverageArea.clear();
+        }
     }
 
     @FXML

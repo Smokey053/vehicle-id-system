@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.animation.*?>
 
@@ -11,25 +12,22 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.LoginController"
             prefHeight="600.0" prefWidth="800.0"
-            style="-fx-background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);">
+            styleClass="login-root">
 
     <children>
         <!-- Login Card -->
         <StackPane alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-            <AnchorPane prefWidth="420.0" prefHeight="500.0" style="-fx-background-color: white; -fx-background-radius: 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0, 0, 10);">
+            <AnchorPane prefWidth="420.0" prefHeight="500.0" styleClass="login-card" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 30, 0, 0, 10);">
                 <children>
                     <!-- Title Section -->
-                    <VBox alignment="CENTER" spacing="10.0" AnchorPane.topAnchor="60.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                    <VBox alignment="CENTER" spacing="10.0" AnchorPane.topAnchor="42.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
                         <children>
-                            <Label text="Plate IQ" styleClass="title-label">
-                                <font>
-                                    <Font name="Inter" size="42.0" />
-                                </font>
-                                <textFill>
-                                    <Color red="0.1" green="0.2" blue="0.3" />
-                                </textFill>
-                            </Label>
+                            <ImageView fitWidth="260.0" preserveRatio="true" styleClass="brand-logo">
+                                <image>
+                                    <Image url="@../logo.png" />
+                                </image>
+                            </ImageView>
                             <Label text="Enterprise Vehicle Management" styleClass="subtitle-label">
                                 <font>
                                     <Font name="Inter" size="14.0" />
@@ -42,7 +40,7 @@
                     </VBox>
 
                     <!-- Login Form -->
-                    <VBox alignment="CENTER" spacing="20.0" AnchorPane.topAnchor="160.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0">
+                    <VBox alignment="CENTER" spacing="20.0" AnchorPane.topAnchor="170.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0">
                         <children>
                             <VBox spacing="5.0">
                                 <children>

@@ -180,7 +180,11 @@ public class VehicleController implements Initializable {
             vehicle.setOwnerPhone(ownerPhoneField.getText());
             vehicle.setColor(colorField != null ? colorField.getText() : null);
 
-            vehicleService.addVehicle(vehicle);
+            boolean created = vehicleService.addVehicle(vehicle);
+            if (!created) {
+                AlertUtils.showError("Create Failed", "Vehicle could not be added. Ensure the owner exists in customer records.");
+                return;
+            }
             AlertUtils.showInfo("Vehicle added successfully!");
             clearFields();
             loadVehicles();
@@ -208,7 +212,11 @@ public class VehicleController implements Initializable {
             selected.setOwnerPhone(ownerPhoneField.getText());
             selected.setColor(colorField != null ? colorField.getText() : null);
 
-            vehicleService.updateVehicle(selected);
+            boolean updated = vehicleService.updateVehicle(selected);
+            if (!updated) {
+                AlertUtils.showError("Update Failed", "Vehicle could not be updated.");
+                return;
+            }
             AlertUtils.showInfo("Vehicle updated successfully!");
             clearFields();
             loadVehicles();
@@ -231,7 +239,11 @@ public class VehicleController implements Initializable {
         alert.setContentText("Are you sure you want to delete this vehicle?");
         if (alert.showAndWait().get() == ButtonType.OK) {
             try {
-                vehicleService.deleteVehicle(selected.getPlateNumber());
+                boolean deleted = vehicleService.deleteVehicle(selected.getPlateNumber());
+                if (!deleted) {
+                    AlertUtils.showError("Delete Failed", "Vehicle could not be deleted.");
+                    return;
+                }
                 AlertUtils.showInfo("Vehicle deleted successfully!");
                 clearFields();
                 loadVehicles();
@@ -251,6 +263,7 @@ public class VehicleController implements Initializable {
             yearField.setText(String.valueOf(selected.getYear()));
             ownerNameField.setText(selected.getOwnerName());
             ownerPhoneField.setText(selected.getOwnerPhone());
+            colorField.setText(selected.getColor());
         }
     }
 
@@ -287,6 +300,7 @@ public class VehicleController implements Initializable {
         return true;
     }
 
+    @FXML
     private void clearFields() {
         if (!requireManagePermission()) return;
         plateNumberField.clear();

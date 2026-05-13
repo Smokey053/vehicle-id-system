@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.effect.*?>
@@ -9,14 +11,19 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.VehicleController"
             prefHeight="700.0" prefWidth="1000.0"
-            style="-fx-background-color: -fx-bg-secondary;">
+            styleClass="module-root">
 
     <children>
         <!-- Header Section -->
-        <VBox spacing="10.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+        <VBox spacing="10.0" styleClass="module-header" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
+                        <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
+                            <image>
+                                <Image url="@../logo.png" />
+                            </image>
+                        </ImageView>
                         <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
                         <Label text="Vehicle Management" styleClass="page-title">
                             <font>
@@ -27,10 +34,13 @@
                 </HBox>
                 <Separator />
             </children>
+            <padding>
+                <Insets top="16.0" right="20.0" bottom="12.0" left="20.0" />
+            </padding>
         </VBox>
 
         <!-- Search Section -->
-        <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.topAnchor="70.0" AnchorPane.leftAnchor="20.0"
+        <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.topAnchor="92.0" AnchorPane.leftAnchor="20.0"
               AnchorPane.rightAnchor="20.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
             <children>
                 <TextField fx:id="searchField" promptText="Search by registration number..." prefWidth="400.0"
@@ -41,7 +51,7 @@
         </HBox>
 
         <!-- Vehicle Form -->
-        <TitledPane text="Vehicle Details" AnchorPane.topAnchor="130.0" AnchorPane.leftAnchor="20.0"
+        <TitledPane text="Vehicle Details" AnchorPane.topAnchor="152.0" AnchorPane.leftAnchor="20.0"
                     AnchorPane.rightAnchor="20.0" prefHeight="220.0" styleClass="form-pane">
             <content>
                 <GridPane hgap="20.0" vgap="15.0">
@@ -54,7 +64,7 @@
                         <RowConstraints vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
-                    </RowConstraints>
+                    </rowConstraints>
                     <children>
                         <VBox spacing="5.0">
                             <children>
@@ -106,20 +116,20 @@
         </TitledPane>
 
         <!-- CRUD Buttons -->
-        <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.topAnchor="360.0" AnchorPane.leftAnchor="20.0">
+        <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.topAnchor="382.0" AnchorPane.leftAnchor="20.0">
             <children>
-                <Button text="Add Vehicle" onAction="#addVehicle" styleClass="primary-button" />
-                <Button text="Edit Vehicle" onAction="#editVehicle" styleClass="secondary-button" />
-                <Button text="Delete Vehicle" onAction="#deleteVehicle" styleClass="danger-button" />
-                <Button text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
+                <Button fx:id="addVehicleButton" text="Add Vehicle" onAction="#addVehicle" styleClass="primary-button" />
+                <Button fx:id="editVehicleButton" text="Edit Vehicle" onAction="#editVehicle" styleClass="secondary-button" />
+                <Button fx:id="deleteVehicleButton" text="Delete Vehicle" onAction="#deleteVehicle" styleClass="danger-button" />
+                <Button fx:id="clearFormButton" text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
             </children>
         </HBox>
 
         <!-- Vehicle Table -->
-        <TitledPane text="Vehicle List" AnchorPane.topAnchor="410.0" AnchorPane.leftAnchor="20.0"
+        <TitledPane text="Vehicle List" AnchorPane.topAnchor="432.0" AnchorPane.leftAnchor="20.0"
                     AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="80.0" styleClass="table-pane">
             <content>
-                <TableView fx:id="vehicleTable" prefHeight="300.0">
+                <TableView fx:id="vehicleTable" prefHeight="300.0" onMouseClicked="#handleTableClick">
                     <columns>
                         <TableColumn fx:id="colPlateNumber" text="Registration" prefWidth="120.0" />
                         <TableColumn fx:id="colBrand" text="Brand" prefWidth="100.0" />

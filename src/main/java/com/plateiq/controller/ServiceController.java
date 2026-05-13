@@ -217,7 +217,11 @@ public class ServiceController implements Initializable {
                 cost
             );
 
-            serviceRecordService.addServiceRecord(service);
+            boolean created = serviceRecordService.addServiceRecord(service);
+            if (!created) {
+                AlertUtils.showError("Create Failed", "Service record could not be added. Confirm vehicle and input details.");
+                return;
+            }
             AlertUtils.showInfo("Success", "Service record added successfully.");
             clearFields();
             loadServices();

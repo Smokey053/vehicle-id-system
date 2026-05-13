@@ -19,19 +19,24 @@ public class VehicleService {
     
     // Adds a new vehicle to the database.
     public boolean addVehicle(Vehicle vehicle) {
-        String sql = "INSERT INTO vehicle (registration_number, make, model, year, color, owner_id) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "CALL register_vehicle(?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
+            int ownerId = vehicle.getOwnerId() > 0
+                ? vehicle.getOwnerId()
+                : resolveOwnerId(vehicle.getOwnerName(), vehicle.getOwnerPhone());
+            if (ownerId <= 0) {
+                LOGGER.warning("Failed to add vehicle: owner could not be resolved for " + vehicle.getRegistrationNumber());
+                return false;
+            }
             stmt.setString(1, vehicle.getRegistrationNumber());
             stmt.setString(2, vehicle.getMake());
             stmt.setString(3, vehicle.getModel());
             stmt.setInt(4, vehicle.getYear());
             stmt.setString(5, vehicle.getColor());
-            stmt.setInt(6, vehicle.getOwnerId());
-            
+            stmt.setInt(6, ownerId);
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Added new vehicle: " + vehicle.getRegistrationNumber());
             return rowsAffected > 0;
@@ -93,12 +98,12 @@ public class VehicleService {
         String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
                      "FROM vehicle v " +
                      "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "WHERE v.registration_number = ?";
+                     "WHERE v.registration_number ILIKE ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setString(1, registrationNumber);
+            stmt.setString(1, registrationNumber == null ? null : registrationNumber.trim());
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -238,5 +243,37 @@ public class VehicleService {
         
         return new Vehicle(vehicleId, registrationNumber, make, model, year, color,
                           ownerId, ownerName, ownerPhone, null);
+    }
+
+    private int resolveOwnerId(String ownerName, String ownerPhone) {
+        if (ownerName == null || ownerName.isBlank()) {
+            return 0;
+        }
+        String sqlByNamePhone = "SELECT customer_id FROM customer WHERE name = ? AND phone = ? LIMIT 1";
+        String sqlByNameOnly = "SELECT customer_id FROM customer WHERE name = ? LIMIT 1";
+        try (Connection conn = DBConnection.getConnection()) {
+            if (ownerPhone != null && !ownerPhone.isBlank()) {
+                try (PreparedStatement stmt = conn.prepareStatement(sqlByNamePhone)) {
+                    stmt.setString(1, ownerName.trim());
+                    stmt.setString(2, ownerPhone.trim());
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getInt("customer_id");
+                        }
+                    }
+                }
+            }
+            try (PreparedStatement stmt = conn.prepareStatement(sqlByNameOnly)) {
+                stmt.setString(1, ownerName.trim());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt("customer_id");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to resolve owner ID", e);
+        }
+        return 0;
     }
 }

@@ -39,7 +39,7 @@ public final class AccessControl {
             case "WORKSHOP" -> module == Module.VEHICLE || module == Module.SERVICE;
             case "INSURANCE" -> module == Module.INSURANCE;
             case "POLICE" -> module == Module.POLICE;
-            case "CUSTOMER" -> module == Module.CUSTOMER;
+            case "CUSTOMER" -> module == Module.CUSTOMER || module == Module.VEHICLE;
             default -> false;
         };
     }
@@ -55,7 +55,7 @@ public final class AccessControl {
             case "WORKSHOP" -> EnumSet.of(Module.VEHICLE, Module.SERVICE);
             case "INSURANCE" -> EnumSet.of(Module.INSURANCE);
             case "POLICE" -> EnumSet.of(Module.POLICE);
-            case "CUSTOMER" -> EnumSet.of(Module.CUSTOMER);
+            case "CUSTOMER" -> EnumSet.of(Module.CUSTOMER, Module.VEHICLE);
             default -> EnumSet.noneOf(Module.class);
         };
     }

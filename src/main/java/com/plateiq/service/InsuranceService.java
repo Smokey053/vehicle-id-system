@@ -19,6 +19,13 @@ import java.util.logging.Logger;
 public class InsuranceService {
     
     private static final Logger LOGGER = Logger.getLogger(InsuranceService.class.getName());
+
+    private String normalizeClaimStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "PENDING";
+        }
+        return status.trim().toUpperCase();
+    }
     
     // Insurance policy methods.
     
@@ -257,7 +264,7 @@ public class InsuranceService {
             stmt.setInt(1, policyId);
             stmt.setDate(2, java.sql.Date.valueOf(claim.getClaimDate()));
             stmt.setBigDecimal(3, claim.getClaimAmount());
-            stmt.setString(4, claim.getStatus());
+            stmt.setString(4, normalizeClaimStatus(claim.getStatus()));
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Added claim: " + claim.getClaimId());
@@ -278,7 +285,7 @@ public class InsuranceService {
             
             stmt.setDate(1, java.sql.Date.valueOf(claim.getClaimDate()));
             stmt.setBigDecimal(2, claim.getClaimAmount());
-            stmt.setString(3, claim.getStatus());
+            stmt.setString(3, normalizeClaimStatus(claim.getStatus()));
             stmt.setInt(4, claim.getClaimId());
             
             int rowsAffected = stmt.executeUpdate();
@@ -401,7 +408,7 @@ public class InsuranceService {
         java.sql.Date claimDateSql = rs.getDate("claim_date");
         BigDecimal claimAmount = rs.getBigDecimal("claim_amount");
         String status = rs.getString("status");
-        String description = null;
+        String description = rs.getString("description");
         String policyNumber = rs.getString("policy_number");
         String vehicleRegistration = rs.getString("vehicle_registration");
         String vehicleMake = rs.getString("vehicle_make");
@@ -417,10 +424,10 @@ public class InsuranceService {
         if (registrationNumber == null || registrationNumber.isBlank()) {
             return 0;
         }
-        String sql = "SELECT vehicle_id FROM vehicle WHERE registration_number = ?";
+        String sql = "SELECT vehicle_id FROM vehicle WHERE registration_number ILIKE ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, registrationNumber);
+            stmt.setString(1, registrationNumber.trim());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("vehicle_id");
@@ -436,10 +443,10 @@ public class InsuranceService {
         if (policyNumber == null || policyNumber.isBlank()) {
             return 0;
         }
-        String sql = "SELECT policy_id FROM insurancepolicy WHERE policy_number = ?";
+        String sql = "SELECT policy_id FROM insurancepolicy WHERE policy_number ILIKE ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, policyNumber);
+            stmt.setString(1, policyNumber.trim());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("policy_id");

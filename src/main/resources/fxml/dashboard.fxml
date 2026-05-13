@@ -9,6 +9,8 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -26,9 +28,13 @@
             <top>
                 <HBox styleClass="dashboard-topbar" alignment="CENTER_LEFT" spacing="12.0">
                     <children>
+                        <ImageView fitWidth="180.0" preserveRatio="true" styleClass="brand-logo">
+                            <image>
+                                <Image url="@../logo.png" />
+                            </image>
+                        </ImageView>
                         <VBox alignment="CENTER_LEFT" spacing="2.0">
                             <children>
-                                <Label text="Plate IQ" styleClass="dashboard-brand" />
                                 <Label text="Operations Console" styleClass="dashboard-subbrand" />
                             </children>
                         </VBox>

@@ -19,6 +19,13 @@ import java.util.logging.Logger;
 public class PoliceService {
     
     private static final Logger LOGGER = Logger.getLogger(PoliceService.class.getName());
+
+    private String normalizeViolationStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "UNPAID";
+        }
+        return status.trim().toUpperCase();
+    }
     
     // Police report methods.
     
@@ -183,7 +190,7 @@ public class PoliceService {
             stmt.setDate(2, java.sql.Date.valueOf(violation.getViolationDate()));
             stmt.setString(3, violation.getViolationType());
             stmt.setBigDecimal(4, violation.getFineAmount());
-            stmt.setString(5, violation.getStatus());
+            stmt.setString(5, normalizeViolationStatus(violation.getStatus()));
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Added violation: " + violation.getViolationId());
@@ -205,7 +212,7 @@ public class PoliceService {
             stmt.setDate(1, java.sql.Date.valueOf(violation.getViolationDate()));
             stmt.setString(2, violation.getViolationType());
             stmt.setBigDecimal(3, violation.getFineAmount());
-            stmt.setString(4, violation.getStatus());
+            stmt.setString(4, normalizeViolationStatus(violation.getStatus()));
             stmt.setInt(5, violation.getViolationId());
             
             int rowsAffected = stmt.executeUpdate();
@@ -237,7 +244,7 @@ public class PoliceService {
     
     // Retrieves all unpaid violations from the database view.
     public List<Violation> getUnpaidViolations() {
-        String sql = "SELECT uv.*, v.vehicle_id, " +
+        String sql = "SELECT uv.*, v.vehicle_id, NULL::text AS description, " +
                      "uv.registration_number AS vehicle_registration, " +
                      "uv.make AS vehicle_make, uv.model AS vehicle_model " +
                      "FROM unpaid_violations uv " +
@@ -262,7 +269,7 @@ public class PoliceService {
     
     /** Gets all violations for a specific vehicle. */
     public List<Violation> getViolationsByVehicle(int vehicleId) {
-        String sql = "SELECT v.*, vr.registration_number AS vehicle_registration, " +
+        String sql = "SELECT v.*, NULL::text AS description, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
                      "FROM violation v " +
                      "JOIN vehicle vr ON v.vehicle_id = vr.vehicle_id " +
@@ -290,7 +297,7 @@ public class PoliceService {
     
     /** Gets all violations with a specific status. */
     public List<Violation> getViolationsByStatus(String status) {
-        String sql = "SELECT v.*, vr.registration_number AS vehicle_registration, " +
+        String sql = "SELECT v.*, NULL::text AS description, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
                      "FROM violation v " +
                      "JOIN vehicle vr ON v.vehicle_id = vr.vehicle_id " +
@@ -373,7 +380,7 @@ public class PoliceService {
     }
 
     public List<Violation> getAllViolations() {
-        String sql = "SELECT v.*, vr.registration_number AS vehicle_registration, " +
+        String sql = "SELECT v.*, NULL::text AS description, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
                      "FROM violation v JOIN vehicle vr ON v.vehicle_id = vr.vehicle_id " +
                      "ORDER BY v.violation_date DESC";
@@ -412,7 +419,7 @@ public class PoliceService {
     }
 
     public List<Violation> searchViolationsByVehicle(String searchTerm) {
-        String sql = "SELECT v.*, vr.registration_number AS vehicle_registration, " +
+        String sql = "SELECT v.*, NULL::text AS description, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
                      "FROM violation v JOIN vehicle vr ON v.vehicle_id = vr.vehicle_id " +
                      "WHERE vr.registration_number ILIKE ? ORDER BY v.violation_date DESC";
@@ -459,7 +466,7 @@ public class PoliceService {
         String violationType = rs.getString("violation_type");
         BigDecimal fineAmount = rs.getBigDecimal("fine_amount");
         String status = rs.getString("status");
-        String description = null;
+        String description = rs.getString("description");
         String vehicleRegistration = rs.getString("vehicle_registration");
         String vehicleMake = rs.getString("vehicle_make");
         String vehicleModel = rs.getString("vehicle_model");
@@ -474,10 +481,10 @@ public class PoliceService {
         if (registrationNumber == null || registrationNumber.isBlank()) {
             return 0;
         }
-        String sql = "SELECT vehicle_id FROM vehicle WHERE registration_number = ?";
+        String sql = "SELECT vehicle_id FROM vehicle WHERE registration_number ILIKE ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, registrationNumber);
+            stmt.setString(1, registrationNumber.trim());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("vehicle_id");

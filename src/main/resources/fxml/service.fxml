@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
@@ -9,16 +10,21 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.ServiceController"
             prefHeight="700.0" prefWidth="1000.0"
-            style="-fx-background-color: #f5f7fa;">
+            styleClass="module-root">
 
     <top>
-        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+        <VBox spacing="10.0" styleClass="module-header" BorderPane.alignment="CENTER">
             <padding>
                 <Insets top="16.0" right="20.0" bottom="0.0" left="20.0" />
             </padding>
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
+                        <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
+                            <image>
+                                <Image url="@../logo.png" />
+                            </image>
+                        </ImageView>
                         <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
                         <Label text="Service Records" styleClass="page-title">
                             <font>
@@ -40,7 +46,7 @@
     </top>
 
     <center>
-        <VBox spacing="10.0">
+        <VBox spacing="10.0" styleClass="content-surface">
             <padding>
                 <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
             </padding>

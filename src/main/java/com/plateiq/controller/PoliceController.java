@@ -123,8 +123,8 @@ public class PoliceController implements Initializable {
         reportTable.setItems(reportList);
         violationTable.setItems(violationList);
 
-        reportTypeChoiceBox.getItems().addAll("Accident", "Theft");
-        violationStatusChoiceBox.getItems().addAll("Paid", "Unpaid");
+        reportTypeChoiceBox.getItems().addAll("ACCIDENT", "THEFT", "INSPECTION", "OTHER");
+        violationStatusChoiceBox.getItems().addAll("UNPAID", "PAID", "DISPUTED", "WAIVED");
 
         canManagePolice = AccessControl.canManagePolice(SessionManager.getCurrentUser());
         applyFeaturePermissions();
@@ -223,7 +223,11 @@ public class PoliceController implements Initializable {
                 officerName
             );
 
-            policeService.addReport(report);
+            boolean created = policeService.addReport(report);
+            if (!created) {
+                AlertUtils.showError("Create Failed", "Report could not be created. Check vehicle registration.");
+                return;
+            }
             AlertUtils.showInfo("Success", "Report added successfully.");
             clearReportFields();
             loadReports();
@@ -258,7 +262,11 @@ public class PoliceController implements Initializable {
                 description
             );
 
-            policeService.addViolation(violation);
+            boolean created = policeService.addViolation(violation);
+            if (!created) {
+                AlertUtils.showError("Create Failed", "Violation could not be logged. Check vehicle registration and status.");
+                return;
+            }
             AlertUtils.showInfo("Success", "Violation logged successfully.");
             clearViolationFields();
             loadViolations();
@@ -278,7 +286,8 @@ public class PoliceController implements Initializable {
             return;
         }
 
-        String newStatus = selectedViolation.getStatus().equals("Paid") ? "Unpaid" : "Paid";
+        String currentStatus = selectedViolation.getStatus() == null ? "" : selectedViolation.getStatus().trim().toUpperCase();
+        String newStatus = currentStatus.equals("PAID") ? "UNPAID" : "PAID";
         selectedViolation.setStatus(newStatus);
 
         try {

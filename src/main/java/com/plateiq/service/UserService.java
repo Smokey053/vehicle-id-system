@@ -25,7 +25,7 @@ public class UserService {
         String sql = "SELECT u.user_id, u.username, u.password, u.role, u.status, " +
                      "c.customer_id, c.name, c.address, c.phone, c.email " +
                      "FROM users u " +
-                     "LEFT JOIN customer c ON u.user_id = c.customer_id " +
+                     "LEFT JOIN customer c ON u.user_id = c.user_id " +
                      "WHERE u.username = ? AND u.password = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -111,7 +111,7 @@ public class UserService {
         String sql = "SELECT u.user_id, u.username, u.password, u.role, u.status, " +
                      "c.customer_id, c.name, c.address, c.phone, c.email " +
                      "FROM users u " +
-                     "LEFT JOIN customer c ON u.user_id = c.customer_id " +
+                     "LEFT JOIN customer c ON u.user_id = c.user_id " +
                      "WHERE u.user_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -139,7 +139,7 @@ public class UserService {
         String sql = "SELECT u.user_id, u.username, u.password, u.role, u.status, " +
                      "c.customer_id, c.name, c.address, c.phone, c.email " +
                      "FROM users u " +
-                     "LEFT JOIN customer c ON u.user_id = c.customer_id " +
+                     "LEFT JOIN customer c ON u.user_id = c.user_id " +
                      "WHERE u.username = ?";
         
         try (Connection conn = DBConnection.getConnection();

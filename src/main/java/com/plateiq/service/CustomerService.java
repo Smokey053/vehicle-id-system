@@ -2,6 +2,8 @@ package com.plateiq.service;
 
 import com.plateiq.database.DBConnection;
 import com.plateiq.model.CustomerQuery;
+import com.plateiq.model.InsurancePolicy;
+import com.plateiq.model.ServiceRecord;
 import com.plateiq.model.Vehicle;
 
 import java.sql.Connection;
@@ -18,6 +20,8 @@ import java.util.logging.Logger;
 public class CustomerService {
     
     private static final Logger LOGGER = Logger.getLogger(CustomerService.class.getName());
+    private final ServiceRecordService serviceRecordService = new ServiceRecordService();
+    private final InsuranceService insuranceService = new InsuranceService();
     
     // Vehicle lookup methods.
     
@@ -27,12 +31,12 @@ public class CustomerService {
                      "c.email AS owner_email " +
                      "FROM vehicle v " +
                      "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "WHERE v.registration_number = ?";
+                     "WHERE v.registration_number ILIKE ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setString(1, registrationNumber);
+            stmt.setString(1, registrationNumber == null ? null : registrationNumber.trim());
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -56,12 +60,12 @@ public class CustomerService {
                      "vfd.year, vfd.color, vfd.customer_id AS owner_id, vfd.owner_name, " +
                      "vfd.owner_phone, vfd.owner_email " +
                      "FROM vehicle_full_details vfd " +
-                     "WHERE vfd.registration_number = ?";
+                     "WHERE vfd.registration_number ILIKE ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setString(1, registrationNumber);
+            stmt.setString(1, registrationNumber == null ? null : registrationNumber.trim());
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -80,10 +84,8 @@ public class CustomerService {
     // Service history methods.
     
     /** Gets service history for a vehicle. */
-    public List<Object> getServiceHistory(int vehicleId) {
-        // Pending ServiceRecordService integration.
-        // Returns an empty list placeholder.
-        return new ArrayList<>();
+    public List<ServiceRecord> getServiceHistory(int vehicleId) {
+        return serviceRecordService.getServiceByVehicleId(vehicleId);
     }
     
     // Query submission methods.
@@ -189,10 +191,8 @@ public class CustomerService {
     // Insurance info methods.
     
     /** Gets insurance information for a vehicle. */
-    public List<Object> getInsuranceInfo(int vehicleId) {
-        // Pending InsuranceService integration.
-        // Returns an empty list placeholder.
-        return new ArrayList<>();
+    public List<InsurancePolicy> getInsuranceInfo(int vehicleId) {
+        return insuranceService.getPoliciesByVehicleId(vehicleId);
     }
     
     // Helper methods.

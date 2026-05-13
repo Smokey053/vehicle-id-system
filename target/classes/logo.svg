@@ -1,0 +1,39 @@
+<svg viewBox="0 0 480 120" xmlns="http://www.w3.org/2000/svg" width="480" height="120">
+
+  <!-- Background -->
+  <rect width="480" height="120" rx="12" fill="#060D18"/>
+
+  <!-- Subtle border -->
+  <rect x="1" y="1" width="478" height="118" rx="11" fill="none" stroke="#1E3A5F" stroke-width="1"/>
+
+  <!-- License plate icon -->
+  <rect x="20" y="10" width="82" height="100" rx="9" fill="#0A1825" stroke="#F59E0B" stroke-width="2.5"/>
+  <rect x="28" y="18" width="66" height="84" rx="5" fill="#1A3A5C"/>
+  <!-- Country code -->
+  <text x="61" y="44" text-anchor="middle" fill="#F59E0B" font-size="13" font-weight="700"
+        font-family="'Courier New', Courier, monospace" letter-spacing="4">LS</text>
+  <!-- Divider line -->
+  <line x1="34" y1="54" x2="88" y2="54" stroke="#2A5280" stroke-width="1.5"/>
+  <!-- Plate number -->
+  <text x="61" y="77" text-anchor="middle" fill="#E8F0FE" font-size="16" font-weight="700"
+        font-family="'Courier New', Courier, monospace" letter-spacing="3">1042</text>
+  <!-- Small stars decoration -->
+  <circle cx="40" cy="88" r="2" fill="#F59E0B" opacity="0.5"/>
+  <circle cx="61" cy="88" r="2" fill="#F59E0B" opacity="0.5"/>
+  <circle cx="82" cy="88" r="2" fill="#F59E0B" opacity="0.5"/>
+
+  <!-- Wordmark: PlateIQ -->
+  <text y="74" x="118" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+    <tspan fill="#E8F0FE" font-size="48" font-weight="700">Plate</tspan><tspan fill="#F59E0B" font-size="48" font-weight="700">IQ</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="118" y="96" fill="#3A5A7A" font-size="10" font-weight="500"
+        font-family="'Segoe UI', Arial, sans-serif" letter-spacing="2.5">
+    VEHICLE IDENTIFICATION SYSTEM
+  </text>
+
+  <!-- Amber accent line under tagline -->
+  <line x1="118" y1="102" x2="200" y2="102" stroke="#F59E0B" stroke-width="1.5" opacity="0.4"/>
+
+</svg>
