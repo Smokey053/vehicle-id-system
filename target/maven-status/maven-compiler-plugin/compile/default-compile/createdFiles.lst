@@ -8,6 +8,7 @@ com\plateiq\utils\AccessControl$Module.class
 com\plateiq\model\WorkshopUser.class
 com\plateiq\service\CustomerService.class
 com\plateiq\service\PoliceService.class
+com\plateiq\utils\AccessibilityHelper.class
 com\plateiq\database\DBConnection.class
 com\plateiq\controller\PoliceController.class
 com\plateiq\controller\ServiceController$1.class
@@ -17,6 +18,7 @@ com\plateiq\model\Violation.class
 com\plateiq\controller\CustomerController.class
 com\plateiq\service\UserService.class
 com\plateiq\controller\DashboardController$1.class
+com\plateiq\utils\StateManager.class
 com\plateiq\service\ServiceRecordService.class
 com\plateiq\utils\AlertUtils.class
 com\plateiq\model\Claim.class

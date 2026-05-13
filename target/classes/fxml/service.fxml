@@ -9,38 +9,55 @@
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.ServiceController"
-            prefHeight="700.0" prefWidth="1000.0"
+            prefHeight="760.0" prefWidth="1120.0"
             styleClass="module-root">
 
     <top>
-        <VBox spacing="10.0" styleClass="module-header" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets top="16.0" right="20.0" bottom="0.0" left="20.0" />
-            </padding>
+        <VBox spacing="8.0">
             <children>
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
-                    <children>
-                        <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
-                            <image>
-                                <Image url="@../logo.png" />
-                            </image>
-                        </ImageView>
-                        <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
-                        <Label text="Service Records" styleClass="page-title">
-                            <font>
-                                <Font name="Segoe UI" size="24.0" />
-                            </font>
-                        </Label>
-                    </children>
-                </HBox>
+                <MenuBar>
+                    <menus>
+                        <Menu text="File">
+                            <items>
+                                <MenuItem text="Home" onAction="#handleHome" />
+                                <MenuItem text="Logout" onAction="#handleLogout" />
+                                <SeparatorMenuItem />
+                                <MenuItem text="Exit" onAction="#handleExit" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <VBox spacing="10.0" styleClass="module-header" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="12.0" right="20.0" bottom="0.0" left="20.0" />
+                    </padding>
                     <children>
-                        <TextField fx:id="vehicleSearchField" promptText="Search vehicle by registration..." prefWidth="300.0"
-                                   styleClass="search-field" />
-                        <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
+                                    <image>
+                                        <Image url="@../logo.png" />
+                                    </image>
+                                </ImageView>
+                                <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
+                                <Label text="Service Records" styleClass="page-title">
+                                    <font>
+                                        <Font name="Segoe UI" size="24.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <TextField fx:id="vehicleSearchField" promptText="Search vehicle by registration..." prefWidth="320.0"
+                                           styleClass="search-field" />
+                                <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
+                            </children>
+                        </HBox>
                     </children>
-                </HBox>
+                </VBox>
             </children>
         </VBox>
     </top>
@@ -92,11 +109,11 @@
                     <content>
                         <TableView fx:id="serviceTable">
                             <columns>
-                                <TableColumn fx:id="colServiceId" text="ID" prefWidth="60.0" />
-                                <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="120.0" />
-                                <TableColumn fx:id="colServiceType" text="Service Type" prefWidth="150.0" />
-                                <TableColumn fx:id="colDescription" text="Description" prefWidth="250.0" />
-                                <TableColumn fx:id="colCost" text="Cost ($)" prefWidth="100.0" />
+                                <TableColumn fx:id="colServiceId" text="ID" prefWidth="80.0" />
+                                <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="160.0" />
+                                <TableColumn fx:id="colServiceType" text="Service Type" prefWidth="200.0" />
+                                <TableColumn fx:id="colDescription" text="Description" prefWidth="420.0" />
+                                <TableColumn fx:id="colCost" text="Cost ($)" prefWidth="120.0" />
                             </columns>
                         </TableView>
                     </content>
@@ -113,8 +130,8 @@
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
-                        <Button text="Add Service" onAction="#addServiceRecord" styleClass="primary-button" />
-                        <Button text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
+                        <Button fx:id="addServiceButton" text="Add Service" onAction="#addServiceRecord" styleClass="primary-button" />
+                        <Button fx:id="clearFormButton" text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
                     </children>
                 </HBox>
                 <Pagination fx:id="pagination" />

@@ -1,150 +1,174 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.scene.effect.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/17"
+<BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.VehicleController"
-            prefHeight="700.0" prefWidth="1000.0"
+            prefHeight="760.0" prefWidth="1120.0"
             styleClass="module-root">
 
-    <children>
-        <!-- Header Section -->
-        <VBox spacing="10.0" styleClass="module-header" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+    <top>
+        <VBox spacing="8.0">
             <children>
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <MenuBar>
+                    <menus>
+                        <Menu text="File">
+                            <items>
+                                <MenuItem text="Home" onAction="#handleHome" />
+                                <MenuItem text="Logout" onAction="#handleLogout" />
+                                <SeparatorMenuItem />
+                                <MenuItem text="Exit" onAction="#handleExit" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+
+                <VBox spacing="10.0" styleClass="module-header" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="12.0" right="20.0" bottom="8.0" left="20.0" />
+                    </padding>
                     <children>
-                        <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
-                            <image>
-                                <Image url="@../logo.png" />
-                            </image>
-                        </ImageView>
-                        <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
-                        <Label text="Vehicle Management" styleClass="page-title">
-                            <font>
-                                <Font name="Inter" size="28.0" />
-                            </font>
-                        </Label>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
+                                    <image>
+                                        <Image url="@../logo.png" />
+                                    </image>
+                                </ImageView>
+                                <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
+                                <Label text="Vehicle Management" styleClass="page-title">
+                                    <font>
+                                        <Font name="Inter" size="28.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="12.0" styleClass="content-surface">
+            <padding>
+                <Insets top="8.0" right="20.0" bottom="10.0" left="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="card">
+                    <children>
+                        <TextField fx:id="searchField" promptText="Search by registration number or owner..." prefWidth="420.0"
+                                   styleClass="search-field" />
+                        <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
+                        <Button text="Clear" onAction="#clearSearch" styleClass="outline-button" />
+                        <ProgressIndicator fx:id="searchProgressIndicator" prefWidth="22.0" prefHeight="22.0" visible="false" managed="false" />
                     </children>
                 </HBox>
-                <Separator />
-            </children>
-            <padding>
-                <Insets top="16.0" right="20.0" bottom="12.0" left="20.0" />
-            </padding>
-        </VBox>
 
-        <!-- Search Section -->
-        <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.topAnchor="92.0" AnchorPane.leftAnchor="20.0"
-              AnchorPane.rightAnchor="20.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
-            <children>
-                <TextField fx:id="searchField" promptText="Search by registration number..." prefWidth="400.0"
-                           styleClass="search-field" />
-                <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
-                <Button text="Clear" onAction="#clearSearch" styleClass="outline-button" />
-            </children>
-        </HBox>
+                <TitledPane text="Vehicle Details" expanded="true" styleClass="form-pane">
+                    <content>
+                        <GridPane hgap="20.0" vgap="15.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Registration Number" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="plateNumberField" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1">
+                                    <children>
+                                        <Label text="Brand" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="brandField" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="2">
+                                    <children>
+                                        <Label text="Model" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="modelField" />
+                                    </children>
+                                </VBox>
 
-        <!-- Vehicle Form -->
-        <TitledPane text="Vehicle Details" AnchorPane.topAnchor="152.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" prefHeight="220.0" styleClass="form-pane">
-            <content>
-                <GridPane hgap="20.0" vgap="15.0">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                        <RowConstraints vgrow="SOMETIMES" />
-                        <RowConstraints vgrow="SOMETIMES" />
-                    </rowConstraints>
+                                <VBox spacing="5.0" GridPane.rowIndex="1">
+                                    <children>
+                                        <Label text="Year" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="yearField" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                                    <children>
+                                        <Label text="Color" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="colorField" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.rowIndex="1" GridPane.columnIndex="2">
+                                    <children>
+                                        <Label text="Owner Name" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="ownerNameField" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="5.0" GridPane.rowIndex="2" GridPane.columnSpan="3">
+                                    <children>
+                                        <Label text="Owner Phone" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                                        <TextField fx:id="ownerPhoneField" GridPane.columnSpan="3" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
-                        <VBox spacing="5.0">
-                            <children>
-                                <Label text="Registration Number" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="plateNumberField" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="5.0" GridPane.columnIndex="1">
-                            <children>
-                                <Label text="Brand" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="brandField" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="5.0" GridPane.columnIndex="2">
-                            <children>
-                                <Label text="Model" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="modelField" />
-                            </children>
-                        </VBox>
-
-                        <VBox spacing="5.0" GridPane.rowIndex="1">
-                            <children>
-                                <Label text="Year" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="yearField" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="5.0" GridPane.rowIndex="1" GridPane.columnIndex="1">
-                            <children>
-                                <Label text="Color" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="colorField" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="5.0" GridPane.rowIndex="1" GridPane.columnIndex="2">
-                            <children>
-                                <Label text="Owner Name" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="ownerNameField" />
-                            </children>
-                        </VBox>
-
-                        <VBox spacing="5.0" GridPane.rowIndex="2" GridPane.columnSpan="3">
-                            <children>
-                                <Label text="Owner Phone" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
-                                <TextField fx:id="ownerPhoneField" GridPane.columnSpan="3" />
-                            </children>
-                        </VBox>
+                        <Button fx:id="addVehicleButton" text="Add Vehicle" onAction="#addVehicle" styleClass="primary-button" />
+                        <Button fx:id="editVehicleButton" text="Edit Vehicle" onAction="#editVehicle" styleClass="secondary-button" />
+                        <Button fx:id="deleteVehicleButton" text="Delete Vehicle" onAction="#deleteVehicle" styleClass="danger-button" />
+                        <Button fx:id="clearFormButton" text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
                     </children>
-                </GridPane>
-            </content>
-        </TitledPane>
+                </HBox>
 
-        <!-- CRUD Buttons -->
-        <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.topAnchor="382.0" AnchorPane.leftAnchor="20.0">
-            <children>
-                <Button fx:id="addVehicleButton" text="Add Vehicle" onAction="#addVehicle" styleClass="primary-button" />
-                <Button fx:id="editVehicleButton" text="Edit Vehicle" onAction="#editVehicle" styleClass="secondary-button" />
-                <Button fx:id="deleteVehicleButton" text="Delete Vehicle" onAction="#deleteVehicle" styleClass="danger-button" />
-                <Button fx:id="clearFormButton" text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
+                <TitledPane text="Vehicle List" expanded="true" styleClass="table-pane" VBox.vgrow="ALWAYS">
+                    <content>
+                        <TableView fx:id="vehicleTable" prefHeight="340.0" onMouseClicked="#handleTableClick">
+                            <columns>
+                                <TableColumn fx:id="colPlateNumber" text="Registration" prefWidth="140.0" />
+                                <TableColumn fx:id="colBrand" text="Brand" prefWidth="120.0" />
+                                <TableColumn fx:id="colModel" text="Model" prefWidth="120.0" />
+                                <TableColumn fx:id="colYear" text="Year" prefWidth="80.0" />
+                                <TableColumn fx:id="colColor" text="Color" prefWidth="100.0" />
+                                <TableColumn fx:id="colOwnerName" text="Owner" prefWidth="180.0" />
+                                <TableColumn fx:id="colOwnerPhone" text="Phone" prefWidth="150.0" />
+                            </columns>
+                        </TableView>
+                    </content>
+                </TitledPane>
             </children>
-        </HBox>
+        </VBox>
+    </center>
 
-        <!-- Vehicle Table -->
-        <TitledPane text="Vehicle List" AnchorPane.topAnchor="432.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="80.0" styleClass="table-pane">
-            <content>
-                <TableView fx:id="vehicleTable" prefHeight="300.0" onMouseClicked="#handleTableClick">
-                    <columns>
-                        <TableColumn fx:id="colPlateNumber" text="Registration" prefWidth="120.0" />
-                        <TableColumn fx:id="colBrand" text="Brand" prefWidth="100.0" />
-                        <TableColumn fx:id="colModel" text="Model" prefWidth="100.0" />
-                        <TableColumn fx:id="colYear" text="Year" prefWidth="80.0" />
-                        <TableColumn fx:id="colColor" text="Color" prefWidth="80.0" />
-                        <TableColumn fx:id="colOwnerName" text="Owner" prefWidth="150.0" />
-                        <TableColumn fx:id="colOwnerPhone" text="Phone" prefWidth="120.0" />
-                    </columns>
-                </TableView>
-            </content>
-        </TitledPane>
-
-        <!-- Pagination -->
-        <Pagination fx:id="pagination" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" />
-    </children>
-</AnchorPane>
+    <bottom>
+        <VBox spacing="6.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="0.0" right="20.0" bottom="16.0" left="20.0" />
+            </padding>
+            <children>
+                <Pagination fx:id="pagination" />
+            </children>
+        </VBox>
+    </bottom>
+</BorderPane>

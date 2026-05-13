@@ -16,11 +16,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DBConnection {
-    
+
     private static final Logger LOGGER = Logger.getLogger(DBConnection.class.getName());
-    
+
     private static final String PROPERTIES_FILE = "/db.properties";
-    
+
     private static String dbHost;
     private static String dbPort;
     private static String dbDatabase;
@@ -31,7 +31,7 @@ public class DBConnection {
         "VehicleIdentificationSystem",
         "vehicleidentificationsystem"
     };
-    
+
     static {
         loadProperties();
     }
@@ -43,7 +43,7 @@ public class DBConnection {
             }
             ensureDriverLoaded();
             props.load(inputStream);
-            
+
             dbHost = props.getProperty("db.host");
             dbPort = props.getProperty("db.port");
             dbDatabase = props.getProperty("db.database");
@@ -56,17 +56,17 @@ public class DBConnection {
             throw new RuntimeException("Failed to load database configuration", e);
         }
     }
-    
+
     private DBConnection() {
     }
-    
+
 
     public static Connection getConnection() throws SQLException {
         String url = String.format("jdbc:postgresql://%s:%s/%s", dbHost, dbPort, dbDatabase);
         ensureDriverLoaded();
         return DriverManager.getConnection(url, dbUser, dbPassword);
     }
-    
+
 
     public static boolean testConnection(int timeoutSeconds) {
         try (Connection conn = getConnection()) {
@@ -83,12 +83,12 @@ public class DBConnection {
     public static void closeConnection() {
         LOGGER.info("DBConnection.closeConnection() called; no persistent connection to close.");
     }
-    
+
 
     public static String getDbUrl() {
         return String.format("jdbc:postgresql://%s:%s/%s", dbHost, dbPort, dbDatabase);
     }
-    
+
 
     public static String getDbUser() {
         return dbUser;

@@ -9,37 +9,54 @@
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.InsuranceController"
-            prefHeight="700.0" prefWidth="1000.0"
+            prefHeight="760.0" prefWidth="1120.0"
             styleClass="module-root">
     <top>
-        <VBox spacing="10.0" styleClass="module-header" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets top="16.0" right="20.0" bottom="0.0" left="20.0" />
-            </padding>
+        <VBox spacing="8.0">
             <children>
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <MenuBar>
+                    <menus>
+                        <Menu text="File">
+                            <items>
+                                <MenuItem text="Home" onAction="#handleHome" />
+                                <MenuItem text="Logout" onAction="#handleLogout" />
+                                <SeparatorMenuItem />
+                                <MenuItem text="Exit" onAction="#handleExit" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+
+                <VBox spacing="10.0" styleClass="module-header" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="12.0" right="20.0" bottom="0.0" left="20.0" />
+                    </padding>
                     <children>
-                        <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
-                            <image>
-                                <Image url="@../logo.png" />
-                            </image>
-                        </ImageView>
-                        <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
-                        <Label text="Insurance Management" styleClass="page-title">
-                            <font>
-                                <Font name="Segoe UI" size="24.0" />
-                            </font>
-                        </Label>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <ImageView fitWidth="150.0" preserveRatio="true" styleClass="brand-logo">
+                                    <image>
+                                        <Image url="@../logo.png" />
+                                    </image>
+                                </ImageView>
+                                <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
+                                <Label text="Insurance Management" styleClass="page-title">
+                                    <font>
+                                        <Font name="Segoe UI" size="24.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <children>
+                                <Button fx:id="addPolicyButton" text="Add Policy" onAction="#addPolicy" styleClass="primary-button" />
+                                <Button fx:id="submitClaimButton" text="Submit Claim" onAction="#addClaim" styleClass="secondary-button" />
+                                <Button fx:id="updateClaimStatusButton" text="Update Claim Status" onAction="#updateClaimStatus" styleClass="outline-button" />
+                                <Button text="Search Policy" onAction="#searchPolicy" styleClass="outline-button" />
+                            </children>
+                        </HBox>
                     </children>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <children>
-                        <Button fx:id="addPolicyButton" text="Add Policy" onAction="#addPolicy" styleClass="primary-button" />
-                        <Button fx:id="submitClaimButton" text="Submit Claim" onAction="#addClaim" styleClass="secondary-button" />
-                        <Button fx:id="updateClaimStatusButton" text="Update Claim Status" onAction="#updateClaimStatus" styleClass="outline-button" />
-                        <Button text="Search Policy" onAction="#searchPolicy" styleClass="outline-button" />
-                    </children>
-                </HBox>
+                </VBox>
             </children>
         </VBox>
     </top>
@@ -91,12 +108,12 @@
                             <content>
                                 <TableView fx:id="policyTable" prefHeight="220.0">
                                     <columns>
-                                        <TableColumn fx:id="colPolicyId" text="ID" prefWidth="60.0" />
-                                        <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="120.0" />
-                                        <TableColumn fx:id="colCompany" text="Company" prefWidth="160.0" />
-                                        <TableColumn fx:id="colPolicyNumber" text="Policy Number" prefWidth="160.0" />
-                                        <TableColumn fx:id="colStartDate" text="Start Date" prefWidth="120.0" />
-                                        <TableColumn fx:id="colEndDate" text="End Date" prefWidth="120.0" />
+                                        <TableColumn fx:id="colPolicyId" text="ID" prefWidth="70.0" />
+                                        <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="140.0" />
+                                        <TableColumn fx:id="colCompany" text="Company" prefWidth="190.0" />
+                                        <TableColumn fx:id="colPolicyNumber" text="Policy Number" prefWidth="190.0" />
+                                        <TableColumn fx:id="colStartDate" text="Start Date" prefWidth="140.0" />
+                                        <TableColumn fx:id="colEndDate" text="End Date" prefWidth="140.0" />
                                     </columns>
                                 </TableView>
                             </content>
@@ -124,11 +141,11 @@
                             <content>
                                 <TableView fx:id="claimTable" prefHeight="220.0">
                                     <columns>
-                                        <TableColumn fx:id="colClaimId" text="ID" prefWidth="60.0" />
-                                        <TableColumn fx:id="colPolicyNum" text="Policy" prefWidth="150.0" />
-                                        <TableColumn fx:id="colClaimDate" text="Date" prefWidth="120.0" />
-                                        <TableColumn fx:id="colClaimAmount" text="Amount ($)" prefWidth="130.0" />
-                                        <TableColumn fx:id="colStatus" text="Status" prefWidth="120.0" />
+                                        <TableColumn fx:id="colClaimId" text="ID" prefWidth="70.0" />
+                                        <TableColumn fx:id="colPolicyNum" text="Policy" prefWidth="170.0" />
+                                        <TableColumn fx:id="colClaimDate" text="Date" prefWidth="140.0" />
+                                        <TableColumn fx:id="colClaimAmount" text="Amount ($)" prefWidth="150.0" />
+                                        <TableColumn fx:id="colStatus" text="Status" prefWidth="140.0" />
                                     </columns>
                                 </TableView>
                             </content>

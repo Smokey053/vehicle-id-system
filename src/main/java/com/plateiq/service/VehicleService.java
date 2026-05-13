@@ -2,7 +2,6 @@ package com.plateiq.service;
 
 import com.plateiq.database.DBConnection;
 import com.plateiq.model.Vehicle;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,21 +13,31 @@ import java.util.logging.Logger;
 
 // Handles vehicle CRUD operations and search functionality.
 public class VehicleService {
-    
-    private static final Logger LOGGER = Logger.getLogger(VehicleService.class.getName());
-    
+
+    private static final Logger LOGGER = Logger.getLogger(
+        VehicleService.class.getName()
+    );
+
     // Adds a new vehicle to the database.
     public boolean addVehicle(Vehicle vehicle) {
         String sql = "CALL register_vehicle(?, ?, ?, ?, ?, ?)";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            int ownerId = vehicle.getOwnerId() > 0
-                ? vehicle.getOwnerId()
-                : resolveOwnerId(vehicle.getOwnerName(), vehicle.getOwnerPhone());
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            int ownerId =
+                vehicle.getOwnerId() > 0
+                    ? vehicle.getOwnerId()
+                    : resolveOwnerId(
+                          vehicle.getOwnerName(),
+                          vehicle.getOwnerPhone()
+                      );
             if (ownerId <= 0) {
-                LOGGER.warning("Failed to add vehicle: owner could not be resolved for " + vehicle.getRegistrationNumber());
+                LOGGER.warning(
+                    "Failed to add vehicle: owner could not be resolved for " +
+                        vehicle.getRegistrationNumber()
+                );
                 return false;
             }
             stmt.setString(1, vehicle.getRegistrationNumber());
@@ -38,52 +47,84 @@ public class VehicleService {
             stmt.setString(5, vehicle.getColor());
             stmt.setInt(6, ownerId);
             int rowsAffected = stmt.executeUpdate();
-            LOGGER.info("Added new vehicle: " + vehicle.getRegistrationNumber());
+            LOGGER.info(
+                "Added new vehicle: " + vehicle.getRegistrationNumber()
+            );
             return rowsAffected > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Failed to add vehicle: " + vehicle.getRegistrationNumber(), e);
+            LOGGER.log(
+                Level.SEVERE,
+                "Failed to add vehicle: " + vehicle.getRegistrationNumber(),
+                e
+            );
             return false;
         }
     }
-    
+
     // Updates an existing vehicle in the database.
     public boolean updateVehicle(Vehicle vehicle) {
-        String sql = "UPDATE vehicle SET make = ?, model = ?, year = ?, color = ?, owner_id = ? " +
-                     "WHERE vehicle_id = ?";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        String sql =
+            "UPDATE vehicle SET make = ?, model = ?, year = ?, color = ?, owner_id = ? " +
+            "WHERE vehicle_id = ?";
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            int ownerId =
+                vehicle.getOwnerId() > 0
+                    ? vehicle.getOwnerId()
+                    : resolveOwnerId(
+                          vehicle.getOwnerName(),
+                          vehicle.getOwnerPhone()
+                      );
+            if (ownerId <= 0) {
+                LOGGER.warning(
+                    "Failed to update vehicle: owner could not be resolved for " +
+                        vehicle.getRegistrationNumber()
+                );
+                return false;
+            }
+
             stmt.setString(1, vehicle.getMake());
             stmt.setString(2, vehicle.getModel());
             stmt.setInt(3, vehicle.getYear());
             stmt.setString(4, vehicle.getColor());
-            stmt.setInt(5, vehicle.getOwnerId());
+            stmt.setInt(5, ownerId);
             stmt.setInt(6, vehicle.getVehicleId());
-            
+
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Updated vehicle: " + vehicle.getVehicleId());
             return rowsAffected > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Failed to update vehicle: " + vehicle.getVehicleId(), e);
+            LOGGER.log(
+                Level.SEVERE,
+                "Failed to update vehicle: " + vehicle.getVehicleId(),
+                e
+            );
             return false;
         }
     }
-    
+
     // Deletes a vehicle from the database.
     public boolean deleteVehicle(int vehicleId) {
         String sql = "DELETE FROM vehicle WHERE vehicle_id = ?";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
             stmt.setInt(1, vehicleId);
-            
+
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Deleted vehicle: " + vehicleId);
             return rowsAffected > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Failed to delete vehicle: " + vehicleId, e);
+            LOGGER.log(
+                Level.SEVERE,
+                "Failed to delete vehicle: " + vehicleId,
+                e
+            );
             return false;
         }
     }
@@ -92,47 +133,58 @@ public class VehicleService {
         Vehicle vehicle = getVehicleByRegistration(registrationNumber);
         return vehicle != null && deleteVehicle(vehicle.getVehicleId());
     }
-    
+
     // Retrieves a vehicle by its registration number.
     public Vehicle getVehicleByRegistration(String registrationNumber) {
-        String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
-                     "FROM vehicle v " +
-                     "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "WHERE v.registration_number ILIKE ?";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, registrationNumber == null ? null : registrationNumber.trim());
-            
+        String sql =
+            "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
+            "FROM vehicle v " +
+            "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
+            "WHERE v.registration_number ILIKE ?";
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(
+                1,
+                registrationNumber == null ? null : registrationNumber.trim()
+            );
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return buildVehicleFromResultSet(rs);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Failed to get vehicle by registration: " + registrationNumber, e);
+            LOGGER.log(
+                Level.SEVERE,
+                "Failed to get vehicle by registration: " + registrationNumber,
+                e
+            );
         }
-        
+
         return null;
     }
-    
+
     // Retrieves all vehicles with pagination support.
     public List<Vehicle> getAllVehicles(int page, int pageSize) {
-        String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
-                     "FROM vehicle v " +
-                     "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "ORDER BY v.vehicle_id " +
-                     "LIMIT ? OFFSET ?";
-        
+        String sql =
+            "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
+            "FROM vehicle v " +
+            "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
+            "ORDER BY v.vehicle_id " +
+            "LIMIT ? OFFSET ?";
+
         List<Vehicle> vehicles = new ArrayList<>();
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
             stmt.setInt(1, pageSize);
             stmt.setInt(2, page * pageSize);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     vehicles.add(buildVehicleFromResultSet(rs));
@@ -141,21 +193,22 @@ public class VehicleService {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Failed to get all vehicles", e);
         }
-        
+
         return vehicles;
     }
 
     public List<Vehicle> getAllVehicles() {
         return getAllVehicles(0, Integer.MAX_VALUE / 4);
     }
-    
+
     // Gets the total count of vehicles in the database.
     public int getTotalVehicleCount() {
         String sql = "SELECT COUNT(*) FROM vehicle";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -164,73 +217,90 @@ public class VehicleService {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Failed to get total vehicle count", e);
         }
-        
+
         return 0;
     }
-    
+
     // Searches vehicles by registration number or owner name.
-    public List<Vehicle> searchVehicles(String searchTerm, int page, int pageSize) {
-        String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
-                     "FROM vehicle v " +
-                     "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "WHERE v.registration_number ILIKE ? OR c.name ILIKE ? " +
-                     "ORDER BY v.vehicle_id " +
-                     "LIMIT ? OFFSET ?";
-        
+    public List<Vehicle> searchVehicles(
+        String searchTerm,
+        int page,
+        int pageSize
+    ) {
+        String sql =
+            "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
+            "FROM vehicle v " +
+            "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
+            "WHERE v.registration_number ILIKE ? OR c.name ILIKE ? " +
+            "ORDER BY v.vehicle_id " +
+            "LIMIT ? OFFSET ?";
+
         List<Vehicle> vehicles = new ArrayList<>();
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
             String searchPattern = "%" + searchTerm + "%";
             stmt.setString(1, searchPattern);
             stmt.setString(2, searchPattern);
             stmt.setInt(3, pageSize);
             stmt.setInt(4, page * pageSize);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     vehicles.add(buildVehicleFromResultSet(rs));
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Failed to search vehicles: " + searchTerm, e);
+            LOGGER.log(
+                Level.SEVERE,
+                "Failed to search vehicles: " + searchTerm,
+                e
+            );
         }
-        
+
         return vehicles;
     }
 
     public List<Vehicle> searchVehicles(String searchTerm) {
         return searchVehicles(searchTerm, 0, Integer.MAX_VALUE / 4);
     }
-    
+
     // Gets the total count of vehicles matching a search term.
     public int getSearchResultCount(String searchTerm) {
-        String sql = "SELECT COUNT(*) FROM vehicle v " +
-                     "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "WHERE v.registration_number ILIKE ? OR c.name ILIKE ?";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        String sql =
+            "SELECT COUNT(*) FROM vehicle v " +
+            "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
+            "WHERE v.registration_number ILIKE ? OR c.name ILIKE ?";
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
             String searchPattern = "%" + searchTerm + "%";
             stmt.setString(1, searchPattern);
             stmt.setString(2, searchPattern);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Failed to get search result count: " + searchTerm, e);
+            LOGGER.log(
+                Level.SEVERE,
+                "Failed to get search result count: " + searchTerm,
+                e
+            );
         }
-        
+
         return 0;
     }
-    
+
     // Builds a Vehicle object from a ResultSet.
-    private Vehicle buildVehicleFromResultSet(ResultSet rs) throws SQLException {
+    private Vehicle buildVehicleFromResultSet(ResultSet rs)
+        throws SQLException {
         int vehicleId = rs.getInt("vehicle_id");
         String registrationNumber = rs.getString("registration_number");
         String make = rs.getString("make");
@@ -240,20 +310,36 @@ public class VehicleService {
         int ownerId = rs.getInt("owner_id");
         String ownerName = rs.getString("owner_name");
         String ownerPhone = rs.getString("owner_phone");
-        
-        return new Vehicle(vehicleId, registrationNumber, make, model, year, color,
-                          ownerId, ownerName, ownerPhone, null);
+
+        return new Vehicle(
+            vehicleId,
+            registrationNumber,
+            make,
+            model,
+            year,
+            color,
+            ownerId,
+            ownerName,
+            ownerPhone,
+            null
+        );
     }
 
     private int resolveOwnerId(String ownerName, String ownerPhone) {
         if (ownerName == null || ownerName.isBlank()) {
             return 0;
         }
-        String sqlByNamePhone = "SELECT customer_id FROM customer WHERE name = ? AND phone = ? LIMIT 1";
-        String sqlByNameOnly = "SELECT customer_id FROM customer WHERE name = ? LIMIT 1";
+        String sqlByNamePhone =
+            "SELECT customer_id FROM customer WHERE name = ? AND phone = ? LIMIT 1";
+        String sqlByNameOnly =
+            "SELECT customer_id FROM customer WHERE name = ? LIMIT 1";
         try (Connection conn = DBConnection.getConnection()) {
             if (ownerPhone != null && !ownerPhone.isBlank()) {
-                try (PreparedStatement stmt = conn.prepareStatement(sqlByNamePhone)) {
+                try (
+                    PreparedStatement stmt = conn.prepareStatement(
+                        sqlByNamePhone
+                    )
+                ) {
                     stmt.setString(1, ownerName.trim());
                     stmt.setString(2, ownerPhone.trim());
                     try (ResultSet rs = stmt.executeQuery()) {
@@ -263,7 +349,9 @@ public class VehicleService {
                     }
                 }
             }
-            try (PreparedStatement stmt = conn.prepareStatement(sqlByNameOnly)) {
+            try (
+                PreparedStatement stmt = conn.prepareStatement(sqlByNameOnly)
+            ) {
                 stmt.setString(1, ownerName.trim());
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {

@@ -7,6 +7,7 @@ C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\cont
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\service\UserService.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\model\User.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\controller\DashboardController.java
+C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\utils\StateManager.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\model\AdminUser.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\controller\LoginController.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\utils\ReportExporter.java
@@ -27,6 +28,7 @@ C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\mode
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\MainApp.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\service\PoliceService.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\service\InsuranceService.java
+C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\utils\AccessibilityHelper.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\model\Claim.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\service\ServiceRecordService.java
 C:\Users\Admin\Documents\GitHub\vehicle-id-system\src\main\java\com\plateiq\controller\InsuranceController.java

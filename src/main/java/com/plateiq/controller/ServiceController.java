@@ -5,22 +5,34 @@ import com.plateiq.model.Vehicle;
 import com.plateiq.service.ServiceRecordService;
 import com.plateiq.service.VehicleService;
 import com.plateiq.utils.AccessControl;
+import com.plateiq.utils.AccessibilityHelper;
 import com.plateiq.utils.AlertUtils;
 import com.plateiq.utils.SceneNavigator;
 import com.plateiq.utils.SessionManager;
-import javafx.event.ActionEvent;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-
+import com.plateiq.utils.StateManager;
 import java.math.BigDecimal;
-
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ServiceController implements Initializable {
 
@@ -70,40 +82,68 @@ public class ServiceController implements Initializable {
     private Button clearFormButton;
 
     private static final int PAGE_SIZE = 15;
-    private ServiceRecordService serviceRecordService;
-    private VehicleService vehicleService;
-    private ObservableList<ServiceRecord> serviceList;
+    private final ServiceRecordService serviceRecordService =
+        new ServiceRecordService();
+    private final VehicleService vehicleService = new VehicleService();
+    private final ObservableList<ServiceRecord> serviceList =
+        FXCollections.observableArrayList();
+    private final List<ServiceRecord> currentSource = new ArrayList<>();
     private Vehicle selectedVehicle;
     private boolean canManageServices;
 
-    public ServiceController() {
-        this.serviceRecordService = new ServiceRecordService();
-        this.vehicleService = new VehicleService();
-        this.serviceList = FXCollections.observableArrayList();
-    }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (!AccessControl.enforceOrRedirect(serviceTable, AccessControl.Module.SERVICE)) {
+        if (
+            !AccessControl.enforceOrRedirect(
+                serviceTable,
+                AccessControl.Module.SERVICE
+            )
+        ) {
             return;
         }
-        colServiceId.setCellValueFactory(new PropertyValueFactory<>("serviceId"));
-        colVehiclePlate.setCellValueFactory(new PropertyValueFactory<>("vehiclePlate"));
-        colServiceType.setCellValueFactory(new PropertyValueFactory<>("serviceType"));
-        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
-        colCost.setCellValueFactory(new PropertyValueFactory<>("cost"));
-        colCost.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.toPlainString());
-            }
-        });
 
-        canManageServices = AccessControl.canManageServices(SessionManager.getCurrentUser());
+        colServiceId.setCellValueFactory(
+            new PropertyValueFactory<>("serviceId")
+        );
+        colVehiclePlate.setCellValueFactory(
+            new PropertyValueFactory<>("vehiclePlate")
+        );
+        colServiceType.setCellValueFactory(
+            new PropertyValueFactory<>("serviceType")
+        );
+        colDescription.setCellValueFactory(
+            new PropertyValueFactory<>("description")
+        );
+        colCost.setCellValueFactory(new PropertyValueFactory<>("cost"));
+        colCost.setCellFactory(column ->
+            new TableCell<>() {
+                @Override
+                protected void updateItem(BigDecimal item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(
+                        empty || item == null ? null : item.toPlainString()
+                    );
+                }
+            }
+        );
+
+        canManageServices = AccessControl.canManageServices(
+            SessionManager.getCurrentUser()
+        );
         applyFeaturePermissions();
+
         serviceTable.setItems(serviceList);
-        pagination.currentPageIndexProperty().addListener((obs, oldV, newV) -> updatePage(newV.intValue()));
+        StateManager.showEmptyState(
+            serviceTable,
+            "No service records available.\n\nSearch for a vehicle and add a service record."
+        );
+
+        // Setup accessibility
+        setupAccessibility();
+
+        pagination
+            .currentPageIndexProperty()
+            .addListener((obs, oldV, newV) -> updatePage(newV.intValue()));
         loadServices();
     }
 
@@ -121,26 +161,101 @@ public class ServiceController implements Initializable {
         }
     }
 
+    /**
+     * Setup keyboard navigation and accessibility features
+     */
+    private void setupAccessibility() {
+        AccessibilityHelper.setupFormNavigation(
+            vehicleSearchField,
+            serviceTypeField,
+            descriptionArea,
+            costField,
+            addServiceButton,
+            clearFormButton
+        );
+
+        AccessibilityHelper.setupTableKeyboard(
+            serviceTable,
+            this::handleTableActivation
+        );
+        AccessibilityHelper.setupButtonKeyboard(addServiceButton);
+        AccessibilityHelper.addFocusIndicator(vehicleSearchField);
+        AccessibilityHelper.addFocusIndicator(serviceTable);
+        Platform.runLater(() ->
+            AccessibilityHelper.setInitialFocus(vehicleSearchField)
+        );
+    }
+
+    private void handleTableActivation() {
+        ServiceRecord selected = serviceTable
+            .getSelectionModel()
+            .getSelectedItem();
+        if (selected != null) {
+            AccessibilityHelper.announceToScreenReader(
+                "Selected service record: ID " +
+                    selected.getServiceId() +
+                    ", Type: " +
+                    selected.getServiceType() +
+                    ", Cost: $" +
+                    selected.getCost()
+            );
+        }
+    }
+
     private boolean requireManagePermission() {
         if (canManageServices) {
             return true;
         }
-        AlertUtils.showWarning("Access Denied", "You have read-only access in Service Records.");
+        AlertUtils.showWarning(
+            "Access Denied",
+            "You have read-only access in Service Records."
+        );
         return false;
     }
 
     private void loadServices() {
+        StateManager.showLoadingState(serviceTable, true);
         try {
-            List<ServiceRecord> services = serviceRecordService.getAllServiceRecords();
-            pagination.setUserData(services);
-            int pageCount = Math.max(1, (int) Math.ceil((double) services.size() / PAGE_SIZE));
-            pagination.setPageCount(pageCount);
-            pagination.setCurrentPageIndex(0);
-            updatePage(0);
-            updateProgress(services.size());
+            List<ServiceRecord> services =
+                serviceRecordService.getAllServiceRecords();
+            setPagedSource(services);
+
+            if (services.isEmpty()) {
+                StateManager.showEmptyState(
+                    serviceTable,
+                    "No service records found.\n\nSearch for a vehicle to add service history."
+                );
+            }
+
+            AccessibilityHelper.announceToScreenReader(
+                "Loaded " + services.size() + " service records"
+            );
         } catch (Exception e) {
-            AlertUtils.showError("Error loading service records: " + e.getMessage());
+            StateManager.showErrorState(
+                serviceTable,
+                "Failed to load services: " + e.getMessage(),
+                this::loadServices
+            );
+            AlertUtils.showError(
+                "Error loading service records",
+                e.getMessage()
+            );
+        } finally {
+            StateManager.showLoadingState(serviceTable, false);
         }
+    }
+
+    private void setPagedSource(List<ServiceRecord> source) {
+        currentSource.clear();
+        currentSource.addAll(source);
+        int pageCount = Math.max(
+            1,
+            (int) Math.ceil((double) currentSource.size() / PAGE_SIZE)
+        );
+        pagination.setPageCount(pageCount);
+        pagination.setCurrentPageIndex(0);
+        updatePage(0);
+        updateProgress(currentSource.size());
     }
 
     private void updateProgress(int count) {
@@ -154,46 +269,79 @@ public class ServiceController implements Initializable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void updatePage(int pageIndex) {
-        Object raw = pagination.getUserData();
-        if (!(raw instanceof List<?> all)) {
-            serviceList.clear();
-            return;
-        }
-        List<ServiceRecord> records = (List<ServiceRecord>) all;
-        int from = Math.min(pageIndex * PAGE_SIZE, records.size());
-        int to = Math.min(from + PAGE_SIZE, records.size());
-        serviceList.setAll(records.subList(from, to));
+        int from = Math.min(pageIndex * PAGE_SIZE, currentSource.size());
+        int to = Math.min(from + PAGE_SIZE, currentSource.size());
+        serviceList.setAll(currentSource.subList(from, to));
     }
 
     @FXML
     private void searchVehicle() {
         String searchTerm = vehicleSearchField.getText();
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            selectedVehicle = null;
             loadServices();
             return;
         }
-        try {
-            List<ServiceRecord> services = serviceRecordService.searchByVehicle(searchTerm);
-            pagination.setUserData(services);
-            int pageCount = Math.max(1, (int) Math.ceil((double) services.size() / PAGE_SIZE));
-            pagination.setPageCount(pageCount);
-            pagination.setCurrentPageIndex(0);
-            updatePage(0);
 
-            selectedVehicle = vehicleService.getVehicleByRegistration(searchTerm);
-            updateProgress(services.size());
+        StateManager.showLoadingState(serviceTable, true);
+        try {
+            String normalizedSearch = searchTerm.trim().toUpperCase();
+            List<ServiceRecord> results = serviceRecordService.searchByVehicle(
+                normalizedSearch
+            );
+            setPagedSource(results);
+
+            selectedVehicle = vehicleService.getVehicleByRegistration(
+                normalizedSearch
+            );
+            if (selectedVehicle != null) {
+                progressLabel.setText(
+                    "Vehicle selected: " + selectedVehicle.getPlateNumber()
+                );
+                AccessibilityHelper.announceToScreenReader(
+                    "Found " +
+                        results.size() +
+                        " service records for vehicle " +
+                        selectedVehicle.getPlateNumber()
+                );
+            } else {
+                progressLabel.setText(
+                    "Search complete. No exact vehicle selected."
+                );
+                if (results.isEmpty()) {
+                    StateManager.showEmptyState(
+                        serviceTable,
+                        "No service records found for '" +
+                            searchTerm +
+                            "'\n\nVerify the vehicle registration and try again."
+                    );
+                }
+            }
         } catch (Exception e) {
-            AlertUtils.showError("Error searching services: " + e.getMessage());
+            StateManager.showErrorState(
+                serviceTable,
+                "Search failed: " + e.getMessage(),
+                this::searchVehicle
+            );
+            AlertUtils.showError("Error searching services", e.getMessage());
+        } finally {
+            StateManager.showLoadingState(serviceTable, false);
         }
     }
 
     @FXML
     private void addServiceRecord() {
-        if (!requireManagePermission()) return;
+        if (!requireManagePermission()) {
+            return;
+        }
+
+        selectedVehicle = resolveVehicleForEntry();
         if (selectedVehicle == null) {
-            AlertUtils.showWarning("No Vehicle Selected", "Please search and select a vehicle first.");
+            AlertUtils.showWarning(
+                "No Vehicle Selected",
+                "Please enter an exact vehicle registration number before adding a service."
+            );
             return;
         }
 
@@ -201,56 +349,113 @@ public class ServiceController implements Initializable {
         String description = descriptionArea.getText();
         String costText = costField.getText();
 
-        if (serviceType.isBlank() || costText.isBlank()) {
-            AlertUtils.showWarning("Validation Error", "Service type and cost are required.");
+        if (
+            serviceType == null ||
+            serviceType.isBlank() ||
+            costText == null ||
+            costText.isBlank()
+        ) {
+            AlertUtils.showWarning(
+                "Validation Error",
+                "Service type and cost are required."
+            );
             return;
         }
 
         try {
-            double cost = Double.parseDouble(costText);
+            double cost = Double.parseDouble(costText.trim());
+            if (cost < 0) {
+                AlertUtils.showWarning(
+                    "Validation Error",
+                    "Cost cannot be negative."
+                );
+                return;
+            }
+
             ServiceRecord service = new ServiceRecord(
                 0,
                 selectedVehicle.getVehicleId(),
-                java.time.LocalDate.now(),
-                serviceType,
-                description,
+                LocalDate.now(),
+                serviceType.trim(),
+                description == null ? null : description.trim(),
                 cost
             );
 
             boolean created = serviceRecordService.addServiceRecord(service);
             if (!created) {
-                AlertUtils.showError("Create Failed", "Service record could not be added. Confirm vehicle and input details.");
+                AlertUtils.showError(
+                    "Create Failed",
+                    "Service record could not be added. Confirm vehicle and input details."
+                );
                 return;
             }
-            AlertUtils.showInfo("Success", "Service record added successfully.");
-            clearFields();
+            AlertUtils.showInfo(
+                "Success",
+                "Service record added successfully."
+            );
+            AccessibilityHelper.announceToScreenReader(
+                "Service record added for vehicle " +
+                    selectedVehicle.getPlateNumber()
+            );
+            clearFieldsInternal();
             loadServices();
         } catch (NumberFormatException e) {
-            AlertUtils.showError("Invalid Input", "Cost must be a valid number.");
+            AlertUtils.showError(
+                "Invalid Input",
+                "Cost must be a valid number."
+            );
         } catch (Exception e) {
-            AlertUtils.showError("Error adding service: " + e.getMessage());
+            AlertUtils.showError("Error adding service", e.getMessage());
         }
+    }
+
+    private Vehicle resolveVehicleForEntry() {
+        if (selectedVehicle != null) {
+            return selectedVehicle;
+        }
+
+        String registration = vehicleSearchField.getText();
+        if (registration == null || registration.isBlank()) {
+            return null;
+        }
+
+        return vehicleService.getVehicleByRegistration(
+            registration.trim().toUpperCase()
+        );
     }
 
     @FXML
     private void clearFields() {
-        if (!requireManagePermission()) return;
+        if (!requireManagePermission()) {
+            return;
+        }
+        clearFieldsInternal();
+    }
+
+    private void clearFieldsInternal() {
         serviceTypeField.clear();
         descriptionArea.clear();
         costField.clear();
-        selectedVehicle = null;
-    }
-
-    @FXML
-    private void onVehicleSearchResult(Vehicle vehicle) {
-        this.selectedVehicle = vehicle;
-        AlertUtils.showInfo("Vehicle Selected", "Selected: " + vehicle.getPlateNumber());
     }
 
     @FXML
     private void goToDashboard(ActionEvent event) {
         SceneNavigator.switchScene(event, "/fxml/dashboard.fxml");
     }
+
+    @FXML
+    private void handleHome(ActionEvent event) {
+        goToDashboard(event);
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        SessionManager.logout();
+        SceneNavigator.switchScene(event, "/fxml/login.fxml");
+    }
+
+    @FXML
+    private void handleExit(ActionEvent event) {
+        Platform.exit();
+    }
 }
-
-

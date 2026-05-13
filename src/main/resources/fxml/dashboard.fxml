@@ -26,30 +26,47 @@
         <BorderPane AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <top>
-                <HBox styleClass="dashboard-topbar" alignment="CENTER_LEFT" spacing="12.0">
+                <VBox spacing="0.0">
                     <children>
-                        <ImageView fitWidth="180.0" preserveRatio="true" styleClass="brand-logo">
-                            <image>
-                                <Image url="@../logo.png" />
-                            </image>
-                        </ImageView>
-                        <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <MenuBar>
+                            <menus>
+                                <Menu text="File">
+                                    <items>
+                                        <MenuItem text="Home" onAction="#handleHome" />
+                                        <MenuItem text="Logout" onAction="#handleLogout" />
+                                        <SeparatorMenuItem />
+                                        <MenuItem text="Exit" onAction="#handleExit" />
+                                    </items>
+                                </Menu>
+                            </menus>
+                        </MenuBar>
+
+                        <HBox styleClass="dashboard-topbar" alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <Label text="Operations Console" styleClass="dashboard-subbrand" />
+                                <ImageView fitWidth="180.0" preserveRatio="true" styleClass="brand-logo">
+                                    <image>
+                                        <Image url="@../logo.png" />
+                                    </image>
+                                </ImageView>
+                                <VBox alignment="CENTER_LEFT" spacing="2.0">
+                                    <children>
+                                        <Label text="Operations Console" styleClass="dashboard-subbrand" />
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                                    <children>
+                                        <Label fx:id="roleBadgeLabel" text="ROLE" styleClass="role-badge" />
+                                        <Button text="Logout" onAction="#handleLogout" styleClass="outline-button" />
+                                    </children>
+                                </HBox>
                             </children>
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <HBox alignment="CENTER_RIGHT" spacing="15.0">
-                            <children>
-                                <Label fx:id="roleBadgeLabel" text="ROLE" styleClass="role-badge" />
-                                <Button text="Logout" onAction="#handleLogout" styleClass="outline-button" />
-                            </children>
+                            <padding>
+                                <Insets top="14.0" right="24.0" bottom="14.0" left="24.0" />
+                            </padding>
                         </HBox>
                     </children>
-                    <padding>
-                        <Insets top="14.0" right="24.0" bottom="14.0" left="24.0" />
-                    </padding>
-                </HBox>
+                </VBox>
             </top>
 
             <left>
@@ -84,7 +101,7 @@
                                 <Label fx:id="roleSummaryLabel" text="Role summary" styleClass="dashboard-role-summary" />
                             </children>
                         </VBox>
-                        
+
                         <Label fx:id="permissionsLabel" text="Accessible modules" styleClass="dashboard-permissions" />
 
                         <HBox spacing="20.0">
