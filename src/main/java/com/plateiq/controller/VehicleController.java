@@ -178,9 +178,7 @@ public class VehicleController implements Initializable {
         }
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility() {
         // Setup form navigation with Tab key
         AccessibilityHelper.setupFormNavigation(
@@ -219,9 +217,7 @@ public class VehicleController implements Initializable {
         );
     }
 
-    /**
-     * Handle table row activation (Enter/Space key)
-     */
+    // Handle table row activation (Enter/Space key)
     private void handleTableActivation() {
         Vehicle selected = vehicleTable.getSelectionModel().getSelectedItem();
         if (selected != null) {

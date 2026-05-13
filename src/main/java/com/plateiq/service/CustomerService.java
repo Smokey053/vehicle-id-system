@@ -103,14 +103,14 @@ public class CustomerService {
 
     // Service history methods.
 
-    /** Gets service history for a vehicle. */
+    // Gets service history for a vehicle.
     public List<ServiceRecord> getServiceHistory(int vehicleId) {
         return serviceRecordService.getServiceByVehicleId(vehicleId);
     }
 
     // Query submission methods.
 
-    /** Submits a new customer query. */
+    // Submits a new customer query.
     public boolean submitQuery(
         int customerId,
         int vehicleId,
@@ -242,7 +242,7 @@ public class CustomerService {
 
     // Insurance info methods.
 
-    /** Gets insurance information for a vehicle. */
+    // Gets insurance information for a vehicle.
     public List<InsurancePolicy> getInsuranceInfo(int vehicleId) {
         return insuranceService.getPoliciesByVehicleId(vehicleId);
     }

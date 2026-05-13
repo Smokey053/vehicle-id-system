@@ -15,24 +15,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
-/**
- * Comprehensive state management utility for JavaFX TableView components.
- * Provides methods to display loading, empty, and error states with visual feedback.
- *
- * <p>This utility class helps manage different UI states for TableView components:
- * <ul>
- *   <li>Loading state with animated progress indicator</li>
- *   <li>Empty state with customizable messages and icons</li>
- *   <li>Error state with retry functionality</li>
- *   <li>Smooth transitions between states</li>
- * </ul>
- *
- * <p>All state placeholders are styled consistently and support accessibility features.
- *
- * @author PlateIQ Development Team
- * @version 1.0
- * @since 1.0
- */
+// Comprehensive state management utility for JavaFX TableView components
 public class StateManager {
 
     // Default messages
@@ -53,41 +36,12 @@ public class StateManager {
     private static final Color MESSAGE_COLOR = Color.rgb(108, 117, 125);
     private static final Color ERROR_COLOR = Color.rgb(220, 53, 69);
 
-    /**
-     * Private constructor to prevent instantiation of this utility class.
-     */
+    // Private constructor to prevent instantiation of this utility class.
     private StateManager() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
-    /**
-     * Shows or hides a loading state in the table with an animated progress indicator.
-     * When loading is true, displays a loading placeholder. When false, clears the placeholder.
-     *
-     * <p>The loading indicator includes:
-     * <ul>
-     *   <li>An animated spinning progress indicator</li>
-     *   <li>A "Loading..." message</li>
-     *   <li>Fade-in animation for smooth appearance</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * // Start loading
-     * StateManager.showLoadingState(vehicleTable, true);
-     *
-     * // Perform async operation
-     * loadDataAsync(() -&gt; {
-     *     // After data is loaded
-     *     StateManager.showLoadingState(vehicleTable, false);
-     *     vehicleTable.setItems(data);
-     * });
-     * </pre>
-     *
-     * @param table The TableView to show loading state in
-     * @param isLoading True to show loading state, false to clear it
-     * @throws IllegalArgumentException if table is null
-     */
+    // Shows or hides a loading state in the table with an animated progress indicator
     public static void showLoadingState(TableView<?> table, boolean isLoading) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
@@ -119,29 +73,7 @@ public class StateManager {
         });
     }
 
-    /**
-     * Shows a custom empty state message when the table has no data.
-     * Displays a styled message with an icon to inform users why the table is empty.
-     *
-     * <p>The empty state includes:
-     * <ul>
-     *   <li>A large icon (default: 📭)</li>
-     *   <li>A custom message</li>
-     *   <li>Fade-in animation</li>
-     *   <li>Accessible text for screen readers</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * if (vehicleList.isEmpty()) {
-     *     StateManager.showEmptyState(vehicleTable, "No vehicles found. Click 'Add Vehicle' to get started.");
-     * }
-     * </pre>
-     *
-     * @param table The TableView to show empty state in
-     * @param message The message to display to the user
-     * @throws IllegalArgumentException if table or message is null
-     */
+    // Shows a custom empty state message when the table has no data
     public static void showEmptyState(TableView<?> table, String message) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
@@ -162,67 +94,12 @@ public class StateManager {
         });
     }
 
-    /**
-     * Shows an error state with an error message and optional retry button.
-     * Displays a styled error message with a retry option for failed operations.
-     *
-     * <p>The error state includes:
-     * <ul>
-     *   <li>An error icon (⚠️)</li>
-     *   <li>The error message</li>
-     *   <li>A "Retry" button if a retry action is provided</li>
-     *   <li>Red accent color for error visibility</li>
-     *   <li>Fade-in animation</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * try {
-     *     List&lt;Vehicle&gt; vehicles = vehicleService.getAllVehicles();
-     *     vehicleTable.setItems(FXCollections.observableArrayList(vehicles));
-     * } catch (Exception e) {
-     *     StateManager.showErrorState(
-     *         vehicleTable,
-     *         "Failed to load vehicles: " + e.getMessage()
-     *     );
-     * }
-     * </pre>
-     *
-     * @param table The TableView to show error state in
-     * @param errorMessage The error message to display
-     * @throws IllegalArgumentException if table or errorMessage is null
-     */
+    // Shows an error state with an error message and optional retry button
     public static void showErrorState(TableView<?> table, String errorMessage) {
         showErrorState(table, errorMessage, null);
     }
 
-    /**
-     * Shows an error state with an error message and a retry button.
-     * Displays a styled error message with a retry option for failed operations.
-     *
-     * <p>The error state includes:
-     * <ul>
-     *   <li>An error icon (⚠️)</li>
-     *   <li>The error message</li>
-     *   <li>A "Retry" button that executes the provided retry action</li>
-     *   <li>Red accent color for error visibility</li>
-     *   <li>Fade-in animation</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * StateManager.showErrorState(
-     *     vehicleTable,
-     *     "Failed to load vehicles. Please check your connection.",
-     *     () -&gt; loadVehicles() // Retry action
-     * );
-     * </pre>
-     *
-     * @param table The TableView to show error state in
-     * @param errorMessage The error message to display
-     * @param retryAction Runnable to execute when retry button is clicked (can be null)
-     * @throws IllegalArgumentException if table or errorMessage is null
-     */
+    // Shows an error state with an error message and a retry button
     public static void showErrorState(TableView<?> table, String errorMessage, Runnable retryAction) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
@@ -243,32 +120,7 @@ public class StateManager {
         });
     }
 
-    /**
-     * Creates a styled empty state placeholder label with custom message and icon.
-     * This method can be used independently to create consistent empty state visuals.
-     *
-     * <p>The placeholder includes:
-     * <ul>
-     *   <li>Large icon at the top</li>
-     *   <li>Message text below the icon</li>
-     *   <li>Centered alignment</li>
-     *   <li>Accessibility support</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * Label emptyState = StateManager.createEmptyStatePlaceholder(
-     *     "No results found for your search",
-     *     "🔍"
-     * );
-     * someContainer.getChildren().add(emptyState);
-     * </pre>
-     *
-     * @param message The message to display
-     * @param iconText The icon/emoji to display (can be Unicode emoji or text)
-     * @return A styled Label containing the empty state placeholder
-     * @throws IllegalArgumentException if message is null or empty
-     */
+    // Creates a styled empty state placeholder label with custom message and icon
     public static Label createEmptyStatePlaceholder(String message, String iconText) {
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException("Message cannot be null or empty");
@@ -304,26 +156,7 @@ public class StateManager {
         return placeholder;
     }
 
-    /**
-     * Creates an animated loading placeholder with progress indicator.
-     * This method can be used independently to create consistent loading visuals.
-     *
-     * <p>The placeholder includes:
-     * <ul>
-     *   <li>Animated spinning progress indicator</li>
-     *   <li>"Loading..." message</li>
-     *   <li>Centered alignment</li>
-     *   <li>Accessibility support</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * Label loadingState = StateManager.createLoadingPlaceholder();
-     * someContainer.getChildren().add(loadingState);
-     * </pre>
-     *
-     * @return A styled Label containing the loading placeholder with progress indicator
-     */
+    // Creates an animated loading placeholder with progress indicator
     public static Label createLoadingPlaceholder() {
         VBox container = new VBox(15);
         container.setAlignment(Pos.CENTER);
@@ -352,33 +185,7 @@ public class StateManager {
         return placeholder;
     }
 
-    /**
-     * Creates an error placeholder with message and optional retry button.
-     * This method can be used independently to create consistent error visuals.
-     *
-     * <p>The placeholder includes:
-     * <ul>
-     *   <li>Error icon (⚠️)</li>
-     *   <li>Error message in red text</li>
-     *   <li>Optional "Retry" button</li>
-     *   <li>Centered alignment</li>
-     *   <li>Accessibility support</li>
-     * </ul>
-     *
-     * <p>Example usage:
-     * <pre>
-     * VBox errorState = StateManager.createErrorPlaceholder(
-     *     "Connection failed",
-     *     () -&gt; reconnect()
-     * );
-     * someContainer.getChildren().add(errorState);
-     * </pre>
-     *
-     * @param message The error message to display
-     * @param retryAction Runnable to execute when retry button is clicked (can be null)
-     * @return A styled VBox containing the error placeholder
-     * @throws IllegalArgumentException if message is null or empty
-     */
+    // Creates an error placeholder with message and optional retry button
     public static VBox createErrorPlaceholder(String message, Runnable retryAction) {
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException("Message cannot be null or empty");
@@ -453,20 +260,7 @@ public class StateManager {
         return container;
     }
 
-    /**
-     * Clears any state placeholder from the table, restoring it to normal display.
-     * Use this method to remove loading, empty, or error states when data is available.
-     *
-     * <p>Example usage:
-     * <pre>
-     * // After successfully loading data
-     * StateManager.clearState(vehicleTable);
-     * vehicleTable.setItems(vehicles);
-     * </pre>
-     *
-     * @param table The TableView to clear state from
-     * @throws IllegalArgumentException if table is null
-     */
+    // Clears any state placeholder from the table, restoring it to normal display
     public static void clearState(TableView<?> table) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
@@ -477,21 +271,7 @@ public class StateManager {
         });
     }
 
-    /**
-     * Shows a custom state with a custom placeholder node.
-     * Allows full customization of the state display while maintaining consistent animations.
-     *
-     * <p>Example usage:
-     * <pre>
-     * VBox customState = new VBox();
-     * customState.getChildren().add(new Label("Custom message"));
-     * StateManager.showCustomState(vehicleTable, customState);
-     * </pre>
-     *
-     * @param table The TableView to show custom state in
-     * @param customPlaceholder The custom node to display as placeholder
-     * @throws IllegalArgumentException if table or customPlaceholder is null
-     */
+    // Shows a custom state with a custom placeholder node
     public static void showCustomState(TableView<?> table, javafx.scene.Node customPlaceholder) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
@@ -511,22 +291,7 @@ public class StateManager {
         });
     }
 
-    /**
-     * Shows an info state with an informational message and icon.
-     * Useful for displaying helpful information or instructions to users.
-     *
-     * <p>Example usage:
-     * <pre>
-     * StateManager.showInfoState(
-     *     vehicleTable,
-     *     "Select a filter above to view vehicles"
-     * );
-     * </pre>
-     *
-     * @param table The TableView to show info state in
-     * @param message The informational message to display
-     * @throws IllegalArgumentException if table or message is null
-     */
+    // Shows an info state with an informational message and icon
     public static void showInfoState(TableView<?> table, String message) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
@@ -547,24 +312,7 @@ public class StateManager {
         });
     }
 
-    /**
-     * Shows a "no results" state for search/filter operations.
-     * Specifically designed for when a search or filter returns no results.
-     *
-     * <p>Example usage:
-     * <pre>
-     * List&lt;Vehicle&gt; results = searchVehicles(query);
-     * if (results.isEmpty()) {
-     *     StateManager.showNoResultsState(vehicleTable, query);
-     * } else {
-     *     vehicleTable.setItems(FXCollections.observableArrayList(results));
-     * }
-     * </pre>
-     *
-     * @param table The TableView to show no results state in
-     * @param searchQuery The search query that returned no results
-     * @throws IllegalArgumentException if table or searchQuery is null
-     */
+    // Shows a "no results" state for search/filter operations
     public static void showNoResultsState(TableView<?> table, String searchQuery) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");

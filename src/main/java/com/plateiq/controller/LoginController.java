@@ -74,9 +74,7 @@ public class LoginController {
         setupAccessibility();
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility() {
         // Setup form navigation: Tab through username -> password -> login button
         AccessibilityHelper.setupFormNavigation(

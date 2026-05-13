@@ -115,24 +115,24 @@ public class PoliceReport {
         return vehicleMake;
     }
     
-    /** Sets the vehicle's make. */
+    // Sets the vehicle's make.
     public void setVehicleMake(String vehicleMake) {
         this.vehicleMake = vehicleMake;
     }
     
-    /** Gets the vehicle's model. */
+    // Gets the vehicle's model.
     public String getVehicleModel() {
         return vehicleModel;
     }
     
-    /** Sets the vehicle's model. */
+    // Sets the vehicle's model.
     public void setVehicleModel(String vehicleModel) {
         this.vehicleModel = vehicleModel;
     }
     
     // Utility methods.
     
-    /** Returns a string representation of the PoliceReport. */
+    // Returns a string representation of the PoliceReport.
     @Override
     public String toString() {
         return "PoliceReport{" +

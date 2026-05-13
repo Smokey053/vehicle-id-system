@@ -239,9 +239,7 @@ public class CustomerController implements Initializable {
         }
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility() {
         // Setup form navigation with Tab key
         AccessibilityHelper.setupFormNavigation(
@@ -284,9 +282,7 @@ public class CustomerController implements Initializable {
         );
     }
 
-    /**
-     * Handle service table row activation (Enter/Space key)
-     */
+    // Handle service table row activation (Enter/Space key)
     private void handleServiceTableActivation() {
         ServiceRecord selected = serviceHistoryTable
             .getSelectionModel()
@@ -305,9 +301,7 @@ public class CustomerController implements Initializable {
         }
     }
 
-    /**
-     * Handle insurance table row activation (Enter/Space key)
-     */
+    // Handle insurance table row activation (Enter/Space key)
     private void handleInsuranceTableActivation() {
         InsurancePolicy selected = insuranceTable
             .getSelectionModel()
@@ -832,7 +826,7 @@ public class CustomerController implements Initializable {
                 return;
             }
 
-            // file handling requirement: keep a local query log as well
+            // File handling requirement: keep a local query log as well
             ReportExporter.exportCustomerQuery(
                 queryText,
                 "customer_query_" + LocalDate.now() + ".txt"

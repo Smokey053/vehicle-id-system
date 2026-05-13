@@ -267,7 +267,7 @@ public class PoliceService {
         return violations;
     }
     
-    /** Gets all violations for a specific vehicle. */
+    // Gets all violations for a specific vehicle.
     public List<Violation> getViolationsByVehicle(int vehicleId) {
         String sql = "SELECT v.*, NULL::text AS description, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
@@ -295,7 +295,7 @@ public class PoliceService {
         return violations;
     }
     
-    /** Gets all violations with a specific status. */
+    // Gets all violations with a specific status.
     public List<Violation> getViolationsByStatus(String status) {
         String sql = "SELECT v.*, NULL::text AS description, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
@@ -323,7 +323,7 @@ public class PoliceService {
         return violations;
     }
     
-    /** Marks a violation as paid. */
+    // Marks a violation as paid.
     public boolean markViolationAsPaid(int violationId) {
         String sql = "UPDATE violation SET status = 'PAID' WHERE violation_id = ?";
         
@@ -341,7 +341,7 @@ public class PoliceService {
         }
     }
     
-    /** Gets the total unpaid fine amount. */
+    // Gets the total unpaid fine amount.
     public BigDecimal getTotalUnpaidFines() {
         String sql = "SELECT COALESCE(SUM(fine_amount), 0) FROM violation WHERE status = 'UNPAID'";
         

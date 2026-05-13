@@ -77,7 +77,7 @@ public class ReportExporter {
         return writeToFile(content.toString(), filename);
     }
     
-    /** Exports a customer query log to a text file. */
+    // Exports a customer query log to a text file.
     public static boolean exportCustomerQuery(String queryText, String filename) {
         StringBuilder content = new StringBuilder();
         content.append("========================================\n");
@@ -95,7 +95,7 @@ public class ReportExporter {
         return writeToFile(content.toString(), filename);
     }
     
-    /** Writes content to a text file. */
+    // Writes content to a text file.
     private static boolean writeToFile(String content, String filename) {
         try (FileWriter writer = new FileWriter(filename)) {
             writer.write(content);
@@ -107,12 +107,12 @@ public class ReportExporter {
         }
     }
 
-    /** Exports custom text content to a file. */
+    // Exports custom text content to a file.
     public static boolean exportToFile(String content, String filename) {
         return writeToFile(content, filename);
     }
     
-    /** Exports an error log to a text file. */
+    // Exports an error log to a text file.
     public static boolean exportErrorLog(String errorMessage, String filename) {
         StringBuilder content = new StringBuilder();
         content.append("========================================\n");

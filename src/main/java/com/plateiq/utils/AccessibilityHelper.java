@@ -10,22 +10,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 
-/**
- * Comprehensive accessibility helper utility for JavaFX applications.
- * Provides methods to enhance keyboard navigation, focus management, and screen reader support.
- *
- * <p>This utility class helps make JavaFX applications more accessible by:
- * <ul>
- *   <li>Setting up proper keyboard navigation between form controls</li>
- *   <li>Enabling keyboard shortcuts for common actions</li>
- *   <li>Adding visual focus indicators for better usability</li>
- *   <li>Supporting screen reader announcements</li>
- * </ul>
- *
- * @author PlateIQ Development Team
- * @version 1.0
- * @since 1.0
- */
+// Comprehensive accessibility helper utility for JavaFX applications
 public class AccessibilityHelper {
 
     // CSS class names for focus indicators
@@ -35,31 +20,14 @@ public class AccessibilityHelper {
     // ARIA live region for screen reader announcements
     private static Label screenReaderAnnouncer;
 
-    /**
-     * Private constructor to prevent instantiation of this utility class.
-     */
+    // Private constructor to prevent instantiation of this utility class.
     private AccessibilityHelper() {
         throw new UnsupportedOperationException(
             "Utility class cannot be instantiated"
         );
     }
 
-    /**
-     * Sets up Tab key navigation with proper focus traversal for form controls.
-     * Configures the controls to traverse focus in the order they are provided,
-     * with Tab moving forward and Shift+Tab moving backward.
-     *
-     * <p>Example usage:
-     * <pre>
-     * AccessibilityHelper.setupFormNavigation(
-     *     nameField, emailField, phoneField, submitButton
-     * );
-     * </pre>
-     *
-     * @param controls Variable number of controls to set up in navigation order.
-     *                 Controls will be navigable in the order they are provided.
-     * @throws IllegalArgumentException if controls array is null or empty
-     */
+    // Sets up Tab key navigation with proper focus traversal for form controls
     public static void setupFormNavigation(Control... controls) {
         if (controls == null || controls.length == 0) {
             throw new IllegalArgumentException(
@@ -105,25 +73,7 @@ public class AccessibilityHelper {
         }
     }
 
-    /**
-     * Enables keyboard navigation for TableView with Enter key activation.
-     * When Enter is pressed on a selected row, the provided action will be executed.
-     * Also enables arrow key navigation through table rows.
-     *
-     * <p>Example usage:
-     * <pre>
-     * AccessibilityHelper.setupTableKeyboard(vehicleTable, () -&gt; {
-     *     Vehicle selected = vehicleTable.getSelectionModel().getSelectedItem();
-     *     if (selected != null) {
-     *         editVehicle(selected);
-     *     }
-     * });
-     * </pre>
-     *
-     * @param table The TableView to enhance with keyboard navigation
-     * @param onEnterAction Runnable to execute when Enter key is pressed on selected row
-     * @throws IllegalArgumentException if table or onEnterAction is null
-     */
+    // Enables keyboard navigation for TableView with Enter key activation
     public static void setupTableKeyboard(
         TableView<?> table,
         Runnable onEnterAction
@@ -154,27 +104,13 @@ public class AccessibilityHelper {
             }
         });
 
-        // Ensure proper accessible text for screen readers
-        // Note: JavaFX 17 may not have TABLE role, using default NODE
+        // Ensure proper accessible text for screen readers Note: JavaFX 17 may not have TABLE role, using default NODE
         table.setAccessibleText(
             "Data table - use arrow keys to navigate, Enter to activate"
         );
     }
 
-    /**
-     * Ensures Space and Enter keys work properly on buttons for keyboard accessibility.
-     * By default, JavaFX buttons respond to Space, but this method ensures both
-     * Space and Enter keys trigger the button action for better accessibility.
-     *
-     * <p>Example usage:
-     * <pre>
-     * Button submitButton = new Button("Submit");
-     * AccessibilityHelper.setupButtonKeyboard(submitButton);
-     * </pre>
-     *
-     * @param button The button to enhance with keyboard support
-     * @throws IllegalArgumentException if button is null
-     */
+    // Ensures Space and Enter keys work properly on buttons for keyboard accessibility
     public static void setupButtonKeyboard(Button button) {
         if (button == null) {
             throw new IllegalArgumentException("Button cannot be null");
@@ -196,23 +132,7 @@ public class AccessibilityHelper {
         button.setCancelButton(false);
     }
 
-    /**
-     * Adds visual focus indicator styles to enhance visibility of focused elements.
-     * Applies a visible border and shadow effect when the node receives keyboard focus.
-     * The focus indicator is only shown for keyboard navigation (not mouse clicks).
-     *
-     * <p>The focus indicator uses CSS styling that can be customized in your stylesheet:
-     * <pre>
-     * .focus-visible {
-     *     -fx-effect: dropshadow(three-pass-box, rgba(0, 123, 255, 0.5), 4, 0, 0, 0);
-     *     -fx-border-color: #007bff;
-     *     -fx-border-width: 2px;
-     * }
-     * </pre>
-     *
-     * @param node The node to add focus indicator to
-     * @throws IllegalArgumentException if node is null
-     */
+    // Adds visual focus indicator styles to enhance visibility of focused elements
     public static void addFocusIndicator(Node node) {
         if (node == null) {
             throw new IllegalArgumentException("Node cannot be null");
@@ -263,24 +183,7 @@ public class AccessibilityHelper {
         node.setFocusTraversable(true);
     }
 
-    /**
-     * Sets initial focus to a node when the scene is loaded.
-     * This is important for keyboard-only users who need to start navigating
-     * immediately without using a mouse.
-     *
-     * <p>The focus is set after the scene is fully rendered to ensure proper behavior.
-     *
-     * <p>Example usage:
-     * <pre>
-     * &#64;Override
-     * public void initialize(URL location, ResourceBundle resources) {
-     *     AccessibilityHelper.setInitialFocus(usernameField);
-     * }
-     * </pre>
-     *
-     * @param node The node to receive initial focus
-     * @throws IllegalArgumentException if node is null
-     */
+    // Sets initial focus to a node when the scene is loaded
     public static void setInitialFocus(Node node) {
         if (node == null) {
             throw new IllegalArgumentException("Node cannot be null");
@@ -294,27 +197,7 @@ public class AccessibilityHelper {
         });
     }
 
-    /**
-     * Announces a message to screen readers using ARIA live regions.
-     * This is useful for providing feedback to users who rely on assistive technology
-     * without disrupting the visual interface.
-     *
-     * <p>The announcement is made asynchronously and will be read by screen readers
-     * that support ARIA live regions. The message is temporary and will be cleared
-     * after being announced.
-     *
-     * <p>Example usage:
-     * <pre>
-     * // After saving data
-     * AccessibilityHelper.announceToScreenReader("Vehicle saved successfully");
-     *
-     * // After an error
-     * AccessibilityHelper.announceToScreenReader("Error: Unable to save vehicle");
-     * </pre>
-     *
-     * @param message The message to announce to screen readers
-     * @throws IllegalArgumentException if message is null or empty
-     */
+    // Announces a message to screen readers using ARIA live regions
     public static void announceToScreenReader(String message) {
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -358,23 +241,7 @@ public class AccessibilityHelper {
         });
     }
 
-    /**
-     * Sets up comprehensive accessibility for a button with custom accessible text.
-     * Combines keyboard support, focus indicator, and screen reader support.
-     *
-     * <p>Example usage:
-     * <pre>
-     * Button deleteButton = new Button("Delete");
-     * AccessibilityHelper.setupAccessibleButton(
-     *     deleteButton,
-     *     "Delete selected vehicle - Warning: This action cannot be undone"
-     * );
-     * </pre>
-     *
-     * @param button The button to make accessible
-     * @param accessibleText Descriptive text for screen readers
-     * @throws IllegalArgumentException if button or accessibleText is null
-     */
+    // Sets up comprehensive accessibility for a button with custom accessible text
     public static void setupAccessibleButton(
         Button button,
         String accessibleText
@@ -394,24 +261,7 @@ public class AccessibilityHelper {
         button.setAccessibleRole(javafx.scene.AccessibleRole.BUTTON);
     }
 
-    /**
-     * Sets up comprehensive accessibility for a table with custom accessible text.
-     * Combines keyboard navigation, focus indicator, and screen reader support.
-     *
-     * <p>Example usage:
-     * <pre>
-     * AccessibilityHelper.setupAccessibleTable(
-     *     vehicleTable,
-     *     "Vehicle records table with " + vehicleTable.getItems().size() + " entries",
-     *     () -&gt; editSelectedVehicle()
-     * );
-     * </pre>
-     *
-     * @param table The table to make accessible
-     * @param accessibleText Descriptive text for screen readers
-     * @param onEnterAction Action to perform when Enter is pressed
-     * @throws IllegalArgumentException if any parameter is null
-     */
+    // Sets up comprehensive accessibility for a table with custom accessible text
     public static void setupAccessibleTable(
         TableView<?> table,
         String accessibleText,
@@ -434,14 +284,7 @@ public class AccessibilityHelper {
         table.setAccessibleText(accessibleText);
     }
 
-    /**
-     * Disables a control and updates its accessible state for screen readers.
-     * Provides proper feedback to assistive technology when controls are disabled.
-     *
-     * @param control The control to disable
-     * @param reason The reason for disabling (announced to screen readers)
-     * @throws IllegalArgumentException if control or reason is null
-     */
+    // Disables a control and updates its accessible state for screen readers
     public static void disableWithAccessibility(
         Control control,
         String reason
@@ -464,14 +307,7 @@ public class AccessibilityHelper {
         control.setAccessibleText(newText);
     }
 
-    /**
-     * Enables a control and updates its accessible state for screen readers.
-     * Restores the control to an active state with proper accessibility support.
-     *
-     * @param control The control to enable
-     * @param accessibleText The accessible text to set (or null to keep existing)
-     * @throws IllegalArgumentException if control is null
-     */
+    // Enables a control and updates its accessible state for screen readers
     public static void enableWithAccessibility(
         Control control,
         String accessibleText

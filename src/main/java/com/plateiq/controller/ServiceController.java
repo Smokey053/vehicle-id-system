@@ -218,9 +218,7 @@ public class ServiceController implements Initializable {
         }
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility() {
         AccessibilityHelper.setupFormNavigation(
             vehicleSearchField,

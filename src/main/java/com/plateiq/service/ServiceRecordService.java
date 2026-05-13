@@ -237,7 +237,7 @@ public class ServiceRecordService {
         return serviceRecords;
     }
 
-    /** Gets a service record by its ID. */
+    // Gets a service record by its ID.
     public ServiceRecord getServiceRecordById(int serviceId) {
         String sql =
             "SELECT sr.*, v.registration_number AS vehicle_registration, " +

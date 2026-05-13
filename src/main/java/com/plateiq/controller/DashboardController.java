@@ -77,9 +77,7 @@ public class DashboardController {
         setupAccessibility(currentUser);
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility(User user) {
         // Build list of visible module buttons
         List<Button> visibleButtons = new ArrayList<>();

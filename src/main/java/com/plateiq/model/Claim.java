@@ -115,34 +115,34 @@ public class Claim {
         return vehicleRegistration;
     }
     
-    /** Sets the vehicle's registration number. */
+    // Sets the vehicle's registration number.
     public void setVehicleRegistration(String vehicleRegistration) {
         this.vehicleRegistration = vehicleRegistration;
     }
     
-    /** Gets the vehicle's make. */
+    // Gets the vehicle's make.
     public String getVehicleMake() {
         return vehicleMake;
     }
     
-    /** Sets the vehicle's make. */
+    // Sets the vehicle's make.
     public void setVehicleMake(String vehicleMake) {
         this.vehicleMake = vehicleMake;
     }
     
-    /** Gets the vehicle's model. */
+    // Gets the vehicle's model.
     public String getVehicleModel() {
         return vehicleModel;
     }
     
-    /** Sets the vehicle's model. */
+    // Sets the vehicle's model.
     public void setVehicleModel(String vehicleModel) {
         this.vehicleModel = vehicleModel;
     }
     
     // Utility methods.
     
-    /** Returns a string representation of the Claim. */
+    // Returns a string representation of the Claim.
     @Override
     public String toString() {
         return "Claim{" +

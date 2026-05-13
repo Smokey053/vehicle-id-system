@@ -259,9 +259,7 @@ public class PoliceController implements Initializable {
         }
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility() {
         // Setup form navigation with Tab key
         AccessibilityHelper.setupFormNavigation(
@@ -311,9 +309,7 @@ public class PoliceController implements Initializable {
         );
     }
 
-    /**
-     * Handle report table row activation (Enter/Space key)
-     */
+    // Handle report table row activation (Enter/Space key)
     private void handleReportTableActivation() {
         PoliceReport selected = reportTable
             .getSelectionModel()
@@ -332,9 +328,7 @@ public class PoliceController implements Initializable {
         }
     }
 
-    /**
-     * Handle violation table row activation (Enter/Space key)
-     */
+    // Handle violation table row activation (Enter/Space key)
     private void handleViolationTableActivation() {
         Violation selected = violationTable
             .getSelectionModel()

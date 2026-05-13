@@ -255,9 +255,7 @@ public class InsuranceController implements Initializable {
         }
     }
 
-    /**
-     * Setup keyboard navigation and accessibility features
-     */
+    // Setup keyboard navigation and accessibility features
     private void setupAccessibility() {
         // Setup form navigation with Tab key
         AccessibilityHelper.setupFormNavigation(
@@ -305,9 +303,7 @@ public class InsuranceController implements Initializable {
         );
     }
 
-    /**
-     * Handle policy table row activation (Enter/Space key)
-     */
+    // Handle policy table row activation (Enter/Space key)
     private void handlePolicyTableActivation() {
         InsurancePolicy selected = policyTable
             .getSelectionModel()
@@ -326,9 +322,7 @@ public class InsuranceController implements Initializable {
         }
     }
 
-    /**
-     * Handle claim table row activation (Enter/Space key)
-     */
+    // Handle claim table row activation (Enter/Space key)
     private void handleClaimTableActivation() {
         Claim selected = claimTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
