@@ -80,6 +80,9 @@ public class VehicleController implements Initializable {
     @FXML
     private Button clearFormButton;
 
+    @FXML
+    private Pagination pagination;
+
     private VehicleService vehicleService;
     private ObservableList<Vehicle> vehicleList;
     private boolean canManageVehicles;

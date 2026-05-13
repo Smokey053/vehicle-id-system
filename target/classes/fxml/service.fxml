@@ -1,101 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/17"
+<BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.plateiq.controller.ServiceController"
             prefHeight="700.0" prefWidth="1000.0"
             style="-fx-background-color: #f5f7fa;">
 
-    <children>
-        <!-- Title -->
-        <Label text="Service Records" styleClass="page-title" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="20.0">
-            <font>
-                <Font name="Segoe UI" size="24.0" />
-            </font>
-        </Label>
-
-        <!-- Vehicle Search -->
-        <HBox alignment="CENTER_LEFT" spacing="10.0" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="20.0"
-              AnchorPane.rightAnchor="20.0">
+    <top>
+        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="16.0" right="20.0" bottom="0.0" left="20.0" />
+            </padding>
             <children>
-                <TextField fx:id="vehicleSearchField" promptText="Search vehicle by registration..." prefWidth="300.0"
-                           styleClass="search-field" />
-                <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
-            </children>
-        </HBox>
-
-        <!-- Service Form -->
-        <TitledPane text="Add Service Record" AnchorPane.topAnchor="90.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" prefHeight="150.0">
-            <content>
-                <GridPane hgap="15.0" vgap="10.0">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                        <RowConstraints vgrow="SOMETIMES" />
-                        <RowConstraints vgrow="SOMETIMES" />
-                    </rowConstraints>
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
-                        <Label text="Service Type:" />
-                        <TextField fx:id="serviceTypeField" GridPane.columnIndex="1" />
-
-                        <Label text="Description:" GridPane.rowIndex="1" />
-                        <TextArea fx:id="descriptionArea" prefHeight="60.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label text="Cost ($):" GridPane.rowIndex="2" />
-                        <TextField fx:id="costField" GridPane.columnIndex="1" />
-                    </children>
-                </GridPane>
-            </content>
-        </TitledPane>
-
-        <!-- Progress Bar -->
-        <TitledPane text="Service Statistics" AnchorPane.topAnchor="250.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" prefHeight="60.0">
-            <content>
-                <HBox alignment="CENTER_LEFT" spacing="20.0">
-                    <children>
-                        <ProgressBar fx:id="progressBar" prefWidth="300.0" />
-                        <Label fx:id="progressLabel" text="Total Services: 0" />
+                        <Button text="← Back to Dashboard" onAction="#goToDashboard" styleClass="outline-button" />
+                        <Label text="Service Records" styleClass="page-title">
+                            <font>
+                                <Font name="Segoe UI" size="24.0" />
+                            </font>
+                        </Label>
                     </children>
                 </HBox>
-            </content>
-        </TitledPane>
 
-        <!-- Service Table -->
-        <TitledPane text="Service History" AnchorPane.topAnchor="320.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="80.0">
-            <content>
-                <TableView fx:id="serviceTable" prefHeight="300.0">
-                    <columns>
-                        <TableColumn fx:id="colServiceId" text="ID" prefWidth="60.0" />
-                        <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="120.0" />
-                        <TableColumn fx:id="colServiceType" text="Service Type" prefWidth="150.0" />
-                        <TableColumn fx:id="colDescription" text="Description" prefWidth="250.0" />
-                        <TableColumn fx:id="colCost" text="Cost ($)" prefWidth="100.0" />
-                    </columns>
-                </TableView>
-            </content>
-        </TitledPane>
-
-        <!-- Pagination -->
-        <Pagination fx:id="pagination" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0"
-                    AnchorPane.rightAnchor="20.0" />
-
-        <!-- Action Buttons -->
-        <HBox alignment="CENTER" spacing="15.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="20.0">
-            <children>
-                <Button text="Add Service" onAction="#addServiceRecord" styleClass="primary-button" />
-                <Button text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <TextField fx:id="vehicleSearchField" promptText="Search vehicle by registration..." prefWidth="300.0"
+                                   styleClass="search-field" />
+                        <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
+                    </children>
+                </HBox>
             </children>
-        </HBox>
-    </children>
-</AnchorPane>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+            </padding>
+            <children>
+                <TitledPane text="Add Service Record" expanded="true">
+                    <content>
+                        <GridPane hgap="15.0" vgap="10.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <Label text="Service Type:" />
+                                <TextField fx:id="serviceTypeField" GridPane.columnIndex="1" />
+
+                                <Label text="Description:" GridPane.rowIndex="1" />
+                                <TextArea fx:id="descriptionArea" prefHeight="60.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                <Label text="Cost ($):" GridPane.rowIndex="2" />
+                                <TextField fx:id="costField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+
+                <TitledPane text="Service Statistics" expanded="true">
+                    <content>
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <ProgressBar fx:id="progressBar" prefWidth="300.0" />
+                                <Label fx:id="progressLabel" text="Total Services: 0" />
+                            </children>
+                        </HBox>
+                    </content>
+                </TitledPane>
+
+                <TitledPane text="Service History" expanded="true" VBox.vgrow="ALWAYS">
+                    <content>
+                        <TableView fx:id="serviceTable">
+                            <columns>
+                                <TableColumn fx:id="colServiceId" text="ID" prefWidth="60.0" />
+                                <TableColumn fx:id="colVehiclePlate" text="Vehicle" prefWidth="120.0" />
+                                <TableColumn fx:id="colServiceType" text="Service Type" prefWidth="150.0" />
+                                <TableColumn fx:id="colDescription" text="Description" prefWidth="250.0" />
+                                <TableColumn fx:id="colCost" text="Cost ($)" prefWidth="100.0" />
+                            </columns>
+                        </TableView>
+                    </content>
+                </TitledPane>
+            </children>
+        </VBox>
+    </center>
+
+    <bottom>
+        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="0.0" right="20.0" bottom="16.0" left="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <Button text="Add Service" onAction="#addServiceRecord" styleClass="primary-button" />
+                        <Button text="Clear Form" onAction="#clearFields" styleClass="outline-button" />
+                    </children>
+                </HBox>
+                <Pagination fx:id="pagination" />
+            </children>
+        </VBox>
+    </bottom>
+</BorderPane>
