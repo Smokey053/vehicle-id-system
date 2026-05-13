@@ -116,47 +116,27 @@ public class InsurancePolicy {
         this.coverageDetails = coverageDetails;
     }
     
-    /**
-     * Gets the premium amount.
-     * 
-     * @return the premium amount
-     */
+    /** Gets the premium amount. */
     public BigDecimal getPremiumAmount() {
         return premiumAmount;
     }
     
-    /**
-     * Sets the premium amount.
-     * 
-     * @param premiumAmount the new premium amount
-     */
+    /** Sets the premium amount. */
     public void setPremiumAmount(BigDecimal premiumAmount) {
         this.premiumAmount = premiumAmount;
     }
     
-    /**
-     * Gets the policy status.
-     * 
-     * @return the status
-     */
+    /** Gets the policy status. */
     public String getStatus() {
         return status;
     }
     
-    /**
-     * Sets the policy status.
-     * 
-     * @param status the new status
-     */
+    /** Sets the policy status. */
     public void setStatus(String status) {
         this.status = status;
     }
     
-    /**
-     * Gets the vehicle's registration number.
-     * 
-     * @return the registration number
-     */
+    /** Gets the vehicle's registration number. */
     public String getVehicleRegistration() {
         return vehicleRegistration;
     }
@@ -165,58 +145,34 @@ public class InsurancePolicy {
         return vehicleRegistration;
     }
     
-    /**
-     * Sets the vehicle's registration number.
-     * 
-     * @param vehicleRegistration the new registration number
-     */
+    /** Sets the vehicle's registration number. */
     public void setVehicleRegistration(String vehicleRegistration) {
         this.vehicleRegistration = vehicleRegistration;
     }
     
-    /**
-     * Gets the vehicle's make.
-     * 
-     * @return the make
-     */
+    /** Gets the vehicle's make. */
     public String getVehicleMake() {
         return vehicleMake;
     }
     
-    /**
-     * Sets the vehicle's make.
-     * 
-     * @param vehicleMake the new make
-     */
+    /** Sets the vehicle's make. */
     public void setVehicleMake(String vehicleMake) {
         this.vehicleMake = vehicleMake;
     }
     
-    /**
-     * Gets the vehicle's model.
-     * 
-     * @return the model
-     */
+    /** Gets the vehicle's model. */
     public String getVehicleModel() {
         return vehicleModel;
     }
     
-    /**
-     * Sets the vehicle's model.
-     * 
-     * @param vehicleModel the new model
-     */
+    /** Sets the vehicle's model. */
     public void setVehicleModel(String vehicleModel) {
         this.vehicleModel = vehicleModel;
     }
     
-    // Utility Methods
+    // Utility methods.
     
-    /**
-     * Checks if the policy is currently active.
-     * 
-     * @return true if the policy is active and not expired
-     */
+    /** Checks if the policy is currently active. */
     public boolean isActive() {
         if ("ACTIVE".equalsIgnoreCase(status)) {
             LocalDate today = LocalDate.now();
@@ -226,11 +182,7 @@ public class InsurancePolicy {
         return false;
     }
     
-    /**
-     * Returns a string representation of the InsurancePolicy.
-     * 
-     * @return a string containing policy details
-     */
+    /** Returns a string representation of the InsurancePolicy. */
     @Override
     public String toString() {
         return "InsurancePolicy{" +

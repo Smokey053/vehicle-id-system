@@ -11,6 +11,9 @@ import javafx.scene.control.Button;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class DashboardController {
 
     @FXML
@@ -32,12 +35,49 @@ public class DashboardController {
     private Button customerButton;
 
     @FXML
+    private Label roleBadgeLabel;
+
+    @FXML
+    private Label roleSummaryLabel;
+
+    @FXML
+    private Label permissionsLabel;
+
+    @FXML
+    private Label primaryWorkspaceLabel;
+
+    @FXML
+    private Label accessModeLabel;
+
+    @FXML
+    private Label visibleModuleCountLabel;
+
+    @FXML
+    private Label guidanceLine1;
+
+    @FXML
+    private Label guidanceLine2;
+
+    @FXML
+    private Label guidanceLine3;
+
+    @FXML
     private void initialize() {
         User currentUser = SessionManager.getCurrentUser();
-        if (currentUser != null) {
-            welcomeLabel.setText("Welcome, " + currentUser.getUsername() + " (" + currentUser.getRole() + ")");
-        }
+        applyIdentity(currentUser);
         applyModuleVisibility(currentUser);
+        applyRoleDashboardContent(currentUser);
+    }
+
+    private void applyIdentity(User currentUser) {
+        if (currentUser == null) {
+            welcomeLabel.setText("Welcome");
+            roleBadgeLabel.setText("GUEST");
+            return;
+        }
+        String role = currentUser.getRole() == null ? "UNKNOWN" : currentUser.getRole().toUpperCase();
+        welcomeLabel.setText("Welcome, " + currentUser.getUsername());
+        roleBadgeLabel.setText(role);
     }
 
     private void applyModuleVisibility(User user) {
@@ -54,6 +94,89 @@ public class DashboardController {
         }
         button.setVisible(visible);
         button.setManaged(visible);
+    }
+
+    private void applyRoleDashboardContent(User user) {
+        if (user == null) {
+            roleSummaryLabel.setText("No active session.");
+            permissionsLabel.setText("No modules are available.");
+            primaryWorkspaceLabel.setText("None");
+            accessModeLabel.setText("No access");
+            visibleModuleCountLabel.setText("0");
+            guidanceLine1.setText("Sign in to access modules.");
+            guidanceLine2.setText("Use valid credentials for your role.");
+            guidanceLine3.setText("Contact an administrator if access is missing.");
+            return;
+        }
+
+        Set<AccessControl.Module> allowed = AccessControl.allowedModules(user);
+        String moduleText = allowed.stream()
+            .map(this::toReadableModuleName)
+            .collect(Collectors.joining(", "));
+
+        roleSummaryLabel.setText("Role: " + user.getRole().toUpperCase() + " | Dashboard tailored to your permissions.");
+        permissionsLabel.setText(moduleText.isBlank() ? "Accessible modules: None" : "Accessible modules: " + moduleText);
+        visibleModuleCountLabel.setText(String.valueOf(allowed.size()));
+        accessModeLabel.setText(AccessControl.isAdmin(user) ? "Full control" : "Role-scoped access");
+        primaryWorkspaceLabel.setText(resolvePrimaryWorkspace(user));
+
+        String role = user.getRole() == null ? "" : user.getRole().trim().toUpperCase();
+        switch (role) {
+            case "ADMIN" -> {
+                guidanceLine1.setText("Oversee all modules and maintain operational quality.");
+                guidanceLine2.setText("Validate cross-module records before approving changes.");
+                guidanceLine3.setText("Use logout when handing over shared workstations.");
+            }
+            case "WORKSHOP" -> {
+                guidanceLine1.setText("Prioritize vehicle intake and complete service updates.");
+                guidanceLine2.setText("Ensure owner contact details are current before saving.");
+                guidanceLine3.setText("Review service history for repeat maintenance issues.");
+            }
+            case "INSURANCE" -> {
+                guidanceLine1.setText("Process policy updates and claim status changes promptly.");
+                guidanceLine2.setText("Confirm policy numbers and claim amounts before submission.");
+                guidanceLine3.setText("Track expiring policies to reduce coverage gaps.");
+            }
+            case "POLICE" -> {
+                guidanceLine1.setText("Record incidents and violations with complete details.");
+                guidanceLine2.setText("Update violation status to keep enforcement data current.");
+                guidanceLine3.setText("Use unpaid violation views to prioritize follow-ups.");
+            }
+            case "CUSTOMER" -> {
+                guidanceLine1.setText("Search vehicle details and review available records.");
+                guidanceLine2.setText("Submit clear, concise queries for faster response.");
+                guidanceLine3.setText("Export reports only after validating registration data.");
+            }
+            default -> {
+                guidanceLine1.setText("Your role is not mapped to guided dashboard actions.");
+                guidanceLine2.setText("Contact support to configure module permissions.");
+                guidanceLine3.setText("Avoid performing operations until role mapping is fixed.");
+            }
+        }
+    }
+
+    private String toReadableModuleName(AccessControl.Module module) {
+        return switch (module) {
+            case VEHICLE -> "Vehicle Management";
+            case SERVICE -> "Service Records";
+            case INSURANCE -> "Insurance";
+            case POLICE -> "Police Records";
+            case CUSTOMER -> "Customer Portal";
+        };
+    }
+
+    private String resolvePrimaryWorkspace(User user) {
+        if (AccessControl.isAdmin(user)) {
+            return "All Modules";
+        }
+        String role = user.getRole() == null ? "" : user.getRole().trim().toUpperCase();
+        return switch (role) {
+            case "WORKSHOP" -> "Vehicle + Service";
+            case "INSURANCE" -> "Insurance";
+            case "POLICE" -> "Police";
+            case "CUSTOMER" -> "Customer Portal";
+            default -> "Not Assigned";
+        };
     }
 
     @FXML

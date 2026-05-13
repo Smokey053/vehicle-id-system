@@ -15,29 +15,18 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service class for Insurance Policy and Claim operations.
- * Handles policy CRUD, claims management, and expiry checking.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
+// Manages insurance policies and claims.
 public class InsuranceService {
     
     private static final Logger LOGGER = Logger.getLogger(InsuranceService.class.getName());
     
-    // ==================== Insurance Policy Methods ====================
+    // Insurance policy methods.
     
-    /**
-     * Adds a new insurance policy to the database.
-     * 
-     * @param policy the InsurancePolicy object to add
-     * @return true if policy was added successfully, false otherwise
-     */
+    // Adds a new insurance policy to the database.
     public boolean addPolicy(InsurancePolicy policy) {
-        String sql = "INSERT INTO insurance_policy (vehicle_id, insurance_company, policy_number, " +
-                     "start_date, end_date, coverage_details, premium_amount, status) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO insurancepolicy (vehicle_id, insurance_company, policy_number, " +
+                     "start_date, end_date, coverage_details) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -49,8 +38,6 @@ public class InsuranceService {
             stmt.setDate(4, java.sql.Date.valueOf(policy.getStartDate()));
             stmt.setDate(5, java.sql.Date.valueOf(policy.getEndDate()));
             stmt.setString(6, policy.getCoverageDetails());
-            stmt.setBigDecimal(7, policy.getPremiumAmount());
-            stmt.setString(8, policy.getStatus());
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Added insurance policy: " + policy.getPolicyNumber());
@@ -61,15 +48,10 @@ public class InsuranceService {
         }
     }
     
-    /**
-     * Updates an existing insurance policy in the database.
-     * 
-     * @param policy the InsurancePolicy object with updated data
-     * @return true if policy was updated successfully, false otherwise
-     */
+    // Updates an existing insurance policy in the database.
     public boolean updatePolicy(InsurancePolicy policy) {
-        String sql = "UPDATE insurance_policy SET insurance_company = ?, policy_number = ?, " +
-                     "start_date = ?, end_date = ?, coverage_details = ?, premium_amount = ?, status = ? " +
+        String sql = "UPDATE insurancepolicy SET insurance_company = ?, policy_number = ?, " +
+                     "start_date = ?, end_date = ?, coverage_details = ? " +
                      "WHERE policy_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -80,9 +62,7 @@ public class InsuranceService {
             stmt.setDate(3, java.sql.Date.valueOf(policy.getStartDate()));
             stmt.setDate(4, java.sql.Date.valueOf(policy.getEndDate()));
             stmt.setString(5, policy.getCoverageDetails());
-            stmt.setBigDecimal(6, policy.getPremiumAmount());
-            stmt.setString(7, policy.getStatus());
-            stmt.setInt(8, policy.getPolicyId());
+            stmt.setInt(6, policy.getPolicyId());
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Updated insurance policy: " + policy.getPolicyId());
@@ -93,14 +73,9 @@ public class InsuranceService {
         }
     }
     
-    /**
-     * Deletes an insurance policy from the database.
-     * 
-     * @param policyId the ID of the policy to delete
-     * @return true if policy was deleted successfully, false otherwise
-     */
+    // Deletes an insurance policy from the database.
     public boolean deletePolicy(int policyId) {
-        String sql = "DELETE FROM insurance_policy WHERE policy_id = ?";
+        String sql = "DELETE FROM insurancepolicy WHERE policy_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -116,16 +91,11 @@ public class InsuranceService {
         }
     }
     
-    /**
-     * Gets an insurance policy by its ID.
-     * 
-     * @param policyId the policy ID
-     * @return InsurancePolicy object if found, null otherwise
-     */
+    // Retrieves an insurance policy by its ID.
     public InsurancePolicy getPolicyById(int policyId) {
         String sql = "SELECT ip.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM insurance_policy ip " +
+                     "FROM insurancepolicy ip " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "WHERE ip.policy_id = ?";
         
@@ -146,16 +116,11 @@ public class InsuranceService {
         return null;
     }
     
-    /**
-     * Gets all insurance policies for a specific vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return List of InsurancePolicy objects
-     */
+    // Retrieves all insurance policies for a specific vehicle.
     public List<InsurancePolicy> getPoliciesByVehicle(int vehicleId) {
         String sql = "SELECT ip.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM insurance_policy ip " +
+                     "FROM insurancepolicy ip " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "WHERE ip.vehicle_id = ? " +
                      "ORDER BY ip.end_date DESC";
@@ -186,7 +151,7 @@ public class InsuranceService {
     public List<InsurancePolicy> getAllPolicies() {
         String sql = "SELECT ip.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM insurance_policy ip " +
+                     "FROM insurancepolicy ip " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "ORDER BY ip.end_date DESC";
 
@@ -206,7 +171,7 @@ public class InsuranceService {
     public List<InsurancePolicy> searchPolicies(String searchTerm) {
         String sql = "SELECT ip.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM insurance_policy ip " +
+                     "FROM insurancepolicy ip " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "WHERE ip.policy_number ILIKE ? OR v.registration_number ILIKE ? " +
                      "ORDER BY ip.end_date DESC";
@@ -228,19 +193,14 @@ public class InsuranceService {
         return policies;
     }
     
-    /**
-     * Gets all active insurance policies that are about to expire.
-     * 
-     * @param daysBefore the number of days before expiry to check
-     * @return List of InsurancePolicy objects expiring within the specified days
-     */
+    // Retrieves all active policies that are about to expire.
     public List<InsurancePolicy> getExpiringPolicies(int daysBefore) {
         String sql = "SELECT ip.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM insurance_policy ip " +
+                     "FROM expiring_policies ep " +
+                     "JOIN insurancepolicy ip ON ep.policy_id = ip.policy_id " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
-                     "WHERE ip.status = 'ACTIVE' " +
-                     "AND ip.end_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL ? DAY " +
+                     "WHERE ep.days_remaining <= ? " +
                      "ORDER BY ip.end_date ASC";
         
         List<InsurancePolicy> policies = new ArrayList<>();
@@ -262,12 +222,7 @@ public class InsuranceService {
         return policies;
     }
     
-    /**
-     * Gets the expiry status of a policy.
-     * 
-     * @param policy the InsurancePolicy object
-     * @return String status (EXPIRED, EXPIRING_SOON, ACTIVE)
-     */
+    // Gets the expiry status of a policy.
     public String getExpiryStatus(InsurancePolicy policy) {
         if (policy == null || policy.getEndDate() == null) {
             return "UNKNOWN";
@@ -288,26 +243,21 @@ public class InsuranceService {
         return "ACTIVE";
     }
     
-    // ==================== Claim Methods ====================
+    // Claim methods.
     
-    /**
-     * Adds a new claim to the database.
-     * 
-     * @param claim the Claim object to add
-     * @return true if claim was added successfully, false otherwise
-     */
+    // Adds a new claim to the database.
     public boolean addClaim(Claim claim) {
-        String sql = "INSERT INTO claim (policy_id, claim_date, claim_amount, status, description) " +
-                     "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO claim (policy_id, claim_date, claim_amount, status) " +
+                     "VALUES (?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setInt(1, claim.getPolicyId());
+            int policyId = claim.getPolicyId() > 0 ? claim.getPolicyId() : resolvePolicyId(claim.getPolicyNumber());
+            stmt.setInt(1, policyId);
             stmt.setDate(2, java.sql.Date.valueOf(claim.getClaimDate()));
             stmt.setBigDecimal(3, claim.getClaimAmount());
             stmt.setString(4, claim.getStatus());
-            stmt.setString(5, claim.getDescription());
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Added claim: " + claim.getClaimId());
@@ -318,14 +268,9 @@ public class InsuranceService {
         }
     }
     
-    /**
-     * Updates an existing claim in the database.
-     * 
-     * @param claim the Claim object with updated data
-     * @return true if claim was updated successfully, false otherwise
-     */
+    // Updates an existing claim in the database.
     public boolean updateClaim(Claim claim) {
-        String sql = "UPDATE claim SET claim_date = ?, claim_amount = ?, status = ?, description = ? " +
+        String sql = "UPDATE claim SET claim_date = ?, claim_amount = ?, status = ? " +
                      "WHERE claim_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -334,8 +279,7 @@ public class InsuranceService {
             stmt.setDate(1, java.sql.Date.valueOf(claim.getClaimDate()));
             stmt.setBigDecimal(2, claim.getClaimAmount());
             stmt.setString(3, claim.getStatus());
-            stmt.setString(4, claim.getDescription());
-            stmt.setInt(5, claim.getClaimId());
+            stmt.setInt(4, claim.getClaimId());
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Updated claim: " + claim.getClaimId());
@@ -346,17 +290,12 @@ public class InsuranceService {
         }
     }
     
-    /**
-     * Gets all claims for a specific policy.
-     * 
-     * @param policyId the policy ID
-     * @return List of Claim objects
-     */
+    // Retrieves all claims for a specific policy.
     public List<Claim> getClaimsByPolicy(int policyId) {
         String sql = "SELECT c.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
                      "FROM claim c " +
-                     "JOIN insurance_policy ip ON c.policy_id = ip.policy_id " +
+                     "JOIN insurancepolicy ip ON c.policy_id = ip.policy_id " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "WHERE c.policy_id = ? " +
                      "ORDER BY c.claim_date DESC";
@@ -380,17 +319,12 @@ public class InsuranceService {
         return claims;
     }
     
-    /**
-     * Gets all claims with a specific status.
-     * 
-     * @param status the claim status (PENDING, APPROVED, REJECTED)
-     * @return List of Claim objects
-     */
+    // Retrieves all claims with a specific status.
     public List<Claim> getClaimsByStatus(String status) {
         String sql = "SELECT c.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
                      "FROM claim c " +
-                     "JOIN insurance_policy ip ON c.policy_id = ip.policy_id " +
+                     "JOIN insurancepolicy ip ON c.policy_id = ip.policy_id " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "WHERE c.status = ? " +
                      "ORDER BY c.claim_date DESC";
@@ -418,7 +352,7 @@ public class InsuranceService {
         String sql = "SELECT c.*, ip.policy_number, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
                      "FROM claim c " +
-                     "JOIN insurance_policy ip ON c.policy_id = ip.policy_id " +
+                     "JOIN insurancepolicy ip ON c.policy_id = ip.policy_id " +
                      "JOIN vehicle v ON ip.vehicle_id = v.vehicle_id " +
                      "ORDER BY c.claim_date DESC";
 
@@ -435,15 +369,9 @@ public class InsuranceService {
         return claims;
     }
     
-    // ==================== Helper Methods ====================
+    // Helper methods.
     
-    /**
-     * Builds an InsurancePolicy object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return InsurancePolicy object
-     * @throws SQLException if there's an error reading the data
-     */
+    // Builds an InsurancePolicy object from a ResultSet.
     private InsurancePolicy buildPolicyFromResultSet(ResultSet rs) throws SQLException {
         int policyId = rs.getInt("policy_id");
         int vehicleId = rs.getInt("vehicle_id");
@@ -452,34 +380,28 @@ public class InsuranceService {
         java.sql.Date startDateSql = rs.getDate("start_date");
         java.sql.Date endDateSql = rs.getDate("end_date");
         String coverageDetails = rs.getString("coverage_details");
-        BigDecimal premiumAmount = rs.getBigDecimal("premium_amount");
-        String status = rs.getString("status");
+        BigDecimal premiumAmount = BigDecimal.ZERO;
         String vehicleRegistration = rs.getString("vehicle_registration");
         String vehicleMake = rs.getString("vehicle_make");
         String vehicleModel = rs.getString("vehicle_model");
         
         LocalDate startDate = startDateSql != null ? startDateSql.toLocalDate() : null;
         LocalDate endDate = endDateSql != null ? endDateSql.toLocalDate() : null;
+        String status = getExpiryStatusFromDate(endDate);
         
         return new InsurancePolicy(policyId, vehicleId, insuranceCompany, policyNumber,
                                   startDate, endDate, coverageDetails, premiumAmount, status,
                                   vehicleRegistration, vehicleMake, vehicleModel);
     }
     
-    /**
-     * Builds a Claim object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return Claim object
-     * @throws SQLException if there's an error reading the data
-     */
+    // Builds a Claim object from a ResultSet.
     private Claim buildClaimFromResultSet(ResultSet rs) throws SQLException {
         int claimId = rs.getInt("claim_id");
         int policyId = rs.getInt("policy_id");
         java.sql.Date claimDateSql = rs.getDate("claim_date");
         BigDecimal claimAmount = rs.getBigDecimal("claim_amount");
         String status = rs.getString("status");
-        String description = rs.getString("description");
+        String description = null;
         String policyNumber = rs.getString("policy_number");
         String vehicleRegistration = rs.getString("vehicle_registration");
         String vehicleMake = rs.getString("vehicle_make");
@@ -509,4 +431,38 @@ public class InsuranceService {
         }
         return 0;
     }
+
+    private int resolvePolicyId(String policyNumber) {
+        if (policyNumber == null || policyNumber.isBlank()) {
+            return 0;
+        }
+        String sql = "SELECT policy_id FROM insurancepolicy WHERE policy_number = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, policyNumber);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("policy_id");
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, "Failed to resolve policy id from policy number", e);
+        }
+        return 0;
+    }
+
+    private String getExpiryStatusFromDate(LocalDate endDate) {
+        if (endDate == null) {
+            return "UNKNOWN";
+        }
+        LocalDate today = LocalDate.now();
+        if (today.isAfter(endDate)) {
+            return "EXPIRED";
+        }
+        if (!today.plusDays(30).isBefore(endDate)) {
+            return "EXPIRING_SOON";
+        }
+        return "ACTIVE";
+    }
 }
+

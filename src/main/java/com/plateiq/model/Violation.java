@@ -120,67 +120,39 @@ public class Violation {
         return vehicleRegistration;
     }
     
-    /**
-     * Sets the vehicle's registration number.
-     * 
-     * @param vehicleRegistration the new registration number
-     */
+    /** Sets the vehicle's registration number. */
     public void setVehicleRegistration(String vehicleRegistration) {
         this.vehicleRegistration = vehicleRegistration;
     }
     
-    /**
-     * Gets the vehicle's make.
-     * 
-     * @return the make
-     */
+    /** Gets the vehicle's make. */
     public String getVehicleMake() {
         return vehicleMake;
     }
     
-    /**
-     * Sets the vehicle's make.
-     * 
-     * @param vehicleMake the new make
-     */
+    /** Sets the vehicle's make. */
     public void setVehicleMake(String vehicleMake) {
         this.vehicleMake = vehicleMake;
     }
     
-    /**
-     * Gets the vehicle's model.
-     * 
-     * @return the model
-     */
+    /** Gets the vehicle's model. */
     public String getVehicleModel() {
         return vehicleModel;
     }
     
-    /**
-     * Sets the vehicle's model.
-     * 
-     * @param vehicleModel the new model
-     */
+    /** Sets the vehicle's model. */
     public void setVehicleModel(String vehicleModel) {
         this.vehicleModel = vehicleModel;
     }
     
-    // Utility Methods
+    // Utility methods.
     
-    /**
-     * Checks if the violation is unpaid.
-     * 
-     * @return true if status is UNPAID
-     */
+    /** Checks if the violation is unpaid. */
     public boolean isUnpaid() {
         return "UNPAID".equalsIgnoreCase(status);
     }
     
-    /**
-     * Returns a string representation of the Violation.
-     * 
-     * @return a string containing violation details
-     */
+    /** Returns a string representation of the Violation. */
     @Override
     public String toString() {
         return "Violation{" +

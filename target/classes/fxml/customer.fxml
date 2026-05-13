@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.plateiq.controller.CustomerController"
+            prefHeight="700.0" prefWidth="1000.0"
+            style="-fx-background-color: #f5f7fa;">
+
+    <children>
+        <!-- Title -->
+        <Label text="Customer Portal" styleClass="page-title" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="20.0">
+            <font>
+                <Font name="Segoe UI" size="24.0" />
+            </font>
+        </Label>
+
+        <!-- Vehicle Search -->
+        <HBox alignment="CENTER_LEFT" spacing="10.0" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="20.0"
+              AnchorPane.rightAnchor="20.0">
+            <children>
+                <TextField fx:id="vehicleSearchField" promptText="Enter vehicle registration number..." prefWidth="300.0"
+                           styleClass="search-field" />
+                <Button text="Search" onAction="#searchVehicle" styleClass="primary-button" />
+                <Button text="Export Report" onAction="#exportVehicleReport" styleClass="secondary-button" />
+                <Button text="Clear" onAction="#clearSearch" styleClass="outline-button" />
+            </children>
+        </HBox>
+
+        <!-- Vehicle Information Card -->
+        <TitledPane text="Vehicle Information" AnchorPane.topAnchor="90.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="120.0">
+            <content>
+                <GridPane hgap="20.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label text="Vehicle:" />
+                        <Label fx:id="vehicleInfoLabel" text="No vehicle selected" GridPane.columnIndex="1" />
+
+                        <Label text="Owner Name:" GridPane.rowIndex="1" />
+                        <Label fx:id="ownerNameLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Owner Phone:" GridPane.rowIndex="2" />
+                        <Label fx:id="ownerPhoneLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Vehicle Details:" GridPane.rowIndex="3" />
+                        <Label fx:id="vehicleDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </children>
+                </GridPane>
+            </content>
+        </TitledPane>
+
+        <!-- Service History -->
+        <TitledPane text="Service History" AnchorPane.topAnchor="220.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="200.0">
+            <content>
+                <TableView fx:id="serviceHistoryTable" prefHeight="180.0">
+                    <columns>
+                        <TableColumn fx:id="colServiceId" text="ID" prefWidth="60.0" />
+                        <TableColumn fx:id="colServiceDate" text="Date" prefWidth="120.0" />
+                        <TableColumn fx:id="colServiceType" text="Service Type" prefWidth="150.0" />
+                        <TableColumn fx:id="colDescription" text="Description" prefWidth="250.0" />
+                        <TableColumn fx:id="colCost" text="Cost ($)" prefWidth="100.0" />
+                    </columns>
+                </TableView>
+            </content>
+        </TitledPane>
+
+        <!-- Insurance Information -->
+        <TitledPane text="Insurance Information" AnchorPane.topAnchor="430.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="150.0">
+            <content>
+                <TableView fx:id="insuranceTable" prefHeight="130.0">
+                    <columns>
+                        <TableColumn fx:id="colPolicyNumber" text="Policy Number" prefWidth="180.0" />
+                        <TableColumn fx:id="colCompany" text="Insurance Company" prefWidth="200.0" />
+                        <TableColumn fx:id="colStartDate" text="Start Date" prefWidth="120.0" />
+                        <TableColumn fx:id="colEndDate" text="Expiry Date" prefWidth="120.0" />
+                    </columns>
+                </TableView>
+            </content>
+        </TitledPane>
+
+        <!-- Query Submission -->
+        <TitledPane text="Submit Query" AnchorPane.topAnchor="590.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" prefHeight="120.0">
+            <content>
+                <GridPane hgap="15.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="200.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label text="Your Query:" />
+                        <TextArea fx:id="queryTextArea" prefHeight="60.0" GridPane.columnIndex="1" />
+
+                        <Button text="Submit Query" onAction="#submitQuery" GridPane.columnIndex="1" />
+                    </children>
+                </GridPane>
+            </content>
+        </TitledPane>
+
+        <!-- Response Display -->
+        <TitledPane text="Query Response" AnchorPane.topAnchor="590.0" AnchorPane.leftAnchor="20.0"
+                    AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="20.0">
+            <content>
+                <TextArea fx:id="responseTextArea" prefHeight="100.0" editable="false" styleClass="read-only-textarea" />
+            </content>
+        </TitledPane>
+    </children>
+</AnchorPane>

@@ -17,7 +17,7 @@ public final class DatabaseQueries {
     private static final Logger LOGGER = Logger.getLogger(DatabaseQueries.class.getName());
 
     private DatabaseQueries() {
-        // Utility class
+        // Utility class.
     }
 
     @FunctionalInterface

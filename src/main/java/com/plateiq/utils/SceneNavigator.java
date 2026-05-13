@@ -8,20 +8,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * Utility class for managing scene transitions between FXML views.
- */
+// Manages scene transitions between FXML views.
 public class SceneNavigator {
 
-    /**
-     * Switches to a new scene based on the provided FXML path.
-     *
-     * @param event   The action event triggering the scene change
-     * @param fxmlPath The path to the FXML file to load
-     */
+    // Switches to a new scene based on the provided FXML path.
     public static void switchScene(ActionEvent event, String fxmlPath) {
         try {
-            // Get the current stage from the event
+            // Get the current stage from the event.
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             java.net.URL resource = SceneNavigator.class.getResource(fxmlPath);
             if (resource == null) {
@@ -30,13 +23,17 @@ public class SceneNavigator {
 
             Parent root = FXMLLoader.load(resource);
             
-            // Create a new scene with the loaded FXML
+            // Create a new scene with the loaded FXML.
             Scene newScene = new Scene(root);
+            java.net.URL cssUrl = SceneNavigator.class.getResource("/fxml/styles.css");
+            if (cssUrl != null) {
+                newScene.getStylesheets().add(cssUrl.toExternalForm());
+            }
             
-            // Set the new scene on the stage
+            // Set the new scene on the stage.
             stage.setScene(newScene);
             
-            // Show the new scene
+            // Show the new scene.
             stage.show();
         } catch (IOException e) {
             AlertUtils.showError("Scene Load Error", "Failed to load FXML: " + fxmlPath);

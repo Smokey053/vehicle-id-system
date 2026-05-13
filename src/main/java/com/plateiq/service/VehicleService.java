@@ -12,23 +12,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service class for Vehicle CRUD operations.
- * Handles vehicle registration, updates, deletion, and search operations.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
+// Handles vehicle CRUD operations and search functionality.
 public class VehicleService {
     
     private static final Logger LOGGER = Logger.getLogger(VehicleService.class.getName());
     
-    /**
-     * Adds a new vehicle to the database.
-     * 
-     * @param vehicle the Vehicle object to add
-     * @return true if vehicle was added successfully, false otherwise
-     */
+    // Adds a new vehicle to the database.
     public boolean addVehicle(Vehicle vehicle) {
         String sql = "INSERT INTO vehicle (registration_number, make, model, year, color, owner_id) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
@@ -52,12 +41,7 @@ public class VehicleService {
         }
     }
     
-    /**
-     * Updates an existing vehicle in the database.
-     * 
-     * @param vehicle the Vehicle object with updated data
-     * @return true if vehicle was updated successfully, false otherwise
-     */
+    // Updates an existing vehicle in the database.
     public boolean updateVehicle(Vehicle vehicle) {
         String sql = "UPDATE vehicle SET make = ?, model = ?, year = ?, color = ?, owner_id = ? " +
                      "WHERE vehicle_id = ?";
@@ -81,12 +65,7 @@ public class VehicleService {
         }
     }
     
-    /**
-     * Deletes a vehicle from the database.
-     * 
-     * @param vehicleId the ID of the vehicle to delete
-     * @return true if vehicle was deleted successfully, false otherwise
-     */
+    // Deletes a vehicle from the database.
     public boolean deleteVehicle(int vehicleId) {
         String sql = "DELETE FROM vehicle WHERE vehicle_id = ?";
         
@@ -109,12 +88,7 @@ public class VehicleService {
         return vehicle != null && deleteVehicle(vehicle.getVehicleId());
     }
     
-    /**
-     * Gets a vehicle by its registration number.
-     * 
-     * @param registrationNumber the registration number to search for
-     * @return Vehicle object if found, null otherwise
-     */
+    // Retrieves a vehicle by its registration number.
     public Vehicle getVehicleByRegistration(String registrationNumber) {
         String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
                      "FROM vehicle v " +
@@ -138,13 +112,7 @@ public class VehicleService {
         return null;
     }
     
-    /**
-     * Gets all vehicles with pagination support.
-     * 
-     * @param page the page number (0-indexed)
-     * @param pageSize the number of items per page
-     * @return List of Vehicle objects for the requested page
-     */
+    // Retrieves all vehicles with pagination support.
     public List<Vehicle> getAllVehicles(int page, int pageSize) {
         String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
                      "FROM vehicle v " +
@@ -176,11 +144,7 @@ public class VehicleService {
         return getAllVehicles(0, Integer.MAX_VALUE / 4);
     }
     
-    /**
-     * Gets the total count of vehicles in the database.
-     * 
-     * @return total number of vehicles
-     */
+    // Gets the total count of vehicles in the database.
     public int getTotalVehicleCount() {
         String sql = "SELECT COUNT(*) FROM vehicle";
         
@@ -199,14 +163,7 @@ public class VehicleService {
         return 0;
     }
     
-    /**
-     * Searches vehicles by registration number or owner name.
-     * 
-     * @param searchTerm the search term
-     * @param page the page number
-     * @param pageSize the number of items per page
-     * @return List of matching Vehicle objects
-     */
+    // Searches vehicles by registration number or owner name.
     public List<Vehicle> searchVehicles(String searchTerm, int page, int pageSize) {
         String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone " +
                      "FROM vehicle v " +
@@ -242,12 +199,7 @@ public class VehicleService {
         return searchVehicles(searchTerm, 0, Integer.MAX_VALUE / 4);
     }
     
-    /**
-     * Gets the total count of vehicles matching a search term.
-     * 
-     * @param searchTerm the search term
-     * @return total count of matching vehicles
-     */
+    // Gets the total count of vehicles matching a search term.
     public int getSearchResultCount(String searchTerm) {
         String sql = "SELECT COUNT(*) FROM vehicle v " +
                      "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
@@ -272,13 +224,7 @@ public class VehicleService {
         return 0;
     }
     
-    /**
-     * Builds a Vehicle object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return Vehicle object
-     * @throws SQLException if there's an error reading the data
-     */
+    // Builds a Vehicle object from a ResultSet.
     private Vehicle buildVehicleFromResultSet(ResultSet rs) throws SQLException {
         int vehicleId = rs.getInt("vehicle_id");
         String registrationNumber = rs.getString("registration_number");

@@ -15,25 +15,12 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service class for User authentication and management.
- * Handles login, logout, and user management operations.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
+// Authenticates users and manages user records.
 public class UserService {
     
     private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
     
-    /**
-     * Authenticates a user by username and password.
-     * Returns a User object with the appropriate subclass based on role.
-     * 
-     * @param username the username to authenticate
-     * @param password the password to authenticate
-     * @return User object if authentication succeeds, null otherwise
-     */
+    // Authenticates a user by username and password.
     public User authenticate(String username, String password) {
         String sql = "SELECT u.user_id, u.username, u.password, u.role, u.status, " +
                      "c.customer_id, c.name, c.address, c.phone, c.email " +
@@ -55,7 +42,7 @@ public class UserService {
                     String role = rs.getString("role");
                     String status = rs.getString("status");
                     
-                    // Create appropriate user subclass based on role
+                    // Create the user subtype for the role.
                     User user = createUserByRole(userId, userUsername, userPassword, role, status, rs);
                     
                     LOGGER.info("User authenticated: " + userUsername + " with role: " + role);
@@ -69,18 +56,7 @@ public class UserService {
         return null;
     }
     
-    /**
-     * Creates the appropriate User subclass based on the role.
-     * Demonstrates polymorphism in action.
-     * 
-     * @param userId the user ID
-     * @param username the username
-     * @param password the password
-     * @param role the role
-     * @param status the status
-     * @param rs the ResultSet containing additional user data
-     * @return appropriate User subclass instance
-     */
+    // Creates the appropriate User subclass based on the role.
     private User createUserByRole(int userId, String username, String password, 
                                   String role, String status, ResultSet rs) {
         try {
@@ -111,13 +87,7 @@ public class UserService {
         }
     }
     
-    /**
-     * Updates a user's status in the database.
-     * 
-     * @param userId the user ID
-     * @param status the new status (ACTIVE, INACTIVE)
-     * @return true if update was successful, false otherwise
-     */
+    // Updates a user's status in the database.
     public boolean updateUserStatus(int userId, String status) {
         String sql = "UPDATE users SET status = ? WHERE user_id = ?";
         
@@ -136,12 +106,7 @@ public class UserService {
         }
     }
     
-    /**
-     * Gets a user by their ID.
-     * 
-     * @param userId the user ID
-     * @return User object if found, null otherwise
-     */
+    // Retrieves a user by their ID.
     public User getUserById(int userId) {
         String sql = "SELECT u.user_id, u.username, u.password, u.role, u.status, " +
                      "c.customer_id, c.name, c.address, c.phone, c.email " +
@@ -169,12 +134,7 @@ public class UserService {
         return null;
     }
     
-    /**
-     * Gets a user by their username.
-     * 
-     * @param username the username
-     * @return User object if found, null otherwise
-     */
+    // Retrieves a user by their username.
     public User getUserByUsername(String username) {
         String sql = "SELECT u.user_id, u.username, u.password, u.role, u.status, " +
                      "c.customer_id, c.name, c.address, c.phone, c.email " +

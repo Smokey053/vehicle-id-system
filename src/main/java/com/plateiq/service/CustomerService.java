@@ -14,25 +14,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service class for Customer operations.
- * Handles vehicle lookup, query submission, and history viewing.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
+// Manages customer vehicle lookups and query operations.
 public class CustomerService {
     
     private static final Logger LOGGER = Logger.getLogger(CustomerService.class.getName());
     
-    // ==================== Vehicle Lookup Methods ====================
+    // Vehicle lookup methods.
     
-    /**
-     * Gets a vehicle by its registration number.
-     * 
-     * @param registrationNumber the registration number to search for
-     * @return Vehicle object if found, null otherwise
-     */
+    // Retrieves a vehicle by its registration number.
     public Vehicle getVehicleByRegistration(String registrationNumber) {
         String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone, " +
                      "c.email AS owner_email " +
@@ -61,20 +50,13 @@ public class CustomerService {
         return getVehicleByRegistration(registrationNumber);
     }
     
-    /**
-     * Gets full vehicle details including insurance information.
-     * 
-     * @param registrationNumber the registration number
-     * @return Vehicle object with insurance details
-     */
+    // Retrieves full vehicle details including insurance information.
     public Vehicle getVehicleFullDetails(String registrationNumber) {
-        String sql = "SELECT v.*, c.name AS owner_name, c.phone AS owner_phone, " +
-                     "c.email AS owner_email, ip.policy_number, ip.end_date AS policy_expiry, " +
-                     "ip.insurance_company, ip.status AS policy_status " +
-                     "FROM vehicle v " +
-                     "LEFT JOIN customer c ON v.owner_id = c.customer_id " +
-                     "LEFT JOIN insurance_policy ip ON v.vehicle_id = ip.vehicle_id " +
-                     "WHERE v.registration_number = ?";
+        String sql = "SELECT vfd.vehicle_id, vfd.registration_number, vfd.make, vfd.model, " +
+                     "vfd.year, vfd.color, vfd.customer_id AS owner_id, vfd.owner_name, " +
+                     "vfd.owner_phone, vfd.owner_email " +
+                     "FROM vehicle_full_details vfd " +
+                     "WHERE vfd.registration_number = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -84,7 +66,7 @@ public class CustomerService {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Vehicle vehicle = buildVehicleFromResultSet(rs);
-                    // Additional insurance info would need a custom method or extended Vehicle class
+                    // Add extended insurance mapping when available.
                     return vehicle;
                 }
             }
@@ -95,32 +77,20 @@ public class CustomerService {
         return null;
     }
     
-    // ==================== Service History Methods ====================
+    // Service history methods.
     
-    /**
-     * Gets service history for a vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return List of service records
-     */
+    /** Gets service history for a vehicle. */
     public List<Object> getServiceHistory(int vehicleId) {
-        // This will be implemented using ServiceRecordService
-        // For now, returning empty list
+        // Pending ServiceRecordService integration.
+        // Returns an empty list placeholder.
         return new ArrayList<>();
     }
     
-    // ==================== Query Submission Methods ====================
+    // Query submission methods.
     
-    /**
-     * Submits a new customer query.
-     * 
-     * @param customerId the customer ID
-     * @param vehicleId the vehicle ID
-     * @param queryText the query text
-     * @return true if query was submitted successfully, false otherwise
-     */
+    /** Submits a new customer query. */
     public boolean submitQuery(int customerId, int vehicleId, String queryText) {
-        String sql = "INSERT INTO customer_query (customer_id, vehicle_id, query_date, query_text) " +
+        String sql = "INSERT INTO customerquery (customer_id, vehicle_id, query_date, query_text) " +
                      "VALUES (?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
@@ -144,16 +114,11 @@ public class CustomerService {
         return submitQuery(query.getCustomerId(), query.getVehicleId(), query.getQueryText());
     }
     
-    /**
-     * Gets all queries submitted by a customer.
-     * 
-     * @param customerId the customer ID
-     * @return List of CustomerQuery objects
-     */
+    /** Gets all queries submitted by a customer. */
     public List<CustomerQuery> getQueriesByCustomer(int customerId) {
         String sql = "SELECT cq.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM customer_query cq " +
+                     "FROM customerquery cq " +
                      "JOIN vehicle v ON cq.vehicle_id = v.vehicle_id " +
                      "WHERE cq.customer_id = ? " +
                      "ORDER BY cq.query_date DESC";
@@ -177,16 +142,11 @@ public class CustomerService {
         return queries;
     }
     
-    /**
-     * Gets a query by its ID.
-     * 
-     * @param queryId the query ID
-     * @return CustomerQuery object if found, null otherwise
-     */
+    /** Gets a query by its ID. */
     public CustomerQuery getQueryById(int queryId) {
         String sql = "SELECT cq.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM customer_query cq " +
+                     "FROM customerquery cq " +
                      "JOIN vehicle v ON cq.vehicle_id = v.vehicle_id " +
                      "WHERE cq.query_id = ?";
         
@@ -207,15 +167,9 @@ public class CustomerService {
         return null;
     }
     
-    /**
-     * Responds to a customer query.
-     * 
-     * @param queryId the query ID
-     * @param responseText the response text
-     * @return true if response was added successfully, false otherwise
-     */
+    /** Responds to a customer query. */
     public boolean respondToQuery(int queryId, String responseText) {
-        String sql = "UPDATE customer_query SET response_text = ? WHERE query_id = ?";
+        String sql = "UPDATE customerquery SET response_text = ? WHERE query_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -232,29 +186,18 @@ public class CustomerService {
         }
     }
     
-    // ==================== Insurance Info Methods ====================
+    // Insurance info methods.
     
-    /**
-     * Gets insurance information for a vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return List of insurance policies for the vehicle
-     */
+    /** Gets insurance information for a vehicle. */
     public List<Object> getInsuranceInfo(int vehicleId) {
-        // This will be implemented using InsuranceService
-        // For now, returning empty list
+        // Pending InsuranceService integration.
+        // Returns an empty list placeholder.
         return new ArrayList<>();
     }
     
-    // ==================== Helper Methods ====================
+    // Helper methods.
     
-    /**
-     * Builds a Vehicle object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return Vehicle object
-     * @throws SQLException if there's an error reading the data
-     */
+    /** Builds a Vehicle object from a ResultSet. */
     private Vehicle buildVehicleFromResultSet(ResultSet rs) throws SQLException {
         int vehicleId = rs.getInt("vehicle_id");
         String registrationNumber = rs.getString("registration_number");
@@ -270,13 +213,7 @@ public class CustomerService {
                           ownerId, ownerName, ownerPhone, null);
     }
     
-    /**
-     * Builds a CustomerQuery object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return CustomerQuery object
-     * @throws SQLException if there's an error reading the data
-     */
+    /** Builds a CustomerQuery object from a ResultSet. */
     private CustomerQuery buildQueryFromResultSet(ResultSet rs) throws SQLException {
         int queryId = rs.getInt("query_id");
         int customerId = rs.getInt("customer_id");
@@ -294,3 +231,4 @@ public class CustomerService {
                                 responseText, vehicleRegistration, vehicleMake, vehicleModel, null);
     }
 }
+

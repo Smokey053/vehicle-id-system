@@ -8,21 +8,11 @@ public class Customer {
     private String phone;
     private String email;
     
-    /**
-     * Default constructor.
-     */
+    // Default constructor.
     public Customer() {
     }
     
-    /**
-     * Parameterized constructor for creating a Customer with all fields.
-     * 
-     * @param customerId the unique identifier for the customer
-     * @param name the customer's full name
-     * @param address the customer's address
-     * @param phone the customer's phone number
-     * @param email the customer's email address
-     */
+    // Initializes all customer fields.
     public Customer(int customerId, String name, String address, String phone, String email) {
         this.customerId = customerId;
         this.name = name;

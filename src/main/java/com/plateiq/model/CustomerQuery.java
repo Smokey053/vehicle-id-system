@@ -114,67 +114,39 @@ public class CustomerQuery {
         return vehicleMake;
     }
     
-    /**
-     * Sets the vehicle's make.
-     * 
-     * @param vehicleMake the new make
-     */
+    /** Sets the vehicle's make. */
     public void setVehicleMake(String vehicleMake) {
         this.vehicleMake = vehicleMake;
     }
     
-    /**
-     * Gets the vehicle's model.
-     * 
-     * @return the model
-     */
+    /** Gets the vehicle's model. */
     public String getVehicleModel() {
         return vehicleModel;
     }
     
-    /**
-     * Sets the vehicle's model.
-     * 
-     * @param vehicleModel the new model
-     */
+    /** Sets the vehicle's model. */
     public void setVehicleModel(String vehicleModel) {
         this.vehicleModel = vehicleModel;
     }
     
-    /**
-     * Gets the customer's name.
-     * 
-     * @return the customer name
-     */
+    /** Gets the customer's name. */
     public String getCustomerName() {
         return customerName;
     }
     
-    /**
-     * Sets the customer's name.
-     * 
-     * @param customerName the new customer name
-     */
+    /** Sets the customer's name. */
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
     
-    // Utility Methods
+    // Utility methods.
     
-    /**
-     * Checks if the query has been responded to.
-     * 
-     * @return true if response text is not empty
-     */
+    /** Checks if the query has been responded to. */
     public boolean isResponded() {
         return responseText != null && !responseText.trim().isEmpty();
     }
     
-    /**
-     * Returns a string representation of the CustomerQuery.
-     * 
-     * @return a string containing query details
-     */
+    /** Returns a string representation of the CustomerQuery. */
     @Override
     public String toString() {
         return "CustomerQuery{" +

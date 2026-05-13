@@ -15,27 +15,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service class for Police Report and Violation operations.
- * Handles reports, violations, and unpaid fine tracking.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
+// Manages police reports and traffic violations.
 public class PoliceService {
     
     private static final Logger LOGGER = Logger.getLogger(PoliceService.class.getName());
     
-    // ==================== Police Report Methods ====================
+    // Police report methods.
     
-    /**
-     * Adds a new police report to the database.
-     * 
-     * @param report the PoliceReport object to add
-     * @return true if report was added successfully, false otherwise
-     */
+    // Adds a new police report to the database.
     public boolean addReport(PoliceReport report) {
-        String sql = "INSERT INTO police_report (vehicle_id, report_date, report_type, description, officer_name) " +
+        String sql = "INSERT INTO policereport (vehicle_id, report_date, report_type, description, officer_name) " +
                      "VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
@@ -57,14 +46,9 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Updates an existing police report in the database.
-     * 
-     * @param report the PoliceReport object with updated data
-     * @return true if report was updated successfully, false otherwise
-     */
+    // Updates an existing police report in the database.
     public boolean updateReport(PoliceReport report) {
-        String sql = "UPDATE police_report SET report_date = ?, report_type = ?, description = ?, officer_name = ? " +
+        String sql = "UPDATE policereport SET report_date = ?, report_type = ?, description = ?, officer_name = ? " +
                      "WHERE report_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -85,14 +69,9 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Deletes a police report from the database.
-     * 
-     * @param reportId the ID of the report to delete
-     * @return true if report was deleted successfully, false otherwise
-     */
+    // Deletes a police report from the database.
     public boolean deleteReport(int reportId) {
-        String sql = "DELETE FROM police_report WHERE report_id = ?";
+        String sql = "DELETE FROM policereport WHERE report_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -108,16 +87,11 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Gets a police report by its ID.
-     * 
-     * @param reportId the report ID
-     * @return PoliceReport object if found, null otherwise
-     */
+    // Retrieves a police report by its ID.
     public PoliceReport getReportById(int reportId) {
         String sql = "SELECT pr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM police_report pr " +
+                     "FROM policereport pr " +
                      "JOIN vehicle v ON pr.vehicle_id = v.vehicle_id " +
                      "WHERE pr.report_id = ?";
         
@@ -138,16 +112,11 @@ public class PoliceService {
         return null;
     }
     
-    /**
-     * Gets all police reports for a specific vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return List of PoliceReport objects
-     */
+    // Retrieves all police reports for a specific vehicle.
     public List<PoliceReport> getReportsByVehicle(int vehicleId) {
         String sql = "SELECT pr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM police_report pr " +
+                     "FROM policereport pr " +
                      "JOIN vehicle v ON pr.vehicle_id = v.vehicle_id " +
                      "WHERE pr.vehicle_id = ? " +
                      "ORDER BY pr.report_date DESC";
@@ -171,16 +140,11 @@ public class PoliceService {
         return reports;
     }
     
-    /**
-     * Gets all police reports of a specific type.
-     * 
-     * @param reportType the report type (ACCIDENT, THEFT)
-     * @return List of PoliceReport objects
-     */
+    // Retrieves all police reports of a specific type.
     public List<PoliceReport> getReportsByType(String reportType) {
         String sql = "SELECT pr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM police_report pr " +
+                     "FROM policereport pr " +
                      "JOIN vehicle v ON pr.vehicle_id = v.vehicle_id " +
                      "WHERE pr.report_type = ? " +
                      "ORDER BY pr.report_date DESC";
@@ -204,17 +168,12 @@ public class PoliceService {
         return reports;
     }
     
-    // ==================== Violation Methods ====================
+    // Violation methods.
     
-    /**
-     * Adds a new violation to the database.
-     * 
-     * @param violation the Violation object to add
-     * @return true if violation was added successfully, false otherwise
-     */
+    // Adds a new violation to the database.
     public boolean addViolation(Violation violation) {
-        String sql = "INSERT INTO violation (vehicle_id, violation_date, violation_type, fine_amount, status, description) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO violation (vehicle_id, violation_date, violation_type, fine_amount, status) " +
+                     "VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -225,7 +184,6 @@ public class PoliceService {
             stmt.setString(3, violation.getViolationType());
             stmt.setBigDecimal(4, violation.getFineAmount());
             stmt.setString(5, violation.getStatus());
-            stmt.setString(6, violation.getDescription());
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Added violation: " + violation.getViolationId());
@@ -236,15 +194,10 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Updates an existing violation in the database.
-     * 
-     * @param violation the Violation object with updated data
-     * @return true if violation was updated successfully, false otherwise
-     */
+    // Updates an existing violation in the database.
     public boolean updateViolation(Violation violation) {
         String sql = "UPDATE violation SET violation_date = ?, violation_type = ?, fine_amount = ?, " +
-                     "status = ?, description = ? WHERE violation_id = ?";
+                     "status = ? WHERE violation_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -253,8 +206,7 @@ public class PoliceService {
             stmt.setString(2, violation.getViolationType());
             stmt.setBigDecimal(3, violation.getFineAmount());
             stmt.setString(4, violation.getStatus());
-            stmt.setString(5, violation.getDescription());
-            stmt.setInt(6, violation.getViolationId());
+            stmt.setInt(5, violation.getViolationId());
             
             int rowsAffected = stmt.executeUpdate();
             LOGGER.info("Updated violation: " + violation.getViolationId());
@@ -265,12 +217,7 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Deletes a violation from the database.
-     * 
-     * @param violationId the ID of the violation to delete
-     * @return true if violation was deleted successfully, false otherwise
-     */
+    // Deletes a violation from the database.
     public boolean deleteViolation(int violationId) {
         String sql = "DELETE FROM violation WHERE violation_id = ?";
         
@@ -288,13 +235,13 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Gets all unpaid violations from the database view.
-     * 
-     * @return List of Violation objects (unpaid only)
-     */
+    // Retrieves all unpaid violations from the database view.
     public List<Violation> getUnpaidViolations() {
-        String sql = "SELECT * FROM unpaid_violations";
+        String sql = "SELECT uv.*, v.vehicle_id, " +
+                     "uv.registration_number AS vehicle_registration, " +
+                     "uv.make AS vehicle_make, uv.model AS vehicle_model " +
+                     "FROM unpaid_violations uv " +
+                     "JOIN vehicle v ON v.registration_number = uv.registration_number";
         
         List<Violation> violations = new ArrayList<>();
         
@@ -313,12 +260,7 @@ public class PoliceService {
         return violations;
     }
     
-    /**
-     * Gets all violations for a specific vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return List of Violation objects
-     */
+    /** Gets all violations for a specific vehicle. */
     public List<Violation> getViolationsByVehicle(int vehicleId) {
         String sql = "SELECT v.*, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
@@ -346,12 +288,7 @@ public class PoliceService {
         return violations;
     }
     
-    /**
-     * Gets all violations with a specific status.
-     * 
-     * @param status the violation status (PAID, UNPAID)
-     * @return List of Violation objects
-     */
+    /** Gets all violations with a specific status. */
     public List<Violation> getViolationsByStatus(String status) {
         String sql = "SELECT v.*, vr.registration_number AS vehicle_registration, " +
                      "vr.make AS vehicle_make, vr.model AS vehicle_model " +
@@ -379,12 +316,7 @@ public class PoliceService {
         return violations;
     }
     
-    /**
-     * Marks a violation as paid.
-     * 
-     * @param violationId the violation ID
-     * @return true if update was successful, false otherwise
-     */
+    /** Marks a violation as paid. */
     public boolean markViolationAsPaid(int violationId) {
         String sql = "UPDATE violation SET status = 'PAID' WHERE violation_id = ?";
         
@@ -402,11 +334,7 @@ public class PoliceService {
         }
     }
     
-    /**
-     * Gets the total unpaid fine amount.
-     * 
-     * @return total unpaid fine amount as BigDecimal
-     */
+    /** Gets the total unpaid fine amount. */
     public BigDecimal getTotalUnpaidFines() {
         String sql = "SELECT COALESCE(SUM(fine_amount), 0) FROM violation WHERE status = 'UNPAID'";
         
@@ -428,7 +356,7 @@ public class PoliceService {
     public List<PoliceReport> getAllReports() {
         String sql = "SELECT pr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM police_report pr " +
+                     "FROM policereport pr " +
                      "JOIN vehicle v ON pr.vehicle_id = v.vehicle_id " +
                      "ORDER BY pr.report_date DESC";
         List<PoliceReport> reports = new ArrayList<>();
@@ -465,7 +393,7 @@ public class PoliceService {
     public List<PoliceReport> searchReportsByVehicle(String searchTerm) {
         String sql = "SELECT pr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM police_report pr " +
+                     "FROM policereport pr " +
                      "JOIN vehicle v ON pr.vehicle_id = v.vehicle_id " +
                      "WHERE v.registration_number ILIKE ? ORDER BY pr.report_date DESC";
         List<PoliceReport> reports = new ArrayList<>();
@@ -503,15 +431,9 @@ public class PoliceService {
         return violations;
     }
     
-    // ==================== Helper Methods ====================
+    // Helper methods.
     
-    /**
-     * Builds a PoliceReport object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return PoliceReport object
-     * @throws SQLException if there's an error reading the data
-     */
+    // Builds a PoliceReport object from a ResultSet.
     private PoliceReport buildReportFromResultSet(ResultSet rs) throws SQLException {
         int reportId = rs.getInt("report_id");
         int vehicleId = rs.getInt("vehicle_id");
@@ -529,13 +451,7 @@ public class PoliceService {
                                vehicleRegistration, vehicleMake, vehicleModel);
     }
     
-    /**
-     * Builds a Violation object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return Violation object
-     * @throws SQLException if there's an error reading the data
-     */
+    // Builds a Violation object from a ResultSet.
     private Violation buildViolationFromResultSet(ResultSet rs) throws SQLException {
         int violationId = rs.getInt("violation_id");
         int vehicleId = rs.getInt("vehicle_id");
@@ -543,7 +459,7 @@ public class PoliceService {
         String violationType = rs.getString("violation_type");
         BigDecimal fineAmount = rs.getBigDecimal("fine_amount");
         String status = rs.getString("status");
-        String description = rs.getString("description");
+        String description = null;
         String vehicleRegistration = rs.getString("vehicle_registration");
         String vehicleMake = rs.getString("vehicle_make");
         String vehicleModel = rs.getString("vehicle_model");
@@ -573,3 +489,4 @@ public class PoliceService {
         return 0;
     }
 }
+

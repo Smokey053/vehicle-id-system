@@ -14,25 +14,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service class for Service Record CRUD operations.
- * Handles service history management with pagination support.
- *
- * @author Plate IQ Team
- * @version 1.0
- */
+// Manages service record CRUD operations with pagination support.
 public class ServiceRecordService {
     
     private static final Logger LOGGER = Logger.getLogger(ServiceRecordService.class.getName());
     
-    /**
-     * Adds a new service record to the database.
-     * 
-     * @param serviceRecord the ServiceRecord object to add
-     * @return true if service record was added successfully, false otherwise
-     */
+    // Adds a new service record to the database.
     public boolean addServiceRecord(ServiceRecord serviceRecord) {
-        String sql = "INSERT INTO service_record (vehicle_id, service_date, service_type, description, cost) " +
+        String sql = "INSERT INTO servicerecord (vehicle_id, service_date, service_type, description, cost) " +
                      "VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
@@ -53,14 +42,9 @@ public class ServiceRecordService {
         }
     }
     
-    /**
-     * Updates an existing service record in the database.
-     * 
-     * @param serviceRecord the ServiceRecord object with updated data
-     * @return true if service record was updated successfully, false otherwise
-     */
+    // Updates an existing service record in the database.
     public boolean updateServiceRecord(ServiceRecord serviceRecord) {
-        String sql = "UPDATE service_record SET service_date = ?, service_type = ?, description = ?, cost = ? " +
+        String sql = "UPDATE servicerecord SET service_date = ?, service_type = ?, description = ?, cost = ? " +
                      "WHERE service_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -81,14 +65,9 @@ public class ServiceRecordService {
         }
     }
     
-    /**
-     * Deletes a service record from the database.
-     * 
-     * @param serviceId the ID of the service record to delete
-     * @return true if service record was deleted successfully, false otherwise
-     */
+    // Deletes a service record from the database.
     public boolean deleteServiceRecord(int serviceId) {
-        String sql = "DELETE FROM service_record WHERE service_id = ?";
+        String sql = "DELETE FROM servicerecord WHERE service_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -104,18 +83,11 @@ public class ServiceRecordService {
         }
     }
     
-    /**
-     * Gets all service records for a specific vehicle with pagination.
-     * 
-     * @param vehicleId the vehicle ID
-     * @param page the page number (0-indexed)
-     * @param pageSize the number of items per page
-     * @return List of ServiceRecord objects for the requested page
-     */
+    /** Gets all service records for a specific vehicle with pagination. */
     public List<ServiceRecord> getServiceRecordsByVehicle(int vehicleId, int page, int pageSize) {
         String sql = "SELECT sr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM service_record sr " +
+                     "FROM servicerecord sr " +
                      "JOIN vehicle v ON sr.vehicle_id = v.vehicle_id " +
                      "WHERE sr.vehicle_id = ? " +
                      "ORDER BY sr.service_date DESC " +
@@ -142,14 +114,9 @@ public class ServiceRecordService {
         return serviceRecords;
     }
     
-    /**
-     * Gets the total count of service records for a specific vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return total number of service records
-     */
+    /** Gets the total count of service records for a specific vehicle. */
     public int getTotalServiceRecordCount(int vehicleId) {
-        String sql = "SELECT COUNT(*) FROM service_record WHERE vehicle_id = ?";
+        String sql = "SELECT COUNT(*) FROM servicerecord WHERE vehicle_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -175,7 +142,7 @@ public class ServiceRecordService {
     public List<ServiceRecord> getAllServiceRecords() {
         String sql = "SELECT sr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM service_record sr " +
+                     "FROM servicerecord sr " +
                      "JOIN vehicle v ON sr.vehicle_id = v.vehicle_id " +
                      "ORDER BY sr.service_date DESC";
 
@@ -195,7 +162,7 @@ public class ServiceRecordService {
     public List<ServiceRecord> searchByVehicle(String searchTerm) {
         String sql = "SELECT sr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM service_record sr " +
+                     "FROM servicerecord sr " +
                      "JOIN vehicle v ON sr.vehicle_id = v.vehicle_id " +
                      "WHERE v.registration_number ILIKE ? " +
                      "ORDER BY sr.service_date DESC";
@@ -215,16 +182,11 @@ public class ServiceRecordService {
         return serviceRecords;
     }
     
-    /**
-     * Gets a service record by its ID.
-     * 
-     * @param serviceId the service record ID
-     * @return ServiceRecord object if found, null otherwise
-     */
+    /** Gets a service record by its ID. */
     public ServiceRecord getServiceRecordById(int serviceId) {
         String sql = "SELECT sr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
-                     "FROM service_record sr " +
+                     "FROM servicerecord sr " +
                      "JOIN vehicle v ON sr.vehicle_id = v.vehicle_id " +
                      "WHERE sr.service_id = ?";
         
@@ -245,14 +207,9 @@ public class ServiceRecordService {
         return null;
     }
     
-    /**
-     * Gets the total cost of all services for a vehicle.
-     * 
-     * @param vehicleId the vehicle ID
-     * @return total cost as BigDecimal
-     */
+    /** Gets the total cost of all services for a vehicle. */
     public BigDecimal getTotalServiceCost(int vehicleId) {
-        String sql = "SELECT COALESCE(SUM(cost), 0) FROM service_record WHERE vehicle_id = ?";
+        String sql = "SELECT COALESCE(SUM(cost), 0) FROM servicerecord WHERE vehicle_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -271,13 +228,7 @@ public class ServiceRecordService {
         return BigDecimal.ZERO;
     }
     
-    /**
-     * Builds a ServiceRecord object from a ResultSet.
-     * 
-     * @param rs the ResultSet
-     * @return ServiceRecord object
-     * @throws SQLException if there's an error reading the data
-     */
+    /** Builds a ServiceRecord object from a ResultSet. */
     private ServiceRecord buildServiceRecordFromResultSet(ResultSet rs) throws SQLException {
         int serviceId = rs.getInt("service_id");
         int vehicleId = rs.getInt("vehicle_id");
@@ -295,3 +246,4 @@ public class ServiceRecordService {
                                 description, cost, vehicleRegistration, vehicleMake, vehicleModel);
     }
 }
+
