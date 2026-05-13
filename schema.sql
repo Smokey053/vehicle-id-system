@@ -47,7 +47,7 @@ CREATE TABLE Customer (
     address         TEXT,
     phone           VARCHAR(20),
     email           VARCHAR(100)    UNIQUE,
-    id_number       VARCHAR(20)     UNIQUE,  -- National ID / Passport number
+    id_number       VARCHAR(20)     UNIQUE,
     is_verified     BOOLEAN         DEFAULT FALSE,
     created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
