@@ -106,6 +106,7 @@ public class VehicleController implements Initializable {
         FXCollections.observableArrayList();
     private final List<Vehicle> currentSource = new ArrayList<>();
     private boolean canManageVehicles;
+    private boolean canViewVehicles;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -135,6 +136,9 @@ public class VehicleController implements Initializable {
         canManageVehicles = AccessControl.canManageVehicles(
             SessionManager.getCurrentUser()
         );
+        canViewVehicles = AccessControl.canViewVehicles(
+            SessionManager.getCurrentUser()
+        );
         applyFeaturePermissions();
 
         vehicleTable.setItems(vehicleList);
@@ -153,17 +157,19 @@ public class VehicleController implements Initializable {
     }
 
     private void applyFeaturePermissions() {
-        setDisabled(plateNumberField, !canManageVehicles);
-        setDisabled(brandField, !canManageVehicles);
-        setDisabled(modelField, !canManageVehicles);
-        setDisabled(yearField, !canManageVehicles);
-        setDisabled(ownerNameField, !canManageVehicles);
-        setDisabled(ownerPhoneField, !canManageVehicles);
-        setDisabled(colorField, !canManageVehicles);
-        setDisabled(addVehicleButton, !canManageVehicles);
-        setDisabled(editVehicleButton, !canManageVehicles);
-        setDisabled(deleteVehicleButton, !canManageVehicles);
-        setDisabled(clearFormButton, !canManageVehicles);
+        // View-only users can see but not interact with form fields
+        boolean canEdit = canManageVehicles;
+        setDisabled(plateNumberField, !canEdit);
+        setDisabled(brandField, !canEdit);
+        setDisabled(modelField, !canEdit);
+        setDisabled(yearField, !canEdit);
+        setDisabled(ownerNameField, !canEdit);
+        setDisabled(ownerPhoneField, !canEdit);
+        setDisabled(colorField, !canEdit);
+        setDisabled(addVehicleButton, !canEdit);
+        setDisabled(editVehicleButton, !canEdit);
+        setDisabled(deleteVehicleButton, !canEdit);
+        setDisabled(clearFormButton, !canEdit);
     }
 
     private void setDisabled(Control control, boolean disabled) {

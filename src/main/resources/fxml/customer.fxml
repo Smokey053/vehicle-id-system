@@ -55,6 +55,20 @@
                                 <Button text="Clear" onAction="#clearSearch" styleClass="outline-button" />
                             </children>
                         </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label text="Quick Filter:" />
+                                <ChoiceBox fx:id="vehicleQuickFilterChoiceBox" prefWidth="230.0" onAction="#applyVehicleQuickFilter" />
+                                <Button text="Reset Filter" onAction="#resetVehicleQuickFilter" styleClass="outline-button" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="selected-vehicle-ribbon">
+                            <children>
+                                <Label text="Selected Vehicle:" styleClass="selected-vehicle-title" />
+                                <Label fx:id="selectedVehicleSummaryLabel" text="None" styleClass="selected-vehicle-value" />
+                            </children>
+                        </HBox>
+
                     </children>
                 </VBox>
             </children>
@@ -69,6 +83,20 @@
                         <Insets top="12.0" right="20.0" bottom="20.0" left="20.0" />
                     </padding>
                     <children>
+                        <TitledPane text="Vehicle Directory" expanded="true">
+                            <content>
+                                <TableView fx:id="vehicleListTable" prefHeight="180.0" onMouseClicked="#handleVehicleSelection">
+                                    <columns>
+                                        <TableColumn fx:id="colVehicleListPlate" text="Registration" prefWidth="180.0" />
+                                        <TableColumn fx:id="colVehicleListBrand" text="Brand" prefWidth="170.0" />
+                                        <TableColumn fx:id="colVehicleListModel" text="Model" prefWidth="170.0" />
+                                        <TableColumn fx:id="colVehicleListOwner" text="Owner" prefWidth="260.0" />
+                                        <TableColumn fx:id="colVehicleListPhone" text="Phone" prefWidth="170.0" />
+                                    </columns>
+                                </TableView>
+                            </content>
+                        </TitledPane>
+
                         <TitledPane text="Vehicle Information" expanded="true">
                             <content>
                                 <GridPane hgap="20.0" vgap="10.0">

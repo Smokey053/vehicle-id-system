@@ -2,7 +2,10 @@ package com.plateiq.controller;
 
 import com.plateiq.model.Claim;
 import com.plateiq.model.InsurancePolicy;
+import com.plateiq.model.Vehicle;
 import com.plateiq.service.InsuranceService;
+import com.plateiq.service.ServiceRecordService;
+import com.plateiq.service.VehicleService;
 import com.plateiq.utils.AccessControl;
 import com.plateiq.utils.AccessibilityHelper;
 import com.plateiq.utils.AlertUtils;
@@ -12,8 +15,11 @@ import com.plateiq.utils.StateManager;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,6 +30,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -34,6 +41,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class InsuranceController implements Initializable {
+
+    @FXML
+    private TableView<Vehicle> vehicleListTable;
+
+    @FXML
+    private TableColumn<Vehicle, String> colVehicleListPlate;
+
+    @FXML
+    private TableColumn<Vehicle, String> colVehicleListBrand;
+
+    @FXML
+    private TableColumn<Vehicle, String> colVehicleListModel;
+
+    @FXML
+    private TableColumn<Vehicle, String> colVehicleListOwner;
+
+    @FXML
+    private TableColumn<Vehicle, String> colVehicleListPhone;
 
     @FXML
     private TableView<InsurancePolicy> policyTable;
@@ -81,6 +106,12 @@ public class InsuranceController implements Initializable {
     private Label expiryLabel;
 
     @FXML
+    private ChoiceBox<String> vehicleQuickFilterChoiceBox;
+
+    @FXML
+    private Label selectedVehicleSummaryLabel;
+
+    @FXML
     private TextField policyNumberField;
 
     @FXML
@@ -108,6 +139,12 @@ public class InsuranceController implements Initializable {
     private Button submitClaimButton;
 
     private final InsuranceService insuranceService = new InsuranceService();
+    private final ServiceRecordService serviceRecordService =
+        new ServiceRecordService();
+    private final VehicleService vehicleService = new VehicleService();
+    private final ObservableList<Vehicle> vehicleDirectoryList =
+        FXCollections.observableArrayList();
+    private final List<Vehicle> allVehicleDirectory = new ArrayList<>();
     private final ObservableList<InsurancePolicy> policyList =
         FXCollections.observableArrayList();
     private final ObservableList<Claim> claimList =
@@ -124,6 +161,23 @@ public class InsuranceController implements Initializable {
         ) {
             return;
         }
+
+        colVehicleListPlate.setCellValueFactory(
+            new PropertyValueFactory<>("plateNumber")
+        );
+        colVehicleListBrand.setCellValueFactory(
+            new PropertyValueFactory<>("brand")
+        );
+        colVehicleListModel.setCellValueFactory(
+            new PropertyValueFactory<>("model")
+        );
+        colVehicleListOwner.setCellValueFactory(
+            new PropertyValueFactory<>("ownerName")
+        );
+        colVehicleListPhone.setCellValueFactory(
+            new PropertyValueFactory<>("ownerPhone")
+        );
+        applyDefaultVehicleSort();
 
         colPolicyId.setCellValueFactory(new PropertyValueFactory<>("policyId"));
         colVehiclePlate.setCellValueFactory(
@@ -156,9 +210,16 @@ public class InsuranceController implements Initializable {
             SessionManager.getCurrentUser()
         );
         applyFeaturePermissions();
+        setupQuickFilterOptions();
+        updateSelectedVehicleRibbon(null);
 
+        vehicleListTable.setItems(vehicleDirectoryList);
         policyTable.setItems(policyList);
         claimTable.setItems(claimList);
+        StateManager.showEmptyState(
+            vehicleListTable,
+            "No vehicles available.\n\nVehicle directory entries will appear here."
+        );
         StateManager.showEmptyState(
             policyTable,
             "No insurance policies found.\n\nAdd a policy to get started."
@@ -172,6 +233,7 @@ public class InsuranceController implements Initializable {
         setupAccessibility();
 
         setupExpiryProgress();
+        loadVehicleDirectory();
         loadPolicies();
     }
 
@@ -199,6 +261,7 @@ public class InsuranceController implements Initializable {
     private void setupAccessibility() {
         // Setup form navigation with Tab key
         AccessibilityHelper.setupFormNavigation(
+            vehicleQuickFilterChoiceBox,
             policyNumberField,
             insuranceCompanyField,
             vehiclePlateField,
@@ -219,6 +282,10 @@ public class InsuranceController implements Initializable {
             claimTable,
             this::handleClaimTableActivation
         );
+        AccessibilityHelper.setupTableKeyboard(
+            vehicleListTable,
+            this::handleVehicleListActivation
+        );
 
         // Setup button keyboard activation
         AccessibilityHelper.setupButtonKeyboard(addPolicyButton);
@@ -226,7 +293,9 @@ public class InsuranceController implements Initializable {
         AccessibilityHelper.setupButtonKeyboard(updateClaimStatusButton);
 
         // Add focus indicators
+        AccessibilityHelper.addFocusIndicator(vehicleQuickFilterChoiceBox);
         AccessibilityHelper.addFocusIndicator(policyNumberField);
+        AccessibilityHelper.addFocusIndicator(vehicleListTable);
         AccessibilityHelper.addFocusIndicator(policyTable);
         AccessibilityHelper.addFocusIndicator(claimTable);
 
@@ -274,6 +343,226 @@ public class InsuranceController implements Initializable {
                     selected.getStatus()
             );
         }
+    }
+
+    private void handleVehicleListActivation() {
+        Vehicle selected = vehicleListTable
+            .getSelectionModel()
+            .getSelectedItem();
+        if (selected != null) {
+            handleVehicleSelection();
+        }
+    }
+
+    private void loadVehicleDirectory() {
+        StateManager.showLoadingState(vehicleListTable, true);
+        try {
+            List<Vehicle> vehicles = vehicleService.getAllVehicles();
+            allVehicleDirectory.clear();
+            allVehicleDirectory.addAll(vehicles);
+            applyQuickFilterToDirectory(
+                vehicleQuickFilterChoiceBox == null
+                    ? "All Vehicles"
+                    : vehicleQuickFilterChoiceBox.getValue()
+            );
+
+            if (vehicles.isEmpty()) {
+                StateManager.showEmptyState(
+                    vehicleListTable,
+                    "No vehicles found.\n\nVehicle records will appear here once registered."
+                );
+            }
+
+            AccessibilityHelper.announceToScreenReader(
+                "Loaded " + vehicles.size() + " vehicles in insurance directory"
+            );
+        } catch (Exception e) {
+            StateManager.showErrorState(
+                vehicleListTable,
+                "Failed to load vehicle directory: " + e.getMessage(),
+                this::loadVehicleDirectory
+            );
+            AlertUtils.showError("Error loading vehicles", e.getMessage());
+        } finally {
+            StateManager.showLoadingState(vehicleListTable, false);
+        }
+    }
+
+    @FXML
+    private void handleVehicleSelection() {
+        Vehicle selected = vehicleListTable
+            .getSelectionModel()
+            .getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+
+        vehiclePlateField.setText(selected.getPlateNumber());
+        policyNumberField.setText(selected.getPlateNumber());
+        updateSelectedVehicleRibbon(selected);
+        searchPolicy();
+
+        AccessibilityHelper.announceToScreenReader(
+            "Selected vehicle " + selected.getPlateNumber() + " from directory"
+        );
+    }
+
+    private void setupQuickFilterOptions() {
+        if (vehicleQuickFilterChoiceBox == null) {
+            return;
+        }
+        vehicleQuickFilterChoiceBox
+            .getItems()
+            .setAll(
+                "All Vehicles",
+                "My Vehicles",
+                "Recently Serviced",
+                "Has Active Policy"
+            );
+        vehicleQuickFilterChoiceBox.setValue("All Vehicles");
+    }
+
+    @FXML
+    private void applyVehicleQuickFilter() {
+        applyQuickFilterToDirectory(vehicleQuickFilterChoiceBox.getValue());
+    }
+
+    @FXML
+    private void resetVehicleQuickFilter() {
+        if (vehicleQuickFilterChoiceBox != null) {
+            vehicleQuickFilterChoiceBox.setValue("All Vehicles");
+        }
+        applyQuickFilterToDirectory("All Vehicles");
+    }
+
+    private void applyQuickFilterToDirectory(String filterName) {
+        String effectiveFilter = (filterName == null || filterName.isBlank())
+            ? "All Vehicles"
+            : filterName;
+
+        List<Vehicle> filtered = switch (effectiveFilter) {
+            case "My Vehicles" -> filterMyVehicles(allVehicleDirectory);
+            case "Recently Serviced" -> filterRecentlyServicedVehicles(
+                allVehicleDirectory
+            );
+            case "Has Active Policy" -> filterActivePolicyVehicles(
+                allVehicleDirectory
+            );
+            default -> new ArrayList<>(allVehicleDirectory);
+        };
+
+        vehicleDirectoryList.setAll(filtered);
+        applyDefaultVehicleSort();
+
+        if (filtered.isEmpty()) {
+            StateManager.showEmptyState(
+                vehicleListTable,
+                "No vehicles match the selected quick filter.\n\nTry a different filter or reset to All Vehicles."
+            );
+        }
+    }
+
+    private List<Vehicle> filterMyVehicles(List<Vehicle> source) {
+        String username = SessionManager.getCurrentUsername();
+        if (username == null || username.isBlank()) {
+            return new ArrayList<>(source);
+        }
+
+        List<Vehicle> matched = source
+            .stream()
+            .filter(
+                v ->
+                    v.getOwnerName() != null &&
+                    v
+                        .getOwnerName()
+                        .toLowerCase()
+                        .contains(username.toLowerCase())
+            )
+            .toList();
+
+        return matched.isEmpty() ? new ArrayList<>(source) : matched;
+    }
+
+    private List<Vehicle> filterRecentlyServicedVehicles(List<Vehicle> source) {
+        try {
+            LocalDate cutoff = LocalDate.now().minusDays(90);
+            Set<Integer> servicedVehicleIds = new HashSet<>();
+            for (var record : serviceRecordService.getAllServiceRecords()) {
+                if (
+                    record.getServiceDate() != null &&
+                    !record.getServiceDate().isBefore(cutoff)
+                ) {
+                    servicedVehicleIds.add(record.getVehicleId());
+                }
+            }
+
+            return source
+                .stream()
+                .filter(v -> servicedVehicleIds.contains(v.getVehicleId()))
+                .toList();
+        } catch (Exception e) {
+            AlertUtils.showError(
+                "Filter Error",
+                "Failed to apply Recently Serviced filter: " + e.getMessage()
+            );
+            return new ArrayList<>(source);
+        }
+    }
+
+    private List<Vehicle> filterActivePolicyVehicles(List<Vehicle> source) {
+        try {
+            LocalDate today = LocalDate.now();
+            Set<Integer> activePolicyVehicleIds = new HashSet<>();
+            for (InsurancePolicy policy : insuranceService.getAllPolicies()) {
+                if (
+                    policy.getEndDate() != null &&
+                    !policy.getEndDate().isBefore(today)
+                ) {
+                    activePolicyVehicleIds.add(policy.getVehicleId());
+                }
+            }
+
+            return source
+                .stream()
+                .filter(v -> activePolicyVehicleIds.contains(v.getVehicleId()))
+                .toList();
+        } catch (Exception e) {
+            AlertUtils.showError(
+                "Filter Error",
+                "Failed to apply Active Policy filter: " + e.getMessage()
+            );
+            return new ArrayList<>(source);
+        }
+    }
+
+    private void applyDefaultVehicleSort() {
+        if (vehicleListTable == null || colVehicleListPlate == null) {
+            return;
+        }
+        colVehicleListPlate.setSortType(TableColumn.SortType.ASCENDING);
+        vehicleListTable.getSortOrder().setAll(colVehicleListPlate);
+        vehicleListTable.sort();
+    }
+
+    private void updateSelectedVehicleRibbon(Vehicle vehicle) {
+        if (selectedVehicleSummaryLabel == null) {
+            return;
+        }
+
+        if (vehicle == null) {
+            selectedVehicleSummaryLabel.setText("None");
+            return;
+        }
+
+        selectedVehicleSummaryLabel.setText(
+            vehicle.getPlateNumber() +
+                " • " +
+                vehicle.getBrand() +
+                " " +
+                vehicle.getModel() +
+                " • Owner: " +
+                (vehicle.getOwnerName() == null ? "-" : vehicle.getOwnerName())
+        );
     }
 
     private boolean requireManagePermission() {
@@ -617,6 +906,7 @@ public class InsuranceController implements Initializable {
     private void searchPolicy() {
         String searchTerm = safeTrim(policyNumberField.getText());
         if (searchTerm.isBlank()) {
+            updateSelectedVehicleRibbon(null);
             loadPolicies();
             return;
         }

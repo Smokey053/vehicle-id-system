@@ -294,6 +294,24 @@
     -fx-border-width: 0 0 1 0;
 }
 
+.selected-vehicle-ribbon {
+    -fx-background-color: #eef4ff;
+    -fx-background-radius: 10;
+    -fx-border-color: #c7dcff;
+    -fx-border-radius: 10;
+    -fx-padding: 8 10;
+}
+
+.selected-vehicle-title {
+    -fx-font-weight: 700;
+    -fx-text-fill: #1d4ed8;
+}
+
+.selected-vehicle-value {
+    -fx-text-fill: #334155;
+    -fx-font-weight: 600;
+}
+
 .content-surface {
     -fx-background-color: transparent;
 }
@@ -352,6 +370,18 @@
 .table-view .column-header .label {
     -fx-font-weight: 700;
     -fx-text-fill: #475569;
+}
+
+.table-view .column-header:sorted {
+    -fx-background-color: #dbeafe;
+}
+
+.table-view .column-header:sorted .label {
+    -fx-text-fill: #1d4ed8;
+}
+
+.table-view .column-header .sort-order-dot {
+    -fx-background-color: #3b82f6;
 }
 
 .table-row-cell {
