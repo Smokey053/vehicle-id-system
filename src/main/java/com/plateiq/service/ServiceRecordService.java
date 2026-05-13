@@ -83,7 +83,7 @@ public class ServiceRecordService {
         }
     }
     
-    /** Gets all service records for a specific vehicle with pagination. */
+    // Gets all service records for a specific vehicle with pagination.
     public List<ServiceRecord> getServiceRecordsByVehicle(int vehicleId, int page, int pageSize) {
         String sql = "SELECT sr.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
@@ -114,7 +114,7 @@ public class ServiceRecordService {
         return serviceRecords;
     }
     
-    /** Gets the total count of service records for a specific vehicle. */
+    // Gets the total count of service records for a specific vehicle.
     public int getTotalServiceRecordCount(int vehicleId) {
         String sql = "SELECT COUNT(*) FROM servicerecord WHERE vehicle_id = ?";
         
@@ -207,7 +207,7 @@ public class ServiceRecordService {
         return null;
     }
     
-    /** Gets the total cost of all services for a vehicle. */
+    // Gets the total cost of all services for a vehicle.
     public BigDecimal getTotalServiceCost(int vehicleId) {
         String sql = "SELECT COALESCE(SUM(cost), 0) FROM servicerecord WHERE vehicle_id = ?";
         
@@ -228,7 +228,7 @@ public class ServiceRecordService {
         return BigDecimal.ZERO;
     }
     
-    /** Builds a ServiceRecord object from a ResultSet. */
+    // Builds a ServiceRecord object from a ResultSet.
     private ServiceRecord buildServiceRecordFromResultSet(ResultSet rs) throws SQLException {
         int serviceId = rs.getInt("service_id");
         int vehicleId = rs.getInt("vehicle_id");
