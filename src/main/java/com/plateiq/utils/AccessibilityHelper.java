@@ -27,7 +27,7 @@ public class AccessibilityHelper {
         );
     }
 
-    // Sets up Tab key navigation with proper focus traversal for form controls
+    // Sets up Tab key navigation with proper focus traversal for form controls.
     public static void setupFormNavigation(Control... controls) {
         if (controls == null || controls.length == 0) {
             throw new IllegalArgumentException(
@@ -73,7 +73,7 @@ public class AccessibilityHelper {
         }
     }
 
-    // Enables keyboard navigation for TableView with Enter key activation
+    // Enables keyboard navigation for TableView with Enter key activation.
     public static void setupTableKeyboard(
         TableView<?> table,
         Runnable onEnterAction
@@ -104,13 +104,14 @@ public class AccessibilityHelper {
             }
         });
 
-        // Ensure proper accessible text for screen readers Note: JavaFX 17 may not have TABLE role, using default NODE
+        // Ensure proper accessible text for screen readers. Note: JavaFX 17 may not have TABLE role, using default NODE
         table.setAccessibleText(
             "Data table - use arrow keys to navigate, Enter to activate"
         );
     }
 
-    // Ensures Space and Enter keys work properly on buttons for keyboard accessibility
+    // Ensures Space and Enter keys work properly on buttons for keyboard accessibility.
+    // @throws IllegalArgumentException if button is null
     public static void setupButtonKeyboard(Button button) {
         if (button == null) {
             throw new IllegalArgumentException("Button cannot be null");
@@ -132,7 +133,7 @@ public class AccessibilityHelper {
         button.setCancelButton(false);
     }
 
-    // Adds visual focus indicator styles to enhance visibility of focused elements
+    // Adds visual focus indicator styles to enhance visibility of focused elements.
     public static void addFocusIndicator(Node node) {
         if (node == null) {
             throw new IllegalArgumentException("Node cannot be null");
@@ -183,7 +184,7 @@ public class AccessibilityHelper {
         node.setFocusTraversable(true);
     }
 
-    // Sets initial focus to a node when the scene is loaded
+    // Sets initial focus to a node when the scene is loaded.
     public static void setInitialFocus(Node node) {
         if (node == null) {
             throw new IllegalArgumentException("Node cannot be null");
@@ -197,7 +198,7 @@ public class AccessibilityHelper {
         });
     }
 
-    // Announces a message to screen readers using ARIA live regions
+    // Announces a message to screen readers using ARIA live regions.
     public static void announceToScreenReader(String message) {
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -241,7 +242,7 @@ public class AccessibilityHelper {
         });
     }
 
-    // Sets up comprehensive accessibility for a button with custom accessible text
+    // Sets up comprehensive accessibility for a button with custom accessible text.
     public static void setupAccessibleButton(
         Button button,
         String accessibleText
@@ -261,7 +262,7 @@ public class AccessibilityHelper {
         button.setAccessibleRole(javafx.scene.AccessibleRole.BUTTON);
     }
 
-    // Sets up comprehensive accessibility for a table with custom accessible text
+    // Sets up comprehensive accessibility for a table with custom accessible text.
     public static void setupAccessibleTable(
         TableView<?> table,
         String accessibleText,
@@ -284,7 +285,7 @@ public class AccessibilityHelper {
         table.setAccessibleText(accessibleText);
     }
 
-    // Disables a control and updates its accessible state for screen readers
+    // Disables a control and updates its accessible state for screen readers.
     public static void disableWithAccessibility(
         Control control,
         String reason
@@ -307,7 +308,7 @@ public class AccessibilityHelper {
         control.setAccessibleText(newText);
     }
 
-    // Enables a control and updates its accessible state for screen readers
+    // Enables a control and updates its accessible state for screen readers.
     public static void enableWithAccessibility(
         Control control,
         String accessibleText

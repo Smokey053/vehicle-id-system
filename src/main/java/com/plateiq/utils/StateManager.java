@@ -20,7 +20,8 @@ public class StateManager {
 
     // Default messages
     private static final String DEFAULT_EMPTY_MESSAGE = "No data available";
-    private static final String DEFAULT_ERROR_MESSAGE = "An error occurred while loading data";
+    private static final String DEFAULT_ERROR_MESSAGE =
+        "An error occurred while loading data";
     private static final String DEFAULT_LOADING_MESSAGE = "Loading...";
 
     // Default icons (using Unicode characters)
@@ -38,7 +39,9 @@ public class StateManager {
 
     // Private constructor to prevent instantiation of this utility class.
     private StateManager() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+        throw new UnsupportedOperationException(
+            "Utility class cannot be instantiated"
+        );
     }
 
     // Shows or hides a loading state in the table with an animated progress indicator
@@ -53,7 +56,10 @@ public class StateManager {
                 table.setPlaceholder(loadingPlaceholder);
 
                 // Add fade-in animation
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), loadingPlaceholder);
+                FadeTransition fadeIn = new FadeTransition(
+                    Duration.millis(300),
+                    loadingPlaceholder
+                );
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
                 fadeIn.play();
@@ -63,8 +69,11 @@ public class StateManager {
                     String placeholderText = "";
                     if (table.getPlaceholder() instanceof VBox) {
                         VBox vbox = (VBox) table.getPlaceholder();
-                        if (!vbox.getChildren().isEmpty() &&
-                            vbox.getChildren().get(0) instanceof ProgressIndicator) {
+                        if (
+                            !vbox.getChildren().isEmpty() &&
+                            vbox.getChildren().get(0) instanceof
+                                ProgressIndicator
+                        ) {
                             table.setPlaceholder(null);
                         }
                     }
@@ -79,15 +88,23 @@ public class StateManager {
             throw new IllegalArgumentException("Table cannot be null");
         }
         if (message == null || message.trim().isEmpty()) {
-            throw new IllegalArgumentException("Message cannot be null or empty");
+            throw new IllegalArgumentException(
+                "Message cannot be null or empty"
+            );
         }
 
         Platform.runLater(() -> {
-            Label emptyPlaceholder = createEmptyStatePlaceholder(message, EMPTY_ICON);
+            Label emptyPlaceholder = createEmptyStatePlaceholder(
+                message,
+                EMPTY_ICON
+            );
             table.setPlaceholder(emptyPlaceholder);
 
             // Add fade-in animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), emptyPlaceholder);
+            FadeTransition fadeIn = new FadeTransition(
+                Duration.millis(300),
+                emptyPlaceholder
+            );
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -100,20 +117,32 @@ public class StateManager {
     }
 
     // Shows an error state with an error message and a retry button
-    public static void showErrorState(TableView<?> table, String errorMessage, Runnable retryAction) {
+    public static void showErrorState(
+        TableView<?> table,
+        String errorMessage,
+        Runnable retryAction
+    ) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
         }
         if (errorMessage == null || errorMessage.trim().isEmpty()) {
-            throw new IllegalArgumentException("Error message cannot be null or empty");
+            throw new IllegalArgumentException(
+                "Error message cannot be null or empty"
+            );
         }
 
         Platform.runLater(() -> {
-            VBox errorPlaceholder = createErrorPlaceholder(errorMessage, retryAction);
+            VBox errorPlaceholder = createErrorPlaceholder(
+                errorMessage,
+                retryAction
+            );
             table.setPlaceholder(errorPlaceholder);
 
             // Add fade-in animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), errorPlaceholder);
+            FadeTransition fadeIn = new FadeTransition(
+                Duration.millis(300),
+                errorPlaceholder
+            );
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -121,9 +150,14 @@ public class StateManager {
     }
 
     // Creates a styled empty state placeholder label with custom message and icon
-    public static Label createEmptyStatePlaceholder(String message, String iconText) {
+    public static Label createEmptyStatePlaceholder(
+        String message,
+        String iconText
+    ) {
         if (message == null || message.trim().isEmpty()) {
-            throw new IllegalArgumentException("Message cannot be null or empty");
+            throw new IllegalArgumentException(
+                "Message cannot be null or empty"
+            );
         }
 
         VBox container = new VBox(15);
@@ -148,7 +182,9 @@ public class StateManager {
         // Create wrapper label for TableView placeholder compatibility
         Label placeholder = new Label();
         placeholder.setGraphic(container);
-        placeholder.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
+        placeholder.setContentDisplay(
+            javafx.scene.control.ContentDisplay.GRAPHIC_ONLY
+        );
 
         // Accessibility
         placeholder.setAccessibleText("Empty state: " + message);
@@ -177,7 +213,9 @@ public class StateManager {
         // Create wrapper label for TableView placeholder compatibility
         Label placeholder = new Label();
         placeholder.setGraphic(container);
-        placeholder.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
+        placeholder.setContentDisplay(
+            javafx.scene.control.ContentDisplay.GRAPHIC_ONLY
+        );
 
         // Accessibility
         placeholder.setAccessibleText("Loading data, please wait");
@@ -186,9 +224,14 @@ public class StateManager {
     }
 
     // Creates an error placeholder with message and optional retry button
-    public static VBox createErrorPlaceholder(String message, Runnable retryAction) {
+    public static VBox createErrorPlaceholder(
+        String message,
+        Runnable retryAction
+    ) {
         if (message == null || message.trim().isEmpty()) {
-            throw new IllegalArgumentException("Message cannot be null or empty");
+            throw new IllegalArgumentException(
+                "Message cannot be null or empty"
+            );
         }
 
         VBox container = new VBox(15);
@@ -215,32 +258,32 @@ public class StateManager {
             Button retryButton = new Button("Retry");
             retryButton.setStyle(
                 "-fx-background-color: #007bff; " +
-                "-fx-text-fill: white; " +
-                "-fx-padding: 8 16; " +
-                "-fx-font-size: 14px; " +
-                "-fx-cursor: hand; " +
-                "-fx-background-radius: 4;"
+                    "-fx-text-fill: white; " +
+                    "-fx-padding: 8 16; " +
+                    "-fx-font-size: 14px; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-background-radius: 4;"
             );
 
             // Hover effect
             retryButton.setOnMouseEntered(e ->
                 retryButton.setStyle(
                     "-fx-background-color: #0056b3; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-padding: 8 16; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-cursor: hand; " +
-                    "-fx-background-radius: 4;"
+                        "-fx-text-fill: white; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-background-radius: 4;"
                 )
             );
             retryButton.setOnMouseExited(e ->
                 retryButton.setStyle(
                     "-fx-background-color: #007bff; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-padding: 8 16; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-cursor: hand; " +
-                    "-fx-background-radius: 4;"
+                        "-fx-text-fill: white; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-background-radius: 4;"
                 )
             );
 
@@ -254,8 +297,13 @@ public class StateManager {
         }
 
         // Accessibility
-        container.setAccessibleText("Error: " + message +
-            (retryAction != null ? ". Press retry button to try again." : ""));
+        container.setAccessibleText(
+            "Error: " +
+                message +
+                (retryAction != null
+                    ? ". Press retry button to try again."
+                    : "")
+        );
 
         return container;
     }
@@ -272,19 +320,27 @@ public class StateManager {
     }
 
     // Shows a custom state with a custom placeholder node
-    public static void showCustomState(TableView<?> table, javafx.scene.Node customPlaceholder) {
+    public static void showCustomState(
+        TableView<?> table,
+        javafx.scene.Node customPlaceholder
+    ) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
         }
         if (customPlaceholder == null) {
-            throw new IllegalArgumentException("Custom placeholder cannot be null");
+            throw new IllegalArgumentException(
+                "Custom placeholder cannot be null"
+            );
         }
 
         Platform.runLater(() -> {
             table.setPlaceholder(customPlaceholder);
 
             // Add fade-in animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), customPlaceholder);
+            FadeTransition fadeIn = new FadeTransition(
+                Duration.millis(300),
+                customPlaceholder
+            );
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -297,15 +353,23 @@ public class StateManager {
             throw new IllegalArgumentException("Table cannot be null");
         }
         if (message == null || message.trim().isEmpty()) {
-            throw new IllegalArgumentException("Message cannot be null or empty");
+            throw new IllegalArgumentException(
+                "Message cannot be null or empty"
+            );
         }
 
         Platform.runLater(() -> {
-            Label infoPlaceholder = createEmptyStatePlaceholder(message, INFO_ICON);
+            Label infoPlaceholder = createEmptyStatePlaceholder(
+                message,
+                INFO_ICON
+            );
             table.setPlaceholder(infoPlaceholder);
 
             // Add fade-in animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), infoPlaceholder);
+            FadeTransition fadeIn = new FadeTransition(
+                Duration.millis(300),
+                infoPlaceholder
+            );
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -313,7 +377,10 @@ public class StateManager {
     }
 
     // Shows a "no results" state for search/filter operations
-    public static void showNoResultsState(TableView<?> table, String searchQuery) {
+    public static void showNoResultsState(
+        TableView<?> table,
+        String searchQuery
+    ) {
         if (table == null) {
             throw new IllegalArgumentException("Table cannot be null");
         }
@@ -326,11 +393,17 @@ public class StateManager {
             : "No results found for \"" + searchQuery + "\"";
 
         Platform.runLater(() -> {
-            Label noResultsPlaceholder = createEmptyStatePlaceholder(message, "🔍");
+            Label noResultsPlaceholder = createEmptyStatePlaceholder(
+                message,
+                "🔍"
+            );
             table.setPlaceholder(noResultsPlaceholder);
 
             // Add fade-in animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), noResultsPlaceholder);
+            FadeTransition fadeIn = new FadeTransition(
+                Duration.millis(300),
+                noResultsPlaceholder
+            );
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
