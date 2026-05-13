@@ -114,7 +114,7 @@ public class CustomerService {
         return submitQuery(query.getCustomerId(), query.getVehicleId(), query.getQueryText());
     }
     
-    /** Gets all queries submitted by a customer. */
+    // Gets all queries submitted by a customer.
     public List<CustomerQuery> getQueriesByCustomer(int customerId) {
         String sql = "SELECT cq.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
@@ -142,7 +142,7 @@ public class CustomerService {
         return queries;
     }
     
-    /** Gets a query by its ID. */
+    // Gets a query by its ID.
     public CustomerQuery getQueryById(int queryId) {
         String sql = "SELECT cq.*, v.registration_number AS vehicle_registration, " +
                      "v.make AS vehicle_make, v.model AS vehicle_model " +
@@ -167,7 +167,7 @@ public class CustomerService {
         return null;
     }
     
-    /** Responds to a customer query. */
+    // Responds to a customer query.
     public boolean respondToQuery(int queryId, String responseText) {
         String sql = "UPDATE customerquery SET response_text = ? WHERE query_id = ?";
         
@@ -188,7 +188,7 @@ public class CustomerService {
     
     // Insurance info methods.
     
-    /** Gets insurance information for a vehicle. */
+    // Gets insurance information for a vehicle.
     public List<Object> getInsuranceInfo(int vehicleId) {
         // Pending InsuranceService integration.
         // Returns an empty list placeholder.
@@ -197,7 +197,7 @@ public class CustomerService {
     
     // Helper methods.
     
-    /** Builds a Vehicle object from a ResultSet. */
+    // Builds a Vehicle object from a ResultSet.
     private Vehicle buildVehicleFromResultSet(ResultSet rs) throws SQLException {
         int vehicleId = rs.getInt("vehicle_id");
         String registrationNumber = rs.getString("registration_number");
@@ -213,7 +213,7 @@ public class CustomerService {
                           ownerId, ownerName, ownerPhone, null);
     }
     
-    /** Builds a CustomerQuery object from a ResultSet. */
+    // Builds a CustomerQuery object from a ResultSet.
     private CustomerQuery buildQueryFromResultSet(ResultSet rs) throws SQLException {
         int queryId = rs.getInt("query_id");
         int customerId = rs.getInt("customer_id");
