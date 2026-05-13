@@ -1,81 +1,194 @@
 -- Database: plateiq-db
 
---DROP DATABASE IF EXISTS "plateiq-db";
+-- DROP DATABASE IF EXISTS "plateiq-db";
 
+CREATE DATABASE "plateiq-db"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'English_South Africa.1252'
+    LC_CTYPE = 'English_South Africa.1252'
+    LOCALE_PROVIDER = 'libc'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-	-- ============================================================
---  PlateIQ — Vehicle Identification System
---  PostgreSQL Database Setup Script
---  Course: BIOP2210 Object Oriented Programming II
--- ============================================================
---  Run order:
---    1. Create & connect to database
---    2. Tables
---    3. Views
---    4. Stored Procedures
---    5. Seed Data
--- ============================================================
-
-
--- ------------------------------------------------------------
--- SECTION 1: DATABASE
--- ------------------------------------------------------------
--- ------------------------------------------------------------
--- SECTION 2: TABLES
--- ------------------------------------------------------------
-
--- 2.1 Users (system access table)
 CREATE TABLE Users (
     user_id     SERIAL          PRIMARY KEY,
     username    VARCHAR(50)     NOT NULL UNIQUE,
     password    VARCHAR(255)    NOT NULL,
     role        VARCHAR(20)     NOT NULL CHECK (role IN ('ADMIN','CUSTOMER','WORKSHOP','INSURANCE','POLICE')),
-    status      VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','INACTIVE')),
-    created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+    status      VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','INACTIVE','SUSPENDED')),
+    created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    last_login  TIMESTAMP,
+    created_by  INT             REFERENCES Users(user_id) ON DELETE SET NULL
 );
 
--- 2.2 Customer
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_users_updated_at
+    BEFORE UPDATE ON Users
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TABLE Customer (
-    customer_id SERIAL          PRIMARY KEY,
-    name        VARCHAR(100)    NOT NULL,
-    address     TEXT,
-    phone       VARCHAR(20),
-    email       VARCHAR(100)
+    customer_id     SERIAL          PRIMARY KEY,
+    user_id         INT             UNIQUE REFERENCES Users(user_id) ON DELETE SET NULL,
+    name            VARCHAR(100)    NOT NULL,
+    address         TEXT,
+    phone           VARCHAR(20),
+    email           VARCHAR(100)    UNIQUE,
+    id_number       VARCHAR(20)     UNIQUE,  -- National ID / Passport number
+    is_verified     BOOLEAN         DEFAULT FALSE,
+    created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2.3 Vehicle
+CREATE TRIGGER update_customer_updated_at
+    BEFORE UPDATE ON Customer
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
 CREATE TABLE Vehicle (
     vehicle_id          SERIAL          PRIMARY KEY,
     registration_number VARCHAR(20)     NOT NULL UNIQUE,
+    engine_number       VARCHAR(50)     UNIQUE,
+    chassis_number      VARCHAR(50)     UNIQUE,
     make                VARCHAR(50)     NOT NULL,
     model               VARCHAR(50)     NOT NULL,
-    year                INT             NOT NULL CHECK (year BETWEEN 1990 AND 2100),
+    year                INT             NOT NULL CHECK (year BETWEEN 1900 AND EXTRACT(YEAR FROM CURRENT_DATE) + 5),
     color               VARCHAR(30),
-    owner_id            INT             REFERENCES Customer(customer_id) ON DELETE SET NULL
+    fuel_type           VARCHAR(20)     CHECK (fuel_type IN ('PETROL','DIESEL','ELECTRIC','HYBRID','LPG')),
+    transmission        VARCHAR(20)     CHECK (transmission IN ('MANUAL','AUTOMATIC','CVT','DSG')),
+    mileage             INT             DEFAULT 0 CHECK (mileage >= 0),
+    status              VARCHAR(20)     DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','SOLD','SCRAPPED','STOLEN')),
+    owner_id            INT             REFERENCES Customer(customer_id) ON DELETE SET NULL,
+    created_at          TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2.4 ServiceRecord
+CREATE TRIGGER update_vehicle_updated_at
+    BEFORE UPDATE ON Vehicle
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TABLE ServiceRecord (
     service_id      SERIAL          PRIMARY KEY,
     vehicle_id      INT             NOT NULL REFERENCES Vehicle(vehicle_id) ON DELETE CASCADE,
-    service_date    DATE            NOT NULL,
+    service_date    DATE            NOT NULL DEFAULT CURRENT_DATE,
     service_type    VARCHAR(100)    NOT NULL,
     description     TEXT,
-    cost            DECIMAL(10,2)   NOT NULL DEFAULT 0.00
+    cost            DECIMAL(10,2)   NOT NULL DEFAULT 0.00 CHECK (cost >= 0),
+    odometer_reading INT            CHECK (odometer_reading >= 0),
+    mechanic_name   VARCHAR(100),
+    next_service_due DATE,
+    invoice_number  VARCHAR(50)     UNIQUE,
+    created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2.5 CustomerQuery
+CREATE TABLE Users (
+    user_id     SERIAL          PRIMARY KEY,
+    username    VARCHAR(50)     NOT NULL UNIQUE,
+    password    VARCHAR(255)    NOT NULL,
+    role        VARCHAR(20)     NOT NULL CHECK (role IN ('ADMIN','CUSTOMER','WORKSHOP','INSURANCE','POLICE')),
+    status      VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','INACTIVE','SUSPENDED')),
+    created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    last_login  TIMESTAMP,
+    created_by  INT             REFERENCES Users(user_id) ON DELETE SET NULL
+);
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_users_updated_at
+    BEFORE UPDATE ON Users
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE Customer (
+    customer_id     SERIAL          PRIMARY KEY,
+    user_id         INT             UNIQUE REFERENCES Users(user_id) ON DELETE SET NULL,
+    name            VARCHAR(100)    NOT NULL,
+    address         TEXT,
+    phone           VARCHAR(20),
+    email           VARCHAR(100)    UNIQUE,
+    id_number       VARCHAR(20)     UNIQUE,  
+    is_verified     BOOLEAN         DEFAULT FALSE,
+    created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_customer_updated_at
+    BEFORE UPDATE ON Customer
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE Vehicle (
+    vehicle_id          SERIAL          PRIMARY KEY,
+    registration_number VARCHAR(20)     NOT NULL UNIQUE,
+    engine_number       VARCHAR(50)     UNIQUE,
+    chassis_number      VARCHAR(50)     UNIQUE,
+    make                VARCHAR(50)     NOT NULL,
+    model               VARCHAR(50)     NOT NULL,
+    year                INT             NOT NULL CHECK (year BETWEEN 1900 AND EXTRACT(YEAR FROM CURRENT_DATE) + 5),
+    color               VARCHAR(30),
+    fuel_type           VARCHAR(20)     CHECK (fuel_type IN ('PETROL','DIESEL','ELECTRIC','HYBRID','LPG')),
+    transmission        VARCHAR(20)     CHECK (transmission IN ('MANUAL','AUTOMATIC','CVT','DSG')),
+    mileage             INT             DEFAULT 0 CHECK (mileage >= 0),
+    status              VARCHAR(20)     DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','SOLD','SCRAPPED','STOLEN')),
+    owner_id            INT             REFERENCES Customer(customer_id) ON DELETE SET NULL,
+    created_at          TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_vehicle_updated_at
+    BEFORE UPDATE ON Vehicle
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE ServiceRecord (
+    service_id      SERIAL          PRIMARY KEY,
+    vehicle_id      INT             NOT NULL REFERENCES Vehicle(vehicle_id) ON DELETE CASCADE,
+    service_date    DATE            NOT NULL DEFAULT CURRENT_DATE,
+    service_type    VARCHAR(100)    NOT NULL,
+    description     TEXT,
+    cost            DECIMAL(10,2)   NOT NULL DEFAULT 0.00 CHECK (cost >= 0),
+    odometer_reading INT            CHECK (odometer_reading >= 0),
+    mechanic_name   VARCHAR(100),
+    next_service_due DATE,
+    invoice_number  VARCHAR(50)     UNIQUE,
+    created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE CustomerQuery (
     query_id        SERIAL      PRIMARY KEY,
     customer_id     INT         NOT NULL REFERENCES Customer(customer_id) ON DELETE CASCADE,
     vehicle_id      INT         NOT NULL REFERENCES Vehicle(vehicle_id) ON DELETE CASCADE,
     query_date      DATE        NOT NULL DEFAULT CURRENT_DATE,
     query_text      TEXT        NOT NULL,
-    response_text   TEXT
+    response_text   TEXT,
+    responded_by    INT         REFERENCES Users(user_id) ON DELETE SET NULL,
+    responded_at    TIMESTAMP,
+    status          VARCHAR(20) DEFAULT 'OPEN' CHECK (status IN ('OPEN','IN_PROGRESS','RESOLVED','CLOSED')),
+    priority        VARCHAR(10) DEFAULT 'MEDIUM' CHECK (priority IN ('LOW','MEDIUM','HIGH','URGENT'))
 );
 
--- 2.6 InsurancePolicy
 CREATE TABLE InsurancePolicy (
     policy_id           SERIAL          PRIMARY KEY,
     vehicle_id          INT             NOT NULL REFERENCES Vehicle(vehicle_id) ON DELETE CASCADE,
@@ -83,53 +196,107 @@ CREATE TABLE InsurancePolicy (
     policy_number       VARCHAR(50)     NOT NULL UNIQUE,
     start_date          DATE            NOT NULL,
     end_date            DATE            NOT NULL,
-    coverage_details    TEXT
+    premium_amount      DECIMAL(10,2)   CHECK (premium_amount >= 0),
+    coverage_details    TEXT,
+    created_at          TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    CHECK (end_date > start_date)
 );
 
--- 2.7 Claim
+CREATE OR REPLACE VIEW active_insurance_policies AS
+SELECT 
+    *,
+    (end_date >= CURRENT_DATE) AS is_active
+FROM InsurancePolicy;
+
 CREATE TABLE Claim (
     claim_id        SERIAL          PRIMARY KEY,
     policy_id       INT             NOT NULL REFERENCES InsurancePolicy(policy_id) ON DELETE CASCADE,
-    claim_date      DATE            NOT NULL,
-    claim_amount    DECIMAL(10,2)   NOT NULL,
+    claim_date      DATE            NOT NULL DEFAULT CURRENT_DATE,
+    claim_amount    DECIMAL(10,2)   NOT NULL CHECK (claim_amount >= 0),
+    approved_amount DECIMAL(10,2)   CHECK (approved_amount >= 0),
     status          VARCHAR(20)     NOT NULL DEFAULT 'PENDING'
-                        CHECK (status IN ('PENDING','APPROVED','REJECTED'))
+                        CHECK (status IN ('PENDING','APPROVED','REJECTED','PAID')),
+    description     TEXT,
+    resolved_date   DATE,
+    adjusted_by     INT             REFERENCES Users(user_id) ON DELETE SET NULL
 );
 
--- 2.8 PoliceReport
 CREATE TABLE PoliceReport (
     report_id       SERIAL          PRIMARY KEY,
     vehicle_id      INT             NOT NULL REFERENCES Vehicle(vehicle_id) ON DELETE CASCADE,
-    report_date     DATE            NOT NULL,
+    report_date     DATE            NOT NULL DEFAULT CURRENT_DATE,
     report_type     VARCHAR(50)     NOT NULL CHECK (report_type IN ('THEFT','ACCIDENT','INSPECTION','OTHER')),
     description     TEXT,
-    officer_name    VARCHAR(100)    NOT NULL
+    officer_name    VARCHAR(100)    NOT NULL,
+    case_number     VARCHAR(50)     UNIQUE,
+    station_name    VARCHAR(100),
+    is_closed       BOOLEAN         DEFAULT FALSE
 );
 
--- 2.9 Violation
 CREATE TABLE Violation (
     violation_id    SERIAL          PRIMARY KEY,
     vehicle_id      INT             NOT NULL REFERENCES Vehicle(vehicle_id) ON DELETE CASCADE,
     violation_date  DATE            NOT NULL,
     violation_type  VARCHAR(100)    NOT NULL,
-    fine_amount     DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
-    status          VARCHAR(20)     NOT NULL DEFAULT 'UNPAID' CHECK (status IN ('PAID','UNPAID'))
+    fine_amount     DECIMAL(10,2)   NOT NULL DEFAULT 0.00 CHECK (fine_amount >= 0),
+    status          VARCHAR(20)     NOT NULL DEFAULT 'UNPAID' CHECK (status IN ('PAID','UNPAID','DISPUTED','WAIVED')),
+    paid_date       DATE,
+    officer_name    VARCHAR(100),
+    location        VARCHAR(200)
 );
 
 
--- ------------------------------------------------------------
--- SECTION 3: VIEWS
--- ------------------------------------------------------------
+CREATE INDEX idx_users_role_status ON Users(role, status);
+CREATE INDEX idx_users_username ON Users(username);
 
--- 3.1 Full vehicle details: vehicle + owner + active insurance
+CREATE INDEX idx_customer_email ON Customer(email);
+CREATE INDEX idx_customer_phone ON Customer(phone);
+CREATE INDEX idx_customer_name ON Customer(name);
+
+CREATE INDEX idx_vehicle_registration ON Vehicle(registration_number);
+CREATE INDEX idx_vehicle_owner ON Vehicle(owner_id);
+CREATE INDEX idx_vehicle_make_model ON Vehicle(make, model);
+CREATE INDEX idx_vehicle_status ON Vehicle(status);
+
+CREATE INDEX idx_servicerecord_vehicle ON ServiceRecord(vehicle_id);
+CREATE INDEX idx_servicerecord_date ON ServiceRecord(service_date);
+CREATE INDEX idx_servicerecord_next_due ON ServiceRecord(next_service_due);
+
+CREATE INDEX idx_customerquery_customer ON CustomerQuery(customer_id);
+CREATE INDEX idx_customerquery_vehicle ON CustomerQuery(vehicle_id);
+CREATE INDEX idx_customerquery_status ON CustomerQuery(status);
+
+CREATE INDEX idx_insurancepolicy_vehicle ON InsurancePolicy(vehicle_id);
+CREATE INDEX idx_insurancepolicy_dates ON InsurancePolicy(start_date, end_date);
+CREATE INDEX idx_insurancepolicy_company ON InsurancePolicy(insurance_company);
+
+CREATE INDEX idx_claim_policy ON Claim(policy_id);
+CREATE INDEX idx_claim_status ON Claim(status);
+CREATE INDEX idx_claim_date ON Claim(claim_date);
+
+CREATE INDEX idx_policereport_vehicle ON PoliceReport(vehicle_id);
+CREATE INDEX idx_policereport_date ON PoliceReport(report_date);
+CREATE INDEX idx_policereport_type ON PoliceReport(report_type);
+
+CREATE INDEX idx_violation_vehicle ON Violation(vehicle_id);
+CREATE INDEX idx_violation_status ON Violation(status);
+CREATE INDEX idx_violation_date ON Violation(violation_date);
+
+
 CREATE OR REPLACE VIEW vehicle_full_details AS
 SELECT
     v.vehicle_id,
     v.registration_number,
+    v.engine_number,
+    v.chassis_number,
     v.make,
     v.model,
     v.year,
     v.color,
+    v.fuel_type,
+    v.transmission,
+    v.mileage,
+    v.status AS vehicle_status,
     c.customer_id,
     c.name          AS owner_name,
     c.phone         AS owner_phone,
@@ -149,7 +316,6 @@ FROM Vehicle v
 LEFT JOIN Customer c        ON v.owner_id   = c.customer_id
 LEFT JOIN InsurancePolicy ip ON v.vehicle_id = ip.vehicle_id;
 
--- 3.2 All unpaid violations with vehicle and owner info
 CREATE OR REPLACE VIEW unpaid_violations AS
 SELECT
     vl.violation_id,
@@ -157,32 +323,35 @@ SELECT
     vl.violation_type,
     vl.fine_amount,
     vl.status,
+    vl.location,
     v.registration_number,
     v.make,
     v.model,
     c.name  AS owner_name,
-    c.phone AS owner_phone
+    c.phone AS owner_phone,
+    c.email AS owner_email
 FROM Violation vl
 JOIN Vehicle  v ON vl.vehicle_id = v.vehicle_id
 LEFT JOIN Customer c ON v.owner_id = c.customer_id
-WHERE vl.status = 'UNPAID'
+WHERE vl.status IN ('UNPAID', 'DISPUTED')
 ORDER BY vl.violation_date DESC;
 
--- 3.3 Vehicle service summary
 CREATE OR REPLACE VIEW vehicle_service_summary AS
 SELECT
     v.vehicle_id,
     v.registration_number,
     v.make,
     v.model,
+    v.mileage AS current_mileage,
     COUNT(sr.service_id)        AS total_services,
     MAX(sr.service_date)        AS last_service_date,
-    SUM(sr.cost)                AS total_service_cost
+    MIN(sr.next_service_due)    AS next_service_due,
+    SUM(sr.cost)                AS total_service_cost,
+    AVG(sr.cost)                AS avg_service_cost
 FROM Vehicle v
 LEFT JOIN ServiceRecord sr ON v.vehicle_id = sr.vehicle_id
-GROUP BY v.vehicle_id, v.registration_number, v.make, v.model;
+GROUP BY v.vehicle_id, v.registration_number, v.make, v.model, v.mileage;
 
--- 3.4 Insurance policies expiring within 60 days
 CREATE OR REPLACE VIEW expiring_policies AS
 SELECT
     ip.policy_id,
@@ -190,361 +359,345 @@ SELECT
     ip.insurance_company,
     ip.end_date,
     (ip.end_date - CURRENT_DATE) AS days_remaining,
+    ip.premium_amount,
     v.registration_number,
     v.make,
     v.model,
     c.name  AS owner_name,
-    c.phone AS owner_phone
+    c.phone AS owner_phone,
+    c.email AS owner_email
 FROM InsurancePolicy ip
 JOIN Vehicle  v ON ip.vehicle_id = v.vehicle_id
 LEFT JOIN Customer c ON v.owner_id  = c.customer_id
 WHERE ip.end_date BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '60 days')
+  AND ip.end_date >= CURRENT_DATE
 ORDER BY ip.end_date ASC;
 
+CREATE OR REPLACE VIEW customer_query_summary AS
+SELECT
+    c.customer_id,
+    c.name,
+    COUNT(q.query_id) AS total_queries,
+    COUNT(CASE WHEN q.status = 'OPEN' THEN 1 END) AS open_queries,
+    COUNT(CASE WHEN q.status = 'RESOLVED' THEN 1 END) AS resolved_queries,
+    MAX(q.query_date) AS last_query_date
+FROM Customer c
+LEFT JOIN CustomerQuery q ON c.customer_id = q.customer_id
+GROUP BY c.customer_id, c.name
+ORDER BY total_queries DESC;
 
--- ------------------------------------------------------------
--- SECTION 4: STORED PROCEDURES
--- ------------------------------------------------------------
+CREATE OR REPLACE VIEW vehicle_violation_history AS
+SELECT
+    v.vehicle_id,
+    v.registration_number,
+    v.make,
+    v.model,
+    COUNT(vl.violation_id) AS total_violations,
+    SUM(CASE WHEN vl.status = 'PAID' THEN 1 ELSE 0 END) AS paid_violations,
+    SUM(CASE WHEN vl.status = 'UNPAID' THEN 1 ELSE 0 END) AS unpaid_violations,
+    SUM(CASE WHEN vl.status = 'DISPUTED' THEN 1 ELSE 0 END) AS disputed_violations,
+    SUM(vl.fine_amount) AS total_fines,
+    SUM(CASE WHEN vl.status = 'PAID' THEN vl.fine_amount ELSE 0 END) AS paid_fines,
+    SUM(CASE WHEN vl.status = 'UNPAID' THEN vl.fine_amount ELSE 0 END) AS unpaid_fines
+FROM Vehicle v
+LEFT JOIN Violation vl ON v.vehicle_id = vl.vehicle_id
+GROUP BY v.vehicle_id, v.registration_number, v.make, v.model;
 
--- 4.1 Register a new vehicle and link to an existing customer
+
 CREATE OR REPLACE PROCEDURE register_vehicle(
     p_registration_number   VARCHAR(20),
     p_make                  VARCHAR(50),
     p_model                 VARCHAR(50),
     p_year                  INT,
     p_color                 VARCHAR(30),
-    p_owner_id              INT
+    p_owner_id              INT,
+    p_fuel_type             VARCHAR(20) DEFAULT NULL,
+    p_transmission          VARCHAR(20) DEFAULT NULL,
+    p_mileage               INT DEFAULT 0
 )
 LANGUAGE plpgsql AS $$
 BEGIN
+    IF p_year < 1900 OR p_year > EXTRACT(YEAR FROM CURRENT_DATE) + 1 THEN
+        RAISE EXCEPTION 'Invalid year. Must be between 1900 and %', EXTRACT(YEAR FROM CURRENT_DATE) + 1;
+    END IF;
+    
     IF EXISTS (SELECT 1 FROM Vehicle WHERE registration_number = p_registration_number) THEN
         RAISE EXCEPTION 'Vehicle with registration % already exists.', p_registration_number;
     END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM Customer WHERE customer_id = p_owner_id) THEN
+        RAISE EXCEPTION 'Customer with ID % does not exist.', p_owner_id;
+    END IF;
 
-    INSERT INTO Vehicle (registration_number, make, model, year, color, owner_id)
-    VALUES (p_registration_number, p_make, p_model, p_year, p_color, p_owner_id);
+    INSERT INTO Vehicle (registration_number, make, model, year, color, owner_id, fuel_type, transmission, mileage)
+    VALUES (p_registration_number, p_make, p_model, p_year, p_color, p_owner_id, p_fuel_type, p_transmission, p_mileage);
 
     RAISE NOTICE 'Vehicle % registered successfully.', p_registration_number;
 END;
 $$;
 
--- 4.2 Add a service record for a vehicle
 CREATE OR REPLACE PROCEDURE add_service_record(
-    p_vehicle_id    INT,
-    p_service_date  DATE,
-    p_service_type  VARCHAR(100),
-    p_description   TEXT,
-    p_cost          DECIMAL(10,2)
+    p_vehicle_id        INT,
+    p_service_date      DATE,
+    p_service_type      VARCHAR(100),
+    p_description       TEXT,
+    p_cost              DECIMAL(10,2),
+    p_odometer_reading  INT DEFAULT NULL,
+    p_mechanic_name     VARCHAR(100) DEFAULT NULL,
+    p_next_service_due  DATE DEFAULT NULL,
+    p_invoice_number    VARCHAR(50) DEFAULT NULL
 )
 LANGUAGE plpgsql AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM Vehicle WHERE vehicle_id = p_vehicle_id) THEN
         RAISE EXCEPTION 'Vehicle with ID % does not exist.', p_vehicle_id;
     END IF;
+    
+    IF p_cost < 0 THEN
+        RAISE EXCEPTION 'Service cost cannot be negative.';
+    END IF;
+    
+    IF p_odometer_reading IS NOT NULL THEN
+        UPDATE Vehicle SET mileage = p_odometer_reading WHERE vehicle_id = p_vehicle_id;
+    END IF;
 
-    INSERT INTO ServiceRecord (vehicle_id, service_date, service_type, description, cost)
-    VALUES (p_vehicle_id, p_service_date, p_service_type, p_description, p_cost);
+    INSERT INTO ServiceRecord (vehicle_id, service_date, service_type, description, cost, 
+                               odometer_reading, mechanic_name, next_service_due, invoice_number)
+    VALUES (p_vehicle_id, p_service_date, p_service_type, p_description, p_cost, 
+            p_odometer_reading, p_mechanic_name, p_next_service_due, p_invoice_number);
 
-    RAISE NOTICE 'Service record added for vehicle ID %.', p_vehicle_id;
+    RAISE NOTICE 'Service record added for vehicle ID %', p_vehicle_id;
 END;
 $$;
 
--- 4.3 Add a police report for a vehicle
 CREATE OR REPLACE PROCEDURE add_police_report(
     p_vehicle_id    INT,
     p_report_date   DATE,
     p_report_type   VARCHAR(50),
     p_description   TEXT,
-    p_officer_name  VARCHAR(100)
+    p_officer_name  VARCHAR(100),
+    p_case_number   VARCHAR(50) DEFAULT NULL,
+    p_station_name  VARCHAR(100) DEFAULT NULL
 )
 LANGUAGE plpgsql AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM Vehicle WHERE vehicle_id = p_vehicle_id) THEN
         RAISE EXCEPTION 'Vehicle with ID % does not exist.', p_vehicle_id;
     END IF;
+    
+    IF p_report_type = 'THEFT' AND p_case_number IS NOT NULL THEN
+        UPDATE Vehicle SET status = 'STOLEN' WHERE vehicle_id = p_vehicle_id;
+        RAISE NOTICE 'Vehicle ID % marked as STOLEN.', p_vehicle_id;
+    END IF;
 
-    INSERT INTO PoliceReport (vehicle_id, report_date, report_type, description, officer_name)
-    VALUES (p_vehicle_id, p_report_date, p_report_type, p_description, p_officer_name);
+    INSERT INTO PoliceReport (vehicle_id, report_date, report_type, description, officer_name, case_number, station_name)
+    VALUES (p_vehicle_id, p_report_date, p_report_type, p_description, p_officer_name, p_case_number, p_station_name);
 
     RAISE NOTICE 'Police report added for vehicle ID %.', p_vehicle_id;
 END;
 $$;
 
--- 4.4 Process an insurance claim
 CREATE OR REPLACE PROCEDURE process_claim(
     p_policy_id     INT,
     p_claim_date    DATE,
     p_claim_amount  DECIMAL(10,2),
+    p_description   TEXT DEFAULT NULL,
     p_status        VARCHAR(20) DEFAULT 'PENDING'
 )
 LANGUAGE plpgsql AS $$
+DECLARE
+    v_end_date DATE;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM InsurancePolicy WHERE policy_id = p_policy_id) THEN
+    SELECT end_date INTO v_end_date FROM InsurancePolicy WHERE policy_id = p_policy_id;
+    
+    IF NOT FOUND THEN
         RAISE EXCEPTION 'Policy with ID % does not exist.', p_policy_id;
     END IF;
+    
+    IF v_end_date < CURRENT_DATE THEN
+        RAISE EXCEPTION 'Cannot process claim on expired policy. Policy ended on %.', v_end_date;
+    END IF;
+    
+    IF p_claim_amount < 0 THEN
+        RAISE EXCEPTION 'Claim amount cannot be negative.';
+    END IF;
 
-    INSERT INTO Claim (policy_id, claim_date, claim_amount, status)
-    VALUES (p_policy_id, p_claim_date, p_claim_amount, p_status);
+    INSERT INTO Claim (policy_id, claim_date, claim_amount, description, status)
+    VALUES (p_policy_id, p_claim_date, p_claim_amount, p_description, p_status);
 
-    RAISE NOTICE 'Claim submitted for policy ID %.', p_policy_id;
+    RAISE NOTICE 'Claim submitted for policy ID %', p_policy_id;
 END;
 $$;
 
--- 4.5 Update violation payment status
 CREATE OR REPLACE PROCEDURE pay_violation(
-    p_violation_id INT
+    p_violation_id INT,
+    p_paid_date DATE DEFAULT CURRENT_DATE
 )
 LANGUAGE plpgsql AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM Violation WHERE violation_id = p_violation_id) THEN
         RAISE EXCEPTION 'Violation with ID % does not exist.', p_violation_id;
     END IF;
+    
+    IF (SELECT status FROM Violation WHERE violation_id = p_violation_id) = 'PAID' THEN
+        RAISE NOTICE 'Violation % is already PAID.', p_violation_id;
+        RETURN;
+    END IF;
 
-    UPDATE Violation SET status = 'PAID' WHERE violation_id = p_violation_id;
+    UPDATE Violation 
+    SET status = 'PAID', 
+        paid_date = p_paid_date
+    WHERE violation_id = p_violation_id;
+    
     RAISE NOTICE 'Violation % marked as PAID.', p_violation_id;
 END;
 $$;
 
+CREATE OR REPLACE PROCEDURE transfer_ownership(
+    p_vehicle_id        INT,
+    p_new_owner_id      INT,
+    p_transfer_date     DATE DEFAULT CURRENT_DATE
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Vehicle WHERE vehicle_id = p_vehicle_id) THEN
+        RAISE EXCEPTION 'Vehicle with ID % does not exist.', p_vehicle_id;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM Customer WHERE customer_id = p_new_owner_id) THEN
+        RAISE EXCEPTION 'Customer with ID % does not exist.', p_new_owner_id;
+    END IF;
+    
+    UPDATE Vehicle 
+    SET owner_id = p_new_owner_id,
+        updated_at = p_transfer_date
+    WHERE vehicle_id = p_vehicle_id;
+    
+    RAISE NOTICE 'Vehicle ID % transferred to customer ID %', p_vehicle_id, p_new_owner_id;
+END;
+$$;
 
--- ============================================================
--- SECTION 5: SEED DATA
--- (Lesotho / Southern Africa realistic context)
--- ============================================================
+CREATE OR REPLACE PROCEDURE add_violation(
+    p_vehicle_id        INT,
+    p_violation_date    DATE,
+    p_violation_type    VARCHAR(100),
+    p_fine_amount       DECIMAL(10,2),
+    p_officer_name      VARCHAR(100) DEFAULT NULL,
+    p_location          VARCHAR(200) DEFAULT NULL
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Vehicle WHERE vehicle_id = p_vehicle_id) THEN
+        RAISE EXCEPTION 'Vehicle with ID % does not exist.', p_vehicle_id;
+    END IF;
+    
+    IF p_fine_amount < 0 THEN
+        RAISE EXCEPTION 'Fine amount cannot be negative.';
+    END IF;
+
+    INSERT INTO Violation (vehicle_id, violation_date, violation_type, fine_amount, officer_name, location)
+    VALUES (p_vehicle_id, p_violation_date, p_violation_type, p_fine_amount, p_officer_name, p_location);
+    
+    RAISE NOTICE 'Violation added for vehicle ID %', p_vehicle_id;
+END;
+$$;
 
 
--- ------------------------------------------------------------
--- 5.1 Users
--- Passwords shown as plain text here for dev reference.
--- In Java, hash with BCrypt before storing.
--- All dev passwords: Admin@123, User@1234, etc.
--- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS AuditLog (
+    log_id          SERIAL PRIMARY KEY,
+    table_name      VARCHAR(50),
+    record_id       INT,
+    action          VARCHAR(10),
+    old_data        JSONB,
+    new_data        JSONB,
+    changed_by      INT REFERENCES Users(user_id),
+    changed_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION log_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO AuditLog (table_name, record_id, action, old_data, changed_by)
+        VALUES (TG_TABLE_NAME, OLD.vehicle_id, 'DELETE', row_to_json(OLD), current_user_id());
+        RETURN OLD;
+    ELSIF (TG_OP = 'UPDATE') THEN
+        INSERT INTO AuditLog (table_name, record_id, action, old_data, new_data, changed_by)
+        VALUES (TG_TABLE_NAME, NEW.vehicle_id, 'UPDATE', row_to_json(OLD), row_to_json(NEW), current_user_id());
+        RETURN NEW;
+    ELSIF (TG_OP = 'INSERT') THEN
+        INSERT INTO AuditLog (table_name, record_id, action, new_data, changed_by)
+        VALUES (TG_TABLE_NAME, NEW.vehicle_id, 'INSERT', row_to_json(NEW), current_user_id());
+        RETURN NEW;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
 
 INSERT INTO Users (username, password, role, status) VALUES
-('admin.mokoena',    'hashed_Admin@123',     'ADMIN',     'ACTIVE'),
-('admin.ntoi',       'hashed_Admin@456',     'ADMIN',     'ACTIVE'),
-('thabo.letsie',     'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('palesa.mosotho',   'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('rethabile.khali',  'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('lineo.mafoso',     'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('mpho.sekoati',     'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('teboho.ramoeli',   'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('mamello.nkosi',    'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('lerato.tau',       'hashed_User@1234',     'CUSTOMER',  'ACTIVE'),
-('workshop.maseru',  'hashed_Work@1234',     'WORKSHOP',  'ACTIVE'),
-('workshop.leribe',  'hashed_Work@1234',     'WORKSHOP',  'ACTIVE'),
-('ins.lesotho',      'hashed_Ins@1234',      'INSURANCE', 'ACTIVE'),
-('ins.continental',  'hashed_Ins@1234',      'INSURANCE', 'ACTIVE'),
-('sgt.mohlomi',      'hashed_Pol@1234',      'POLICE',    'ACTIVE'),
-('const.tlali',      'hashed_Pol@1234',      'POLICE',    'ACTIVE'),
-('const.molefi',     'hashed_Pol@1234',      'POLICE',    'ACTIVE'),
-('inactive.user',    'hashed_User@1234',     'CUSTOMER',  'INACTIVE');
+('admin.mokoena',    'Admin@123',     'ADMIN',     'ACTIVE'),
+('admin.ntoi',       'Admin@456',     'ADMIN',     'ACTIVE'),
+('admin.lefatle',    'Admin@123',     'ADMIN',     'ACTIVE'),
+('admin.roto',       'Admin@456',     'ADMIN',     'ACTIVE'),
+('thabo.letsie',     'User@1234',     'CUSTOMER',  'ACTIVE'),
+('palesa.mosotho',   'User@1234',     'CUSTOMER',  'ACTIVE'),
+('rethabile.khali',  'User@1234',     'CUSTOMER',  'ACTIVE'),
+('lineo.mafoso',     'User@1234',     'CUSTOMER',  'ACTIVE'),
+('mpho.sekoati',     'User@1234',     'CUSTOMER',  'ACTIVE'),
+('teboho.ramoeli',   'User@1234',     'CUSTOMER',  'ACTIVE'),
+('mamello.nkosi',    'User@1234',     'CUSTOMER',  'ACTIVE'),
+('lerato.tau',       'User@1234',     'CUSTOMER',  'ACTIVE'),
+('workshop.maseru',  'Work@1234',     'WORKSHOP',  'ACTIVE'),
+('workshop.leribe',  'Work@1234',     'WORKSHOP',  'ACTIVE'),
+('ins.lesotho',      'Ins@1234',      'INSURANCE', 'ACTIVE'),
+('ins.continental',  'Ins@1234',      'INSURANCE', 'ACTIVE'),
+('sgt.mohlomi',      'Pol@1234',      'POLICE',    'ACTIVE'),
+('const.tlali',      'Pol@1234',      'POLICE',    'ACTIVE'),
+('const.molefi',     'Pol@1234',      'POLICE',    'ACTIVE'),
+('inactive.user',    'User@1234',     'CUSTOMER',  'INACTIVE');
+
+UPDATE Users SET created_by = 1 WHERE user_id IN (1,2);
+UPDATE Users SET created_by = 1 WHERE user_id > 2;
 
 
--- ------------------------------------------------------------
--- 5.2 Customers
--- ------------------------------------------------------------
+INSERT INTO Customer (name, address, phone, email, id_number, is_verified) VALUES
+('Thabo Letsie',        'Ha Abia, Maseru 100',              '+26657812345',  'thabo.letsie@gmail.com',     'LS123456789', true),
+('Palesa Mosotho',      'Teyateyaneng, Berea 200',          '+26658923456',  'palesa.m@yahoo.com',         'LS234567890', true),
+('Rethabile Khali',     'Leribe Town, Leribe 300',          '+26659034567',  'rethabile.k@outlook.com',    'LS345678901', true),
+('Lineo Mafoso',        'Mohales Hoek, MH 400',             '+26657145678',  'lineo.mafoso@gmail.com',     'LS456789012', false),
+('Mpho Sekoati',        'Qachas Nek, QN 500',               '+26658256789',  'mpho.sekoati@gmail.com',     'LS567890123', true),
+('Teboho Ramoeli',      'Butha-Buthe Town, BB 600',         '+26659367890',  'teboho.r@gmail.com',         'LS678901234', true),
+('Mamello Nkosi',       'Mafeteng Central, Mafeteng 700',   '+26657478901',  'mamello.nkosi@yahoo.com',    'LS789012345', false),
+('Lerato Tau',          'Ha Thetsane, Maseru 105',          '+26658589012',  'lerato.tau@gmail.com',       'LS890123456', true),
+('Nthabiseng Peete',    'Maputsoe, Leribe 310',             '+26659690123',  'nthabiseng.p@gmail.com',     'LS901234567', true),
+('Lebohang Mofolo',     'Roma Campus Area, Maseru 180',     '+26657701234',  'lebohang.mofolo@lu.ac.ls',   'LS012345678', true);
 
-INSERT INTO Customer (name, address, phone, email) VALUES
-('Thabo Letsie',        'Ha Abia, Maseru 100',              '+26657812345',  'thabo.letsie@gmail.com'),
-('Palesa Mosotho',      'Teyateyaneng, Berea 200',          '+26658923456',  'palesa.m@yahoo.com'),
-('Rethabile Khali',     'Leribe Town, Leribe 300',          '+26659034567',  'rethabile.k@outlook.com'),
-('Lineo Mafoso',        'Mohales Hoek, MH 400',           '+26657145678',  'lineo.mafoso@gmail.com'),
-('Mpho Sekoati',        'Qachas Nek, QN 500',             '+26658256789',  'mpho.sekoati@gmail.com'),
-('Teboho Ramoeli',      'Butha-Buthe Town, BB 600',         '+26659367890',  'teboho.r@gmail.com'),
-('Mamello Nkosi',       'Mafeteng Central, Mafeteng 700',   '+26657478901',  'mamello.nkosi@yahoo.com'),
-('Lerato Tau',          'Ha Thetsane, Maseru 105',          '+26658589012',  'lerato.tau@gmail.com'),
-('Nthabiseng Peete',    'Maputsoe, Leribe 310',             '+26659690123',  'nthabiseng.p@gmail.com'),
-('Lebohang Mofolo',     'Roma Campus Area, Maseru 180',     '+26657701234',  'lebohang.mofolo@lu.ac.ls');
-
-
--- ------------------------------------------------------------
--- 5.3 Vehicles
--- Lesotho plate format: e.g. A 123 GP (older) or LES-style.
--- Using a plausible local format: LS-XXXX-YY
--- ------------------------------------------------------------
-
-INSERT INTO Vehicle (registration_number, make, model, year, color, owner_id) VALUES
-('LS-1042-AA',  'Toyota',       'Corolla',          2018,  'Silver',      1),
-('LS-2387-BB',  'Toyota',       'Hilux',            2020,  'White',       2),
-('LS-3901-CC',  'Volkswagen',   'Polo Vivo',        2019,  'Black',       3),
-('LS-4455-DD',  'Ford',         'Ranger',           2021,  'Blue',        4),
-('LS-5512-EE',  'Toyota',       'Land Cruiser',     2017,  'Grey',        5),
-('LS-6623-FF',  'Hyundai',      'Tucson',           2022,  'White',       6),
-('LS-7734-GG',  'Nissan',       'NP200',            2016,  'Red',         7),
-('LS-8845-HH',  'Mazda',        'CX-5',             2023,  'Pearl White', 8),
-('LS-9956-II',  'Isuzu',        'D-Max',            2019,  'Orange',      9),
-('LS-0167-JJ',  'BMW',          '3 Series',         2020,  'Black',       10),
-('LS-1278-KK',  'Suzuki',       'Swift',            2021,  'Blue',        1),
-('LS-2389-LL',  'Mitsubishi',   'Pajero',           2015,  'Silver',      2),
-('LS-3490-MM',  'Toyota',       'Fortuner',         2022,  'Dark Grey',   3),
-('LS-4501-NN',  'Volkswagen',   'Amarok',           2018,  'White',       4),
-('LS-5612-OO',  'Kia',          'Sportage',         2023,  'Red',         5);
+UPDATE Customer SET user_id = 3 WHERE customer_id = 1;
+UPDATE Customer SET user_id = 4 WHERE customer_id = 2;
+UPDATE Customer SET user_id = 5 WHERE customer_id = 3;
+UPDATE Customer SET user_id = 6 WHERE customer_id = 4;
+UPDATE Customer SET user_id = 7 WHERE customer_id = 5;
+UPDATE Customer SET user_id = 8 WHERE customer_id = 6;
+UPDATE Customer SET user_id = 9 WHERE customer_id = 7;
+UPDATE Customer SET user_id = 10 WHERE customer_id = 8;
+UPDATE Customer SET user_id = NULL WHERE customer_id IN (9,10);  
 
 
--- ------------------------------------------------------------
--- 5.4 Service Records
--- ------------------------------------------------------------
-
-INSERT INTO ServiceRecord (vehicle_id, service_date, service_type, description, cost) VALUES
-(1,  '2024-01-15', 'Oil Change',           'Full synthetic oil change, filter replaced.',                          350.00),
-(1,  '2024-06-10', 'Brake Service',        'Front brake pads and rotors replaced.',                                1200.00),
-(2,  '2024-02-20', 'Scheduled Service',    '30 000 km service — oil, filters, spark plugs.',                       2800.00),
-(2,  '2024-08-05', 'Tyre Rotation',        'All four tyres rotated and balanced.',                                 450.00),
-(3,  '2023-11-30', 'Transmission Service', 'Transmission fluid flush and filter replacement.',                     1800.00),
-(3,  '2024-03-18', 'Electrical Repair',    'Alternator replaced; battery terminals cleaned.',                      2400.00),
-(4,  '2024-04-22', 'Suspension Work',      'Rear leaf springs and shock absorbers replaced.',                      3200.00),
-(5,  '2023-09-14', 'Engine Tune-Up',       'Spark plugs, air filter, fuel filter replaced.',                       1600.00),
-(5,  '2024-07-01', 'Cooling System',       'Radiator flushed, thermostat and hoses replaced.',                     2100.00),
-(6,  '2024-05-17', 'Oil Change',           'Semi-synthetic oil change with filter.',                               380.00),
-(7,  '2024-01-28', 'Brake Service',        'All four brake pads replaced. Rear drums resurfaced.',                 1500.00),
-(8,  '2024-03-05', 'Scheduled Service',    '15 000 km service — first major service completed.',                   1900.00),
-(9,  '2023-12-10', 'Clutch Replacement',   'Clutch plate, pressure plate, and release bearing replaced.',          4500.00),
-(10, '2024-06-25', 'AC Regas',             'Air conditioning recharged. Compressor belt replaced.',                900.00),
-(11, '2024-02-14', 'Wheel Alignment',      'Four-wheel alignment and balancing performed.',                        350.00),
-(12, '2024-09-03', 'Oil Change',           'Full oil change — high mileage synthetic blend.',                      420.00),
-(13, '2024-07-19', 'Scheduled Service',    '20 000 km service — comprehensive inspection passed.',                 2200.00),
-(14, '2023-10-22', 'Electrical Fault',     'Faulty wiring in dashboard cluster diagnosed and repaired.',           1750.00),
-(15, '2024-08-30', 'Tyre Replacement',     'Two front tyres replaced — Bridgestone Turanza T005.',                 2600.00),
-(1,  '2025-01-10', 'Annual Service',       '60 000 km service — timing belt and water pump replaced.',             5500.00),
-(3,  '2025-02-22', 'Oil Change',           'Routine oil and filter change.',                                       350.00),
-(6,  '2025-03-15', 'Brake Fluid',          'Brake fluid flushed and replaced.',                                    280.00);
-
-
--- ------------------------------------------------------------
--- 5.5 Customer Queries
--- ------------------------------------------------------------
-
-INSERT INTO CustomerQuery (customer_id, vehicle_id, query_date, query_text, response_text) VALUES
-(1,  1,  '2024-06-12', 'When is my next scheduled service due?',
-                        'Your next service is due at 70 000 km or January 2026, whichever comes first.'),
-(2,  2,  '2024-08-07', 'Can you confirm my brake service was completed?',
-                        'Yes, your rear brake pads were serviced on 05 August 2024.'),
-(3,  3,  '2024-04-01', 'My car makes a grinding noise when turning left. What could it be?',
-                        'This could be a worn CV joint. Please bring the vehicle in for inspection.'),
-(4,  4,  '2024-05-20', 'I want to know the full service history before I sell the vehicle.',
-                        'Your vehicle has 3 service records. We can print a full report for you.'),
-(5,  5,  '2024-09-15', 'Is the engine oil still good after 8 months?',
-                        'Depending on mileage — if you have done over 10 000 km, an oil change is advised.'),
-(6,  6,  '2024-06-03', 'Who do I contact about adding a tow bar?',
-                        'We can fit a tow bar. Please book an appointment at your nearest workshop.'),
-(7,  7,  '2024-02-10', 'My check engine light came on. Is it serious?',
-                        NULL),
-(8,  8,  '2024-04-18', 'Can I get a quote for replacing both front tyres?',
-                        'Front tyre replacement (Bridgestone) is estimated at M 2 600.00 for two.'),
-(9,  9,  '2024-01-05', 'The clutch feels stiff. Is that normal after replacement?',
-                        'Some stiffness is normal in the first 500 km after a new clutch. It will ease.'),
-(10, 10, '2024-07-30', 'Is the AC system under warranty after the regas?',
-                        'Yes, the regas service carries a 6-month warranty from the date of service.');
-
-
--- ------------------------------------------------------------
--- 5.6 Insurance Policies
--- ------------------------------------------------------------
-
-INSERT INTO InsurancePolicy (vehicle_id, insurance_company, policy_number, start_date, end_date, coverage_details) VALUES
-(1,  'Lesotho National Insurance',  'LNI-2024-10042',  '2024-01-01', '2025-12-31', 'Comprehensive — third party, theft, fire, accidental damage. Excess: M 2 000.'),
-(2,  'Metropolitan Lesotho',        'MET-2023-20387',  '2023-06-01', '2025-05-31', 'Comprehensive — all risks including roadside assist and car hire.'),
-(3,  'Old Mutual Lesotho',          'OML-2024-30901',  '2024-03-15', '2025-03-14', 'Third party only — liability cover up to M 500 000.'),
-(4,  'Lesotho National Insurance',  'LNI-2023-44551',  '2023-11-01', '2024-10-31', 'Comprehensive — expired. Renewal pending.'),
-(5,  'Continental Insurance',       'CON-2024-55120',  '2024-07-01', '2025-06-30', 'Comprehensive — includes off-road and flood damage cover.'),
-(6,  'Metropolitan Lesotho',        'MET-2024-66230',  '2024-01-15', '2026-01-14', 'Comprehensive — new vehicle plan, zero excess first claim.'),
-(7,  'Old Mutual Lesotho',          'OML-2022-77340',  '2022-08-01', '2024-07-31', 'Third party fire and theft — expired.'),
-(8,  'Lesotho National Insurance',  'LNI-2024-88450',  '2024-04-01', '2026-03-31', 'Comprehensive — includes windscreen and personal accident.'),
-(9,  'Continental Insurance',       'CON-2023-99560',  '2023-09-01', '2025-08-31', 'Comprehensive — commercial use endorsement included.'),
-(10, 'Metropolitan Lesotho',        'MET-2024-01670',  '2024-06-20', '2026-06-19', 'Comprehensive — premium plan with courtesy car allowance.'),
-(11, 'Lesotho National Insurance',  'LNI-2025-12780',  '2025-01-01', '2025-07-31', 'Third party only — budget policy, minimum legal cover.'),
-(12, 'Old Mutual Lesotho',          'OML-2024-23890',  '2024-05-10', '2025-05-09', 'Comprehensive — high mileage commercial vehicle plan.'),
-(13, 'Continental Insurance',       'CON-2024-34900',  '2024-08-01', '2026-07-31', 'Comprehensive — full cover, includes fleet management tools.'),
-(14, 'Metropolitan Lesotho',        'MET-2023-45010',  '2023-03-01', '2024-02-28', 'Third party fire and theft — expired.'),
-(15, 'Lesotho National Insurance',  'LNI-2025-56120',  '2025-02-01', '2026-01-31', 'Comprehensive — SUV plan with tracker device fitted.');
-
-
--- ------------------------------------------------------------
--- 5.7 Claims
--- ------------------------------------------------------------
-
-INSERT INTO Claim (policy_id, claim_date, claim_amount, status) VALUES
-(1,  '2024-03-10', 8500.00,   'APPROVED'),
-(2,  '2024-07-22', 15000.00,  'PENDING'),
-(3,  '2024-04-05', 3000.00,   'REJECTED'),
-(5,  '2024-08-14', 22000.00,  'APPROVED'),
-(6,  '2024-09-01', 5000.00,   'PENDING'),
-(8,  '2024-05-19', 1200.00,   'APPROVED'),
-(9,  '2023-12-30', 45000.00,  'APPROVED'),
-(10, '2024-07-11', 9800.00,   'PENDING'),
-(12, '2024-06-03', 3500.00,   'REJECTED'),
-(13, '2024-09-25', 11000.00,  'PENDING');
-
-
--- ------------------------------------------------------------
--- 5.8 Police Reports
--- ------------------------------------------------------------
-
-INSERT INTO PoliceReport (vehicle_id, report_date, report_type, description, officer_name) VALUES
-(4,  '2024-03-15', 'ACCIDENT',    'Rear-end collision on Main North Road, Maseru. Minor damage to bumper. Other vehicle fled the scene.',                           'Sgt. Mohlomi Ramakatane'),
-(7,  '2024-01-20', 'THEFT',       'Vehicle reported stolen from Ha Thetsane parking lot. Steering lock was broken. CCTV footage obtained.',                        'Const. Tlali Sehlabo'),
-(9,  '2024-05-06', 'ACCIDENT',    'Head-on collision near Maputsoe bridge. Driver sustained injuries. Vehicle towed to Leribe workshop.',                          'Const. Molefi Liphoto'),
-(5,  '2023-10-11', 'THEFT',       'Catalytic converter stolen while vehicle was parked overnight in Butha-Buthe.',                                                 'Sgt. Mohlomi Ramakatane'),
-(12, '2024-02-28', 'ACCIDENT',    'Side-swipe incident in Teyateyaneng roundabout. Disputed fault. Both parties have insurance.',                                  'Const. Tlali Sehlabo'),
-(3,  '2024-06-30', 'INSPECTION',  'Routine road-block inspection. Vehicle passed all checks. Licence disc valid.',                                                 'Const. Molefi Liphoto'),
-(14, '2023-12-05', 'THEFT',       'Vehicle was carjacked at gunpoint on Mountain Road, Maseru. Suspects unknown. Case referred to CID.',                          'Sgt. Mohlomi Ramakatane'),
-(1,  '2024-08-18', 'ACCIDENT',    'Minor fender bender in Maseru Mall parking lot. No injuries. Driver exchanged details with third party.',                      'Const. Tlali Sehlabo'),
-(10, '2024-04-09', 'INSPECTION',  'Vehicle flagged for expired licence disc during road-block. Driver warned and issued compliance notice.',                       'Const. Molefi Liphoto'),
-(13, '2024-09-12', 'OTHER',       'Vehicle used in suspected smuggling operation near Ficksburg border post. Referred to border control unit.',                   'Sgt. Mohlomi Ramakatane');
-
-
--- ------------------------------------------------------------
--- 5.9 Violations
--- ------------------------------------------------------------
-
-INSERT INTO Violation (vehicle_id, violation_date, violation_type, fine_amount, status) VALUES
-(1,  '2024-02-10', 'Speeding — 30 km/h over limit',     800.00,   'PAID'),
-(3,  '2024-04-15', 'Expired licence disc',               500.00,   'UNPAID'),
-(5,  '2023-11-05', 'Failure to stop at stop sign',       350.00,   'PAID'),
-(7,  '2024-01-22', 'No valid roadworthy certificate',    1200.00,  'UNPAID'),
-(9,  '2024-05-08', 'Overloaded vehicle',                 2000.00,  'UNPAID'),
-(10, '2024-04-10', 'Expired licence disc',               500.00,   'UNPAID'),
-(12, '2024-03-01', 'Illegal parking — yellow lines',     250.00,   'PAID'),
-(4,  '2024-03-16', 'Failure to produce insurance disc',  600.00,   'UNPAID'),
-(14, '2023-12-06', 'Driving without a licence',          3000.00,  'UNPAID'),
-(2,  '2024-07-14', 'Using mobile phone while driving',   700.00,   'PAID'),
-(6,  '2024-06-25', 'Speeding — 15 km/h over limit',     500.00,   'PAID'),
-(8,  '2024-08-20', 'Failure to wear seatbelt',          200.00,   'UNPAID'),
-(11, '2025-01-15', 'Expired licence disc',               500.00,   'UNPAID'),
-(13, '2024-09-13', 'Overloaded vehicle',                 2000.00,  'UNPAID'),
-(15, '2025-02-05', 'Using mobile phone while driving',   700.00,   'UNPAID');
-
-
--- ============================================================
--- VERIFICATION QUERIES
--- Run these after setup to confirm everything loaded correctly
--- ============================================================
-
--- Count rows per table
-SELECT 'Users'          AS tbl, COUNT(*) FROM Users
-UNION ALL
-SELECT 'Customer',             COUNT(*) FROM Customer
-UNION ALL
-SELECT 'Vehicle',              COUNT(*) FROM Vehicle
-UNION ALL
-SELECT 'ServiceRecord',        COUNT(*) FROM ServiceRecord
-UNION ALL
-SELECT 'CustomerQuery',        COUNT(*) FROM CustomerQuery
-UNION ALL
-SELECT 'InsurancePolicy',      COUNT(*) FROM InsurancePolicy
-UNION ALL
-SELECT 'Claim',                COUNT(*) FROM Claim
-UNION ALL
-SELECT 'PoliceReport',         COUNT(*) FROM PoliceReport
-UNION ALL
-SELECT 'Violation',            COUNT(*) FROM Violation;
-
--- Preview views
-SELECT * FROM vehicle_full_details      LIMIT 5;
-SELECT * FROM unpaid_violations         LIMIT 5;
-SELECT * FROM vehicle_service_summary   LIMIT 5;
-SELECT * FROM expiring_policies;
-
--- Test a stored procedure call
-CALL register_vehicle('LS-9999-ZZ', 'Honda', 'Fit', 2022, 'Green', 1);
-CALL add_service_record(1, CURRENT_DATE, 'Oil Change', 'Test record from procedure.', 350.00);
+INSERT INTO Vehicle (registration_number, make, model, year, color, owner_id, fuel_type, transmission, mileage, status) VALUES
+('LS-1042-AA',  'Toyota',       'Corolla',          2018,  'Silver',      1, 'PETROL', 'MANUAL',    145000, 'ACTIVE'),
+('LS-2387-BB',  'Toyota',       'Hilux',            2020,  'White',       2, 'DIESEL', 'MANUAL',    89000,  'ACTIVE'),
+('LS-3901-CC',  'Volkswagen',   'Polo Vivo',        2019,  'Black',       3, 'PETROL', 'MANUAL',    112000, 'ACTIVE'),
+('LS-4455-DD',  'Ford',         'Ranger',           2021,  'Blue',        4, 'DIESEL', 'AUTOMATIC', 67000,  'ACTIVE'),
+('LS-5512-EE',  'Toyota',       'Land Cruiser',     2017,  'Grey',        5, 'DIESEL', 'MANUAL',    198000, 'ACTIVE'),
+('LS-6623-FF',  'Hyundai',      'Tucson',           2022,  'White',       6, 'PETROL', 'AUTOMATIC', 34000,  'ACTIVE'),
+('LS-7734-GG',  'Nissan',       'NP200',            2016,  'Red',         7, 'PETROL', 'MANUAL',    156000, 'ACTIVE'),
+('LS-8845-HH',  'Mazda',        'CX-5',             2023,  'Pearl White', 8, 'PETROL', 'AUTOMATIC', 12000,  'ACTIVE'),
+('LS-9956-II',  'Isuzu',        'D-Max',            2019,  'Orange',      9, 'DIESEL', 'MANUAL',    123000, 'ACTIVE'),
+('LS-0167-JJ',  'BMW',          '3 Series',         2020,  'Black',       10, 'PETROL', 'AUTOMATIC', 78000, 'ACTIVE'),
+('LS-1278-KK',  'Suzuki',       'Swift',            2021,  'Blue',        1, 'PETROL', 'MANUAL',    45000,  'ACTIVE'),
+('LS-2389-LL',  'Mitsubishi',   'Pajero',           2015,  'Silver',      2, 'DIESEL', 'AUTOMATIC', 234000, 'ACTIVE'),
+('LS-3490-MM',  'Toyota',       'Fortuner',         2022,  'Dark Grey',   3, 'DIESEL', 'AUTOMATIC', 56000,  'ACTIVE'),
+('LS-4501-NN',  'Volkswagen',   'Amarok',           2018,  'White',       4, 'DIESEL', 'AUTOMATIC', 145000, 'ACTIVE'),
+('LS-5612-OO',  'Kia',          'Sportage',         2023,  'Red',         5, 'PETROL', 'AUTOMATIC', 8900,   'ACTIVE');
